@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
         locale: 'fr-FR', // For number and currency formatting
         toastDisplayTime: 3000, // milliseconds
         selectors: {
+            // Cibler via l'attribut est plus robuste si plusieurs boutons ouvrent le modal
             cartIcon: '[data-bs-target="#cartModal"]',
-            cartCountBadge: '#cart-count-badge',
+            cartCountBadge: '#cart-count-badge', // ID utilisé sur les deux badges (mobile/desktop)
             cartModal: '#cartModal',
             cartItemsContainer: '#cart-items-container',
             cartEmptyMsg: '#cart-empty-msg',
@@ -66,7 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element Selection ---
     // Encapsulate selections for clarity and potential error handling
     const dom = {
-        cartIcon: document.querySelector(config.selectors.cartIcon),
+        // Note: cartIcon now selects based on attribute, potentially multiple elements.
+        // If needed, use querySelectorAll and iterate if actions depend on ALL cart icons.
+        // For the badge, we'll stick to getElementById for now, assuming it finds the visible one.
+        cartIcon: document.querySelector(config.selectors.cartIcon), // Selects the first match
         cartCountBadge: document.getElementById(config.selectors.cartCountBadge.substring(1)), // Remove '#' for getElementById
         cartModalElement: document.getElementById(config.selectors.cartModal.substring(1)),
         cartItemsContainer: document.getElementById(config.selectors.cartItemsContainer.substring(1)),
@@ -81,9 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!dom.cartItemsContainer || !dom.cartTotalPriceEl || !dom.cartEmptyMsg || !dom.clearCartBtn || !dom.whatsappOrderBtn || !dom.cartModalElement) {
         console.error("FATAL: Essential cart DOM elements are missing. Cart functionality will be disabled.");
         // Optionally disable cart features visually if elements are missing
-        if (dom.cartIcon) dom.cartIcon.style.display = 'none';
+        if (dom.cartIcon) {
+            // If multiple icons exist, hide all
+            document.querySelectorAll(config.selectors.cartIcon).forEach(icon => icon.style.display = 'none');
+        }
         return; // Stop script execution if core elements are missing
     }
+    // Check specifically for the badge, as it's crucial for visual feedback
+     if (!dom.cartCountBadge) {
+         console.warn("Cart count badge element not found. Badge updates will not work.");
+         // Don't return, cart can still function, just without the visual count
+     }
+
 
     // --- State ---
     let cart = []; // Initialize cart state
@@ -333,20 +346,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Updates the cart count badge visibility and text content.
+     * Targets the element by ID, assuming only one is effectively visible/relevant at a time.
      * @param {number} totalItems - The total number of individual items in the cart.
      */
     const updateCartBadge = (totalItems) => {
-        if (dom.cartCountBadge) {
+        // Re-select the badge element each time in case the DOM changes (mobile/desktop swap)
+        // Using getElementById should be fine as IDs must be unique per document,
+        // even if one element with the ID is hidden.
+        const badgeElement = document.getElementById(config.selectors.cartCountBadge.substring(1));
+
+        if (badgeElement) {
             // Ensure totalItems is a non-negative integer
             const displayCount = Math.max(0, Math.floor(totalItems));
 
             if (displayCount > 0) {
-                dom.cartCountBadge.textContent = displayCount;
-                dom.cartCountBadge.style.display = 'flex'; // Or 'inline-block' depending on styling
+                badgeElement.textContent = displayCount;
+                badgeElement.style.display = 'flex'; // Use 'flex' as per CSS style
             } else {
-                dom.cartCountBadge.textContent = '0'; // Set to 0 even when hidden for consistency
-                dom.cartCountBadge.style.display = 'none';
+                badgeElement.textContent = '0'; // Set to 0 even when hidden for consistency
+                badgeElement.style.display = 'none';
             }
+        } else {
+             // Log warning if the badge wasn't found during an update attempt
+             console.warn(`updateCartBadge: Badge element with ID '${config.selectors.cartCountBadge}' not found.`);
         }
     };
 
@@ -364,27 +386,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const itemTotalPrice = item.price * item.quantity;
         // Basic escaping for name and alt text (prevent XSS)
-        const safeName = item.name.replace(/</g, "<").replace(/>/g, ">");
+         const safeName = item.name.replace(/</g, "<").replace(/>/g, ">"); // More standard escaping
         // Assuming img URLs are safe, but could add validation/sanitization if needed
         const safeImg = item.img;
 
+        // Using template literals for cleaner HTML structure
         return `
             <div class="${config.htmlClasses.cartItem} d-flex flex-column flex-md-row align-items-md-center mb-3 border-bottom pb-3" data-item-id="${item.id}">
-                <img src="${safeImg}" alt="${safeName}" width="80" class="img-fluid rounded me-md-3 mb-2 mb-md-0" style="max-height: 80px; object-fit: contain;" loading="lazy">
-                <div class="flex-grow-1 mb-2 mb-md-0">
+                <img src="${safeImg}" alt="${safeName}" class="img-fluid rounded me-md-3 mb-2 mb-md-0" style="width: 80px; height: 80px; object-fit: contain;" loading="lazy">
+
+                <div class="flex-grow-1 mb-2 mb-md-0 text-center text-md-start">
                     <h6 class="mb-1 cart-item-name">${safeName}</h6>
                     <small class="text-muted cart-item-price">${formatCurrency(item.price)} unitaire</small>
                 </div>
+
                 <div class="d-flex align-items-center justify-content-center mx-md-3 mb-2 mb-md-0" style="flex-shrink: 0;">
                     <button class="btn btn-sm btn-outline-secondary ${config.selectors.quantityDecreaseBtnClass.substring(1)}" data-id="${item.id}" aria-label="Diminuer quantité">-</button>
                     <input type="number" class="form-control form-control-sm ${config.selectors.quantityInputClass.substring(1)} mx-1 text-center" value="${item.quantity}" min="1" max="${config.maxQuantityPerItem}" data-id="${item.id}" aria-label="Quantité" style="width: 60px;">
                     <button class="btn btn-sm btn-outline-secondary ${config.selectors.quantityIncreaseBtnClass.substring(1)}" data-id="${item.id}" aria-label="Augmenter quantité">+</button>
                 </div>
-                <div class="text-md-end me-md-3 mb-2 mb-md-0" style="min-width: 100px; flex-shrink: 0;">
+
+                <div class="text-center text-md-end me-md-3 mb-2 mb-md-0" style="min-width: 100px; flex-shrink: 0;">
                     <span class="fw-bold cart-item-total">${formatCurrency(itemTotalPrice)}</span>
                 </div>
+
                 <button class="btn btn-sm btn-outline-danger ${config.selectors.removeFromCartBtnClass.substring(1)} align-self-center align-self-md-auto" data-id="${item.id}" title="Supprimer ${safeName}">
-                    <i class="bi ${config.icons.remove}"></i> <span class="d-inline d-md-none">Supprimer</span>
+                    <i class="bi ${config.icons.remove} d-none d-md-inline"></i> <span class="d-inline d-md-none">Supprimer</span><span class="d-none d-md-inline"></span>
                 </button>
             </div>
         `;
@@ -438,13 +465,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.cartItemsContainer.innerHTML = ''; // Clear previous items
 
         if (cart.length === 0) {
-            dom.cartEmptyMsg.style.display = 'block';
+            dom.cartEmptyMsg.style.display = 'block'; // Show empty message
+            dom.cartItemsContainer.style.display = 'none'; // Hide the container itself
             dom.cartTotalPriceEl.textContent = formatCurrency(0);
             updateWhatsAppLink(0); // Ensure WhatsApp button is disabled
-            // Ensure clear cart button is also disabled visually if needed
+            // Ensure clear cart button is also disabled visually
             if(dom.clearCartBtn) dom.clearCartBtn.classList.add(config.htmlClasses.disabled);
         } else {
-            dom.cartEmptyMsg.style.display = 'none';
+            dom.cartEmptyMsg.style.display = 'none'; // Hide empty message
+            dom.cartItemsContainer.style.display = 'block'; // Show the container
             let fragment = document.createDocumentFragment(); // Use fragment for performance
             let currentTotalPrice = 0;
 
@@ -454,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const itemHTML = createCartItemHTML(item);
                     if (itemHTML) { // Only append if HTML was successfully created
                         const tempDiv = document.createElement('div');
+                        // innerHTML on a div is safe for inserting well-formed elements
                         tempDiv.innerHTML = itemHTML.trim();
                         if (tempDiv.firstChild) {
                            fragment.appendChild(tempDiv.firstChild);
@@ -464,10 +494,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                  } else {
                       console.error(`Invalid item detected during rendering: ${JSON.stringify(item)}. Skipping.`);
-                      // Optionally try to remove this invalid item from the cart state
+                      // Consider removing invalid item from cart state here, carefully
                       // const invalidItemIndex = findCartItemIndex(item?.id);
-                      // if (invalidItemIndex > -1) cart.splice(invalidItemIndex, 1);
-                      // Need to be careful here to avoid infinite loops if updateCartStateAndUI is called
+                      // if (invalidItemIndex > -1) {
+                      //     cart.splice(invalidItemIndex, 1);
+                      //     // Potentially call saveCartToStorage() or trigger updateCartStateAndUI()
+                      //     // but be wary of causing infinite loops if called from within rendering.
+                      // }
                  }
             });
 
@@ -486,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const updateCartUI = () => {
         const { totalItems, totalPrice } = calculateCartTotals(); // Calculate totals once
-        updateCartBadge(totalItems);
+        updateCartBadge(totalItems); // Update the badge count (targets the visible one by ID)
 
         // Update WhatsApp button state regardless of modal visibility
         updateWhatsAppLink(totalPrice);
@@ -505,9 +538,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Refresh modal content ONLY if it's currently shown
         // Use Bootstrap's check for modal visibility for robustness
         const modalInstance = bootstrap.Modal.getInstance(dom.cartModalElement);
-        if (modalInstance && dom.cartModalElement.classList.contains(config.htmlClasses.modalShow)) {
-        // Or check: if (modalInstance._isShown) { // Check internal BS state if reliable
-            displayCart();
+        // Check if the modal element exists AND has the 'show' class
+        if (dom.cartModalElement && dom.cartModalElement.classList.contains(config.htmlClasses.modalShow)) {
+             displayCart();
         }
     };
 
@@ -526,9 +559,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) {
             container = document.createElement('div');
             container.id = config.selectors.toastContainerId;
+            // Ensure classes are applied correctly
             container.className = `toast-container ${config.htmlClasses.toastContainerPosition}`;
-            // Using a high z-index, ensure it's above modals (Bootstrap modal z-index is ~1050-1060)
-            container.style.zIndex = '1100';
+            container.style.zIndex = '1100'; // Ensure z-index is high
             dom.body.appendChild(container);
         }
         return container;
@@ -720,12 +753,15 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const handleNumberInputWheel = (event) => {
         // Check if the target is a number input inside the cart items container
-        const input = event.target.closest(`${config.selectors.cartItemsContainer} input[type="number"]`);
+        // More specific selector to ensure it's within the cart modal body
+        const input = event.target.closest(`#${config.selectors.cartItemsContainer.substring(1)} input[type="number"]`);
+
         if (input && document.activeElement === input) {
             // Prevent default scroll-to-change-value behavior
             event.preventDefault();
 
             // Blur the input to allow page scrolling again
+            // This might be slightly jarring, consider alternative UX if needed.
             input.blur();
         }
     };
@@ -764,12 +800,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Show/Refresh cart when modal is shown
         if (dom.cartModalElement) {
+            // Use 'show.bs.modal' to ensure cart is displayed *before* the modal fully appears
             dom.cartModalElement.addEventListener('show.bs.modal', displayCart);
             // Optional: Add listener for 'shown.bs.modal' if focus management inside modal is needed
             // dom.cartModalElement.addEventListener('shown.bs.modal', () => {
-            //      // Example: focus first interactive element
-            //      const firstInput = dom.cartModalElement.querySelector('input[type="number"], button:not([disabled])');
-            //      if (firstInput) firstInput.focus();
+            //      // Example: focus first interactive element in the modal body
+            //      const firstInteractive = dom.cartModalElement.querySelector(
+            //          '.modal-body button:not([disabled]), .modal-body input:not([disabled])'
+            //      );
+            //      if (firstInteractive) firstInteractive.focus();
             // });
         } else {
              console.warn("Cart modal element not found. Listener not attached.");
@@ -797,18 +836,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const initializeCart = () => {
         cart = loadCartFromStorage(); // Load cart from storage first
         initializeEventListeners();    // Then attach listeners
-        updateCartUI();              // Then update the UI based on loaded state
+        updateCartUI();              // Then update the UI based on loaded state (Important: Do this AFTER listeners)
         console.log(`Trusttec Cart Initialized (v2.1.0). ${cart.length} item(s) loaded.`);
     };
 
     // --- Start the application ---
     // Ensure Bootstrap's JS is loaded before initializing
-    if (typeof bootstrap !== 'undefined') {
+    if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined' && typeof bootstrap.Toast !== 'undefined') {
         initializeCart();
     } else {
-        console.error("FATAL: Bootstrap 5 JavaScript not found. Cart functionality depends on it.");
+        console.error("FATAL: Bootstrap 5 JavaScript (Modal, Toast) not found or not fully loaded. Cart functionality depends on it.");
         // Optionally display a user-facing error message
-        if(dom.cartIcon) dom.cartIcon.style.display = 'none'; // Hide cart icon if BS is missing
+        // Hide all potential cart icons if Bootstrap is missing
+         document.querySelectorAll(config.selectors.cartIcon).forEach(icon => {
+             if(icon) icon.style.display = 'none';
+         });
     }
 
 }); // End DOMContentLoaded
