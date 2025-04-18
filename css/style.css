@@ -21,13 +21,28 @@
     box-sizing: border-box; /* Assure un modèle de boîte cohérent */
 }
 
+html {
+    position: relative;
+    min-height: 100%;
+}
+
 body {
     font-family: var(--body-font);
     color: #444;
     /* Ajoute un peu d'espace en haut pour compenser la navbar fixe SI nécessaire */
     /* padding-top: 70px; */ /* Généralement géré par sticky-top */
     line-height: 1.6; /* Améliore la lisibilité générale */
+     /* Ajoute un padding en bas égal (ou plus grand) que la hauteur du footer pour éviter chevauchement */
+    /* La hauteur exacte du footer peut varier, ajustez si besoin */
+    /* padding-bottom: 300px; */ /* Exemple - à ajuster ou gérer avec flexbox */
+    display: flex; /* Utiliser Flexbox pour pousser le footer en bas */
+    flex-direction: column; /* Contenu principal et footer en colonne */
 }
+
+main {
+    flex: 1; /* Le contenu principal prend tout l'espace disponible */
+}
+
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading-font);
@@ -88,11 +103,12 @@ select:focus:not(:focus-visible) {
 }
 
 .navbar .navbar-brand img {
-    height: 60px;         /* Réduit légèrement pour mieux s'intégrer */
-    width: 60px;          /* Largeur égale pour cercle */
-    border-radius: 50%;   /* Cercle */
-    object-fit: cover;    /* Couvre la zone */
-    border: 2px solid var(--light-color); /* Légère bordure optionnelle */
+    /* Styles originaux conservés pour le logo */
+     height: 50px;
+     width: 50px;
+     border-radius: 50%;
+     object-fit: cover;
+     /* border: 2px solid var(--light-color); */ /* Bordure retirée ou ajustée */
 }
 
 .navbar .nav-link {
@@ -115,6 +131,7 @@ select:focus:not(:focus-visible) {
 }
 
 /* --- Badge Panier sur Navbar --- */
+/* Ce style s'applique aux DEUX boutons panier via l'ID du badge */
 .navbar .btn-outline-primary .badge#cart-count-badge {
     font-size: 0.7em;
     padding: 0.3em 0.6em;
@@ -125,15 +142,18 @@ select:focus:not(:focus-visible) {
     justify-content: center;
     line-height: 1;
     position: absolute; /* Positionnement plus précis */
-    top: -5px;
-    right: -10px;
+    top: -5px;          /* Ajustez si besoin */
+    left: 100%;         /* Commence à la droite du bouton */
+    transform: translate(-50%, -50%); /* Centre le badge par rapport au coin sup droit */
     border-radius: 50%; /* Rond */
-    min-width: 20px; /* Taille minimale */
-    min-height: 20px; /* Taille minimale */
+    min-width: 20px;    /* Taille minimale */
+    min-height: 20px;   /* Taille minimale */
     background-color: var(--danger-color); /* Rouge pour attirer l'attention */
     color: white;
     border: 1px solid white; /* Contraste */
 }
+
+
 /* Cache le badge quand il a 0 et est caché par JS */
 .navbar .btn-outline-primary .badge#cart-count-badge:empty,
 .navbar .btn-outline-primary .badge#cart-count-badge[style*="display: none"] {
@@ -150,7 +170,7 @@ select:focus:not(:focus-visible) {
 # Hero Section (Accueil)
 --------------------------------------------------------------*/
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Images/13978.jpg') center center no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../images/13978.jpg') center center no-repeat;
     background-size: cover;
     min-height: 60vh; /* Hauteur minimale */
     padding: 80px 0; /* Plus de padding */
@@ -212,7 +232,7 @@ select:focus:not(:focus-visible) {
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), /* Overlay sombre */
-                url('../Images/2148794530.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+                url('../images/2148794530.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
@@ -220,7 +240,7 @@ select:focus:not(:focus-visible) {
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), /* Overlay (peut être ajusté) */
-                url('../Images/12927.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+                url('../images/12927.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
@@ -293,10 +313,11 @@ select:focus:not(:focus-visible) {
 }
 
 .product-card .product-image {
-    height: 220px;
-    object-fit: contain; /* Voir le produit entier */
-    padding: 15px; /* Plus d'espace */
-    background-color: #fff; /* Fond blanc */
+    height: 200px;         /* Conserve la hauteur fixe pour l'alignement */
+    object-fit: cover;     /* Fait remplir l'image (peut rogner) */
+    width: 100%;           /* Assure que l'image prend toute la largeur */
+    /* padding: 0; */      /* Optionnel: retire le padding pour un remplissage bord à bord */
+    background-color: #eee; /* Fond gris léger si l'image charge lentement */
     border-bottom: 1px solid #eee; /* Séparateur */
 }
 
@@ -635,7 +656,7 @@ select:focus:not(:focus-visible) {
 }
 .contact-info-card .bi {
     margin-right: 0.5rem;
-    color: var(--primary-color);
+    
 }
 
 .steps-container .d-flex { /* Les étapes de commande */
@@ -678,6 +699,8 @@ footer {
     padding-top: 3rem;
     padding-bottom: 1rem;
     font-size: 0.9rem;
+    /* Retire margin-top: auto; car géré par flexbox sur body/main */
+    /* margin-top: auto; */
 }
 
 footer h5 {
