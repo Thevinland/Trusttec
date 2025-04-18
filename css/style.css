@@ -160,7 +160,7 @@ Barre de Navigation (Navbar)
 Hero Section (Accueil)
 --------------------------------------------------------------*/
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Images/13978.jpg') center center no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Images/13978.webp') center center no-repeat;
     background-size: cover;
     min-height: 60vh; /* Hauteur minimale */
     padding: 80px 0; /* Plus de padding */
@@ -218,7 +218,7 @@ Sections Titre de Page avec Image de Fond (Produits, Contact)
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), /* Overlay sombre */
-    url('../Images/2148794530.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+    url('../Images/2148794530.webp') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
@@ -226,7 +226,7 @@ Sections Titre de Page avec Image de Fond (Produits, Contact)
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), /* Overlay (peut être ajusté) */
-    url('../Images/12927.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+    url('../Images/12927.webp') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
