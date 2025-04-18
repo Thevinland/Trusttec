@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------
-# Variables personnalisées (Optionnel)
+Variables personnalisées (Optionnel)
 --------------------------------------------------------------*/
 :root {
     --primary-color: #0d6efd; /* Couleur principale de Bootstrap */
@@ -15,34 +15,30 @@
 }
 
 /*--------------------------------------------------------------
-# Styles Généraux & Reset Léger
+Styles Généraux & Reset Léger
 --------------------------------------------------------------*/
-*, *::before, *::after {
+*, *::before, ::after {
     box-sizing: border-box; /* Assure un modèle de boîte cohérent */
 }
 
 html {
     position: relative;
     min-height: 100%;
+    scroll-behavior: smooth; /* Pour le défilement doux */
 }
 
 body {
     font-family: var(--body-font);
     color: #444;
-    /* Ajoute un peu d'espace en haut pour compenser la navbar fixe SI nécessaire */
-    /* padding-top: 70px; */ /* Généralement géré par sticky-top */
     line-height: 1.6; /* Améliore la lisibilité générale */
-     /* Ajoute un padding en bas égal (ou plus grand) que la hauteur du footer pour éviter chevauchement */
-    /* La hauteur exacte du footer peut varier, ajustez si besoin */
-    /* padding-bottom: 300px; */ /* Exemple - à ajuster ou gérer avec flexbox */
     display: flex; /* Utiliser Flexbox pour pousser le footer en bas */
     flex-direction: column; /* Contenu principal et footer en colonne */
+    min-height: 100vh; /* Assure que le body prend au moins toute la hauteur */
 }
 
 main {
     flex: 1; /* Le contenu principal prend tout l'espace disponible */
 }
-
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading-font);
@@ -61,13 +57,8 @@ a:hover {
     text-decoration: none; /* Éviter le soulignement par défaut au survol */
 }
 
-/* Pour le défilement doux lors des clics sur les ancres */
-html {
-    scroll-behavior: smooth;
-}
-
 /*--------------------------------------------------------------
-# Accessibilité : Styles de Focus Visibles
+Accessibilité : Styles de Focus Visibles
 --------------------------------------------------------------*/
 /* Applique un style de focus clair UNIQUEMENT lors de la navigation au clavier */
 a:focus-visible,
@@ -92,9 +83,8 @@ select:focus:not(:focus-visible) {
 }
 */
 
-
 /*--------------------------------------------------------------
-# Barre de Navigation (Navbar)
+Barre de Navigation (Navbar)
 --------------------------------------------------------------*/
 .navbar {
     transition: box-shadow 0.3s ease; /* Transition douce pour l'ombre */
@@ -104,11 +94,11 @@ select:focus:not(:focus-visible) {
 
 .navbar .navbar-brand img {
     /* Styles originaux conservés pour le logo */
-     height: 50px;
-     width: 50px;
-     border-radius: 50%;
-     object-fit: cover;
-     /* border: 2px solid var(--light-color); */ /* Bordure retirée ou ajustée */
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    /* border: 2px solid var(--light-color); /* Bordure retirée ou ajustée */
 }
 
 .navbar .nav-link {
@@ -120,8 +110,8 @@ select:focus:not(:focus-visible) {
 
 .navbar .nav-link:hover,
 .navbar .nav-item.show .nav-link { /* Pour les dropdowns ouverts */
-     color: #000;
-     background-color: rgba(0,0,0,0.03);
+    color: #000;
+    background-color: rgba(0,0,0,0.03);
 }
 
 .navbar .nav-link.active {
@@ -131,8 +121,8 @@ select:focus:not(:focus-visible) {
 }
 
 /* --- Badge Panier sur Navbar --- */
-/* Ce style s'applique aux DEUX boutons panier via l'ID du badge */
-.navbar .btn-outline-primary .badge#cart-count-badge {
+/* Cible la classe .cart-count-badge maintenant */
+.navbar .btn-outline-primary .badge.cart-count-badge { /* MODIFIÉ ICI: Utilise la classe */
     font-size: 0.7em;
     padding: 0.3em 0.6em;
     /* display: none; -> géré par JS */
@@ -153,10 +143,10 @@ select:focus:not(:focus-visible) {
     border: 1px solid white; /* Contraste */
 }
 
-
 /* Cache le badge quand il a 0 et est caché par JS */
-.navbar .btn-outline-primary .badge#cart-count-badge:empty,
-.navbar .btn-outline-primary .badge#cart-count-badge[style*="display: none"] {
+/* MODIFIÉ ICI: Utilise la classe et cible le style 'display: none' */
+.navbar .btn-outline-primary .badge.cart-count-badge:empty,
+.navbar .btn-outline-primary .badge.cart-count-badge[style*="display: none"] {
     display: none !important;
 }
 
@@ -167,10 +157,10 @@ select:focus:not(:focus-visible) {
 }
 
 /*--------------------------------------------------------------
-# Hero Section (Accueil)
+Hero Section (Accueil)
 --------------------------------------------------------------*/
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../images/13978.jpg') center center no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Images/13978.jpg') center center no-repeat;
     background-size: cover;
     min-height: 60vh; /* Hauteur minimale */
     padding: 80px 0; /* Plus de padding */
@@ -194,7 +184,7 @@ select:focus:not(:focus-visible) {
 }
 
 /*--------------------------------------------------------------
-# Sections Titre de Page avec Image de Fond (Produits, Contact)
+Sections Titre de Page avec Image de Fond (Produits, Contact)
 --------------------------------------------------------------*/
 .page-title-section-bg {
     /* --- Propriétés de base pour les sections avec image de fond --- */
@@ -205,8 +195,6 @@ select:focus:not(:focus-visible) {
     color: var(--light-color);      /* Texte clair par défaut sur fond */
     padding-top: 5rem;              /* Augmenter le padding pour plus d'espace visuel */
     padding-bottom: 5rem;           /* Augmenter le padding pour plus d'espace visuel */
-    /* Retirer les paddings de py-4/py-md-5 s'ils sont toujours sur l'élément HTML */
-    /* Le padding est géré ici maintenant */
 }
 
 /* Styles pour le contenu textuel dans ces sections */
@@ -225,14 +213,12 @@ select:focus:not(:focus-visible) {
     opacity: 0.9; /* Légère transparence pour le sous-titre */
 }
 
-
 /* --- Classes spécifiques pour chaque section --- */
-
 .product-title-section {
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), /* Overlay sombre */
-                url('../images/2148794530.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+    url('../Images/2148794530.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
@@ -240,7 +226,7 @@ select:focus:not(:focus-visible) {
     /* Combine l'overlay et l'image */
     /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
     background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), /* Overlay (peut être ajusté) */
-                url('../images/12927.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
+    url('../Images/12927.jpg') center center no-repeat; /* VOTRE IMAGE ICI */
     background-size: cover; /* Assure que l'image couvre */
 }
 
@@ -259,7 +245,7 @@ select:focus:not(:focus-visible) {
 }
 
 /*--------------------------------------------------------------
-# Cartes Catégorie (Accueil)
+Cartes Catégorie (Accueil)
 --------------------------------------------------------------*/
 .category-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -293,9 +279,8 @@ select:focus:not(:focus-visible) {
     margin-top: auto; /* Pousse le bouton vers le bas */
 }
 
-
 /*--------------------------------------------------------------
-# Cartes Produit (Page Produits)
+Cartes Produit (Page Produits)
 --------------------------------------------------------------*/
 .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -316,7 +301,6 @@ select:focus:not(:focus-visible) {
     height: 200px;         /* Conserve la hauteur fixe pour l'alignement */
     object-fit: cover;     /* Fait remplir l'image (peut rogner) */
     width: 100%;           /* Assure que l'image prend toute la largeur */
-    /* padding: 0; */      /* Optionnel: retire le padding pour un remplissage bord à bord */
     background-color: #eee; /* Fond gris léger si l'image charge lentement */
     border-bottom: 1px solid #eee; /* Séparateur */
 }
@@ -356,33 +340,32 @@ select:focus:not(:focus-visible) {
     transform: scale(0.98); /* Léger effet d'appui */
 }
 
-
 /* --- Responsive pour les cartes produit --- */
 @media (max-width: 575.98px) { /* xs */
-     .product-card .product-image {
+    .product-card .product-image {
         height: 180px;
     }
-     .product-card .card-title {
+    .product-card .card-title {
         font-size: 0.9rem;
         min-height: auto; /* Laisser la hauteur s'adapter */
     }
-     .product-card .card-text.small {
-         font-size: 0.8rem;
-         min-height: auto;
-         margin-bottom: 0.75rem;
+    .product-card .card-text.small {
+        font-size: 0.8rem;
+        min-height: auto;
+        margin-bottom: 0.75rem;
     }
     .product-card .fs-5 { /* Taille du prix */
         font-size: 1.1rem !important;
         margin-bottom: 0.75rem;
     }
-     .product-card .btn {
-         font-size: 0.85rem;
-         padding: 0.5rem 0.8rem;
-     }
+    .product-card .btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+    }
 }
 
 /*--------------------------------------------------------------
-# Modal Panier
+Modal Panier
 --------------------------------------------------------------*/
 #cartModal .modal-dialog {
     max-width: 800px; /* lg */
@@ -456,7 +439,6 @@ select:focus:not(:focus-visible) {
 
 /* --- Contrôles Quantité dans le panier --- */
 
-
 .cart-item .quantity-input {
     text-align: center;
     border: 1px solid #ced4da; /* Assurer bordure visible */
@@ -474,7 +456,6 @@ select:focus:not(:focus-visible) {
     box-shadow: 0 0 0 0.25rem rgba(var(--danger-rgb), 0.25); /* Feedback visuel */
 }
 
-
 .cart-item .quantity-decrease,
 .cart-item .quantity-increase {
     padding: 0.3rem 0.6rem; /* Taille boutons +/- */
@@ -484,7 +465,7 @@ select:focus:not(:focus-visible) {
 }
 .cart-item .quantity-decrease:hover,
 .cart-item .quantity-increase:hover {
-     background-color: #e9ecef;
+    background-color: #e9ecef;
 }
 
 .cart-item .cart-item-total {
@@ -502,14 +483,13 @@ select:focus:not(:focus-visible) {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 .cart-item .remove-from-cart-btn:hover {
-     background-color: rgba(var(--danger-rgb), 0.1); /* Léger fond rouge au survol */
-     border-color: transparent;
-     color: var(--danger-color);
+    background-color: rgba(var(--danger-rgb), 0.1); /* Léger fond rouge au survol */
+    border-color: transparent;
+    color: var(--danger-color);
 }
 .cart-item .remove-from-cart-btn .bi {
     vertical-align: text-bottom; /* Aligner icône avec texte */
 }
-
 
 /* --- Total et Footer du Modal --- */
 #cartModal .modal-footer {
@@ -522,7 +502,6 @@ select:focus:not(:focus-visible) {
     flex-wrap: wrap; /* Permet aux éléments de passer à la ligne si nécessaire */
     gap: 1rem; /* Espace entre les groupes (total et boutons) */
 }
-
 
 #cartModal #cart-total-price {
     color: var(--primary-color);
@@ -560,9 +539,9 @@ select:focus:not(:focus-visible) {
         padding: 1rem;
     }
     #cartModal #cart-items-container {
-       max-height: 65vh; /* Plus de hauteur sur mobile */
-       padding-right: 5px;
-       margin-right: -5px;
+        max-height: 65vh; /* Plus de hauteur sur mobile */
+        padding-right: 5px;
+        margin-right: -5px;
     }
 
     /* --- Layout des items en colonne --- */
@@ -587,9 +566,9 @@ select:focus:not(:focus-visible) {
         width: auto; /* Ne pas forcer 100% ici, laisser s'adapter */
         margin-bottom: 1rem !important;
     }
-     .cart-item .quantity-input {
-         max-width: 70px; /* Un peu plus large si besoin */
-     }
+    .cart-item .quantity-input {
+        max-width: 70px; /* Un peu plus large si besoin */
+    }
     .cart-item .text-md-end { /* Conteneur prix ligne */
         text-align: center !important;
         min-width: auto !important;
@@ -605,11 +584,11 @@ select:focus:not(:focus-visible) {
         display: inline !important; /* Assure affichage texte "Supprimer" */
     }
     .cart-item > *:last-child { /* Pas de marge en bas pour le dernier élément (le bouton) */
-         margin-bottom: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     /* --- Footer du Modal sur mobile --- */
-     #cartModal .modal-footer {
+    #cartModal .modal-footer {
         flex-direction: column; /* Empiler verticalement */
         align-items: stretch; /* Étirer les éléments */
     }
@@ -619,7 +598,7 @@ select:focus:not(:focus-visible) {
         width: 100%;
         order: 1; /* Total en premier */
     }
-     #cartModal .modal-footer-buttons {
+    #cartModal .modal-footer-buttons {
         flex-direction: column; /* Boutons empilés */
         width: 100%;
         order: 2; /* Boutons après le total */
@@ -631,19 +610,20 @@ select:focus:not(:focus-visible) {
     }
     /* Option: Mettre Vider Panier en dernier */
     #cartModal #clear-cart-btn {
-         order: 3; /* Met le bouton vider en dernier dans la colonne */
+        order: 3; /* Met le bouton vider en dernier dans la colonne */
     }
     #cartModal #whatsapp-order-btn {
-         order: 1; /* Met WhatsApp en premier (après le bouton Fermer par défaut) */
+        order: 1; /* Met WhatsApp en premier (après le bouton Fermer par défaut) */
     }
-     /* Ajustement pour le bouton "Fermer" par défaut de Bootstrap */
-     #cartModal .modal-footer-buttons .btn[data-bs-dismiss="modal"] {
-         order: 2;
-     }
+    /* Ajustement pour le bouton "Fermer" par défaut de Bootstrap */
+    #cartModal .modal-footer-buttons .btn[data-bs-dismiss="modal"] {
+        order: 2;
+    }
 }
 
+
 /*--------------------------------------------------------------
-# Page Contact / Commander
+Page Contact / Commander
 --------------------------------------------------------------*/
 .contact-info-card .card-header {
     font-weight: 600;
@@ -656,7 +636,6 @@ select:focus:not(:focus-visible) {
 }
 .contact-info-card .bi {
     margin-right: 0.5rem;
-    
 }
 
 .steps-container .d-flex { /* Les étapes de commande */
@@ -691,7 +670,7 @@ select:focus:not(:focus-visible) {
 }
 
 /*--------------------------------------------------------------
-# Pied de Page (Footer)
+Pied de Page (Footer)
 --------------------------------------------------------------*/
 footer {
     background-color: var(--dark-color);
@@ -700,7 +679,6 @@ footer {
     padding-bottom: 1rem;
     font-size: 0.9rem;
     /* Retire margin-top: auto; car géré par flexbox sur body/main */
-    /* margin-top: auto; */
 }
 
 footer h5 {
@@ -752,7 +730,6 @@ footer .social-links .bi {
     font-size: 1.1rem; /* Taille icônes sociales */
 }
 
-
 footer hr {
     border-top: 1px solid rgba(255, 255, 255, 0.15); /* Ligne plus visible */
     margin-top: 2rem;
@@ -768,7 +745,7 @@ footer .credits a {
 }
 
 /*--------------------------------------------------------------
-# Toast Notifications
+Toast Notifications
 --------------------------------------------------------------*/
 /* Positionnement géré par JS (ajout classe .position-fixed etc.) */
 /* Assurer un z-index élevé pour être au-dessus de tout (y compris modal si besoin) */
@@ -794,7 +771,6 @@ footer .credits a {
 .toast .toast-body .bi {
     margin-right: 0.75rem; /* Espace après l'icône */
     font-size: 1.2rem; /* Taille icône toast */
-    /* vertical-align: middle; -> Inutile avec flex */
 }
 
 /* Bouton fermer dans le toast */
