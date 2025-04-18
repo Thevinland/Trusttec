@@ -19,7 +19,7 @@
 </head>
 <body>
 
-    <!-- Barre de Navigation (MISE À JOUR POUR CORRESPONDRE À INDEX.HTML) -->
+    <!-- Barre de Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <!-- Logo -->
@@ -27,12 +27,12 @@
                 <img src="Images/ChatGPT Image 31 mars 2025, 22_32_48.png" alt="Logo Trusttec" height="40">
             </a>
 
-            <!-- NOUVEAU: Bouton Panier pour Mobile (<lg) -->
-            <!-- Important: les deux badges panier doivent avoir le même ID -->
+            <!-- Bouton Panier pour Mobile (<lg) -->
             <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
                 <i class="bi bi-cart"></i>
                 <span class="visually-hidden">Panier</span>
-                <span id="cart-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+                <!-- MODIFIÉ: id remplacé par class -->
+                <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
             </button>
 
             <!-- Bouton Burger (Toggler) -->
@@ -44,23 +44,21 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <!-- Lien Accueil (non actif sur cette page) -->
                         <a class="nav-link" href="index.html">Accueil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="produits.html">Produits</a>
                     </li>
                     <li class="nav-item">
-                        <!-- Lien Commander & Contact (ACTIF sur cette page) -->
                         <a class="nav-link active" aria-current="page" href="contact.html">Commander & Contact</a>
                     </li>
                 </ul>
 
-                <!-- ANCIEN/BUREAU: Bouton Panier pour Bureau (>=lg) -->
-                <!-- Important: les deux badges panier doivent avoir le même ID -->
+                <!-- Bouton Panier pour Bureau (>=lg) -->
                 <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
                     <i class="bi bi-cart"></i> Panier
-                    <span id="cart-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                    <!-- MODIFIÉ: id remplacé par class -->
+                    <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
                         0
                         <span class="visually-hidden">articles dans le panier</span>
                     </span>
@@ -192,56 +190,48 @@
     </main>
     <!-- Fin Contenu Principal -->
 
-    <!-- Pied de Page (INCHANGÉ) -->
-    <footer class="pt-5 pb-4 mt-5"> <!-- Classes bg-dark et text-white sont dans le CSS -->
+    <!-- Pied de Page -->
+    <footer class="pt-5 pb-4 mt-5">
         <div class="container text-center text-md-start">
-             <div class="row gy-4"> <!-- gy-4 pour espacement vertical sur mobile -->
-                 <!-- Colonne Entreprise -->
+             <div class="row gy-4">
                  <div class="col-md-4 col-lg-4 mx-auto">
                      <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
                      <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service client au cœur de nos préoccupations.</p>
                      <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
                  </div>
-                 <!-- Colonne Liens Utiles -->
                  <div class="col-md-3 col-lg-2 mx-auto">
                      <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
-                     <ul class="list-unstyled"> <!-- Utiliser ul pour les listes -->
+                     <ul class="list-unstyled">
                          <li class="mb-2"><a href="index.html">Accueil</a></li>
                          <li class="mb-2"><a href="produits.html">Tous les Produits</a></li>
                          <li class="mb-2"><a href="contact.html">Comment Commander</a></li>
                          <li><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal">Voir Panier</a></li>
                      </ul>
                  </div>
-                  <!-- Colonne Contact -->
                  <div class="col-md-4 col-lg-3 mx-auto">
                      <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
-                     <ul class="list-unstyled"> <!-- Utiliser ul -->
+                     <ul class="list-unstyled">
                          <li class="mb-2"><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" target="_blank">+(242) 05 632 37 22</a></li>
                          <li class="mb-3"><i class="bi bi-envelope-fill me-2"></i><a href="mailto:info@trusttec.cg">info@trusttec.cg</a></li>
-                         <!-- Liens Sociaux -->
                          <li class="social-links">
                              <a href="https://www.facebook.com/profile.php?id=61574476228813" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                              <a href="https://wa.me/242056323722" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                             <!-- Ajoutez d'autres icônes si nécessaire -->
                          </li>
                      </ul>
                  </div>
              </div>
-             <hr class="my-4"> <!-- Ligne horizontale -->
+             <hr class="my-4">
              <div class="row align-items-center">
-                 <div class="col-12 text-center"> <!-- Texte centré -->
+                 <div class="col-12 text-center">
                     <p class="copyright mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p>
-                    <!-- Crédits Optionnels -->
-                    <!-- <p class="credits small">Designed by <a href="#">BootstrapMade</a></p> -->
                  </div>
              </div>
         </div>
     </footer>
     <!-- Fin Pied de Page -->
 
-    <!-- Modal Panier (INCHANGÉ - Structure du footer déjà adaptée) -->
+    <!-- Modal Panier -->
      <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <!-- modal-dialog-scrollable permet de scroller le contenu si trop grand -->
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -249,23 +239,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Conteneur pour les articles, qui deviendra scrollable si besoin -->
-                    <div id="cart-items-container" style="min-height: 100px;"> <!-- min-height pour éviter collapse quand vide -->
-                        <!-- Les articles du panier seront injectés ici par JS -->
+                    <div id="cart-items-container" style="min-height: 100px;">
                          <p id="cart-empty-msg" class="text-center text-muted mt-4">Votre panier est vide.</p>
                     </div>
-                    <hr class="mt-2 mb-3"> <!-- Séparateur avant le total -->
-                    <!-- Total -->
+                    <hr class="mt-2 mb-3">
                     <div class="d-flex justify-content-end align-items-center mb-0">
                         <strong class="me-2 fs-5">Total :</strong>
-                        <span id="cart-total-price" class="fw-bold fs-4">0 XAF</span> <!-- Classe text-primary retirée, utilise celle du CSS -->
+                        <span id="cart-total-price" class="fw-bold fs-4">0 XAF</span>
                     </div>
                 </div>
-                <div class="modal-footer flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center"> <!-- Responsive footer -->
-                     <!-- Bouton Vider Panier (à gauche sur grand écran, en haut sur petit) -->
+                <div class="modal-footer flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center">
                      <button type="button" class="btn btn-outline-danger mb-2 mb-sm-0 me-sm-auto order-last order-sm-first disabled" id="clear-cart-btn" disabled><i class="bi bi-trash me-1"></i> Vider le panier</button>
-
-                     <!-- Conteneur pour les autres boutons (à droite sur grand écran, en bas sur petit) -->
                      <div class="modal-footer-buttons d-flex flex-column flex-sm-row order-first order-sm-last">
                         <button type="button" class="btn btn-secondary mb-2 mb-sm-0 me-sm-2" data-bs-dismiss="modal">Continuer les achats</button>
                         <a href="#" id="whatsapp-order-btn" class="btn btn-success disabled" target="_blank" rel="noopener noreferrer" disabled><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
@@ -276,18 +260,13 @@
     </div>
     <!-- Fin Modal Panier -->
 
-    <!-- Conteneur pour les Toasts (Notifications) - INCHANGÉ -->
-    <!-- Le JS le créera s'il n'existe pas -->
-    <!-- <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index: 1100"></div> -->
-
-
-    <!-- Bootstrap JS Bundle (Inclut Popper) - INCHANGÉ -->
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <!-- Votre Script Panier - INCHANGÉ -->
+    <!-- Votre Script Panier -->
     <script src="js/cart.js"></script>
 
-     <!-- Script pour l'année en cours dans le footer - INCHANGÉ -->
+     <!-- Script pour l'année en cours -->
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
