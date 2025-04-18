@@ -19,18 +19,31 @@
 </head>
 <body>
 
-    <!-- Barre de Navigation -->
+    <!-- Barre de Navigation (MODIFIÉE) -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
+            <!-- Logo -->
             <a class="navbar-brand" href="index.html">
                 <img src="Images/ChatGPT Image 31 mars 2025, 22_32_48.png" alt="Logo Trusttec" height="40">
             </a>
+
+            <!-- NOUVEAU: Bouton Panier pour Mobile (<lg) -->
+            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
+                <i class="bi bi-cart"></i>
+                <span class="visually-hidden">Panier</span>
+                <span id="cart-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+            </button>
+
+            <!-- Bouton Burger (Toggler) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Contenu Collapsible -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
+                        <!-- Lien actif pour cette page -->
                         <a class="nav-link active" aria-current="page" href="index.html">Accueil</a>
                     </li>
                     <li class="nav-item">
@@ -40,21 +53,31 @@
                         <a class="nav-link" href="contact.html">Commander & Contact</a>
                     </li>
                 </ul>
-                <!-- Icône Panier -->
-                <button class="btn btn-outline-primary ms-lg-3 position-relative" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+
+                <!-- ANCIEN/BUREAU: Bouton Panier pour Bureau (>=lg) -->
+                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
                     <i class="bi bi-cart"></i> Panier
                     <span id="cart-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
                         0
                         <span class="visually-hidden">articles dans le panier</span>
                     </span>
                 </button>
-                 <!-- Lien WhatsApp mis à jour -->
+
+                <!-- Bouton Contact Rapide Bureau (>=lg) -->
                  <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
                     <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                 </a>
+
+                <!-- Optionnel: Bouton Contact Rapide pour Mobile (<lg) -->
+                <div class="d-lg-none mt-3 border-top pt-3">
+                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success w-100" target="_blank">
+                        <i class="bi bi-whatsapp me-1"></i>Contact Rapide
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
+    <!-- Fin Barre de Navigation -->
 
     <!-- Hero Section -->
     <header class="hero-section text-white text-center d-flex align-items-center">
@@ -76,11 +99,11 @@
                 <div class="col-md-4">
                     <div class="card category-card text-center shadow-sm h-100">
                          <!-- Chemin image corrigé -->
-                         <img src="Images/ChatGPT Image 2 avr. 2025, 09_37_47.png" class="card-img-top category-image" alt="Disques Durs">
-                        <div class="card-body">
+                         <img src="images/ChatGPT Image 2 avr. 2025, 09_37_47.png" class="card-img-top category-image" alt="Disques Durs">
+                        <div class="card-body d-flex flex-column"> <!-- Ajout flexbox pour pousser bouton -->
                             <h5 class="card-title fw-semibold">Disques Durs Externes</h5>
                             <p class="card-text">Stockez vos données en toute sécurité.</p>
-                            <a href="produits.html#disques-durs" class="btn btn-outline-primary stretched-link">Découvrir</a>
+                            <a href="produits.html#disques-durs" class="btn btn-outline-primary mt-auto">Découvrir</a> <!-- mt-auto -->
                         </div>
                     </div>
                 </div>
@@ -88,11 +111,11 @@
                 <div class="col-md-4">
                     <div class="card category-card text-center shadow-sm h-100">
                          <!-- Chemin image corrigé -->
-                         <img src="Images/ChatGPT Image 2 avr. 2025, 13_02_20.png" class="card-img-top category-image" alt="Clés USB">
-                        <div class="card-body">
+                         <img src="images/usb.png" class="card-img-top category-image" alt="Clés USB">
+                         <div class="card-body d-flex flex-column"> <!-- Ajout flexbox -->
                             <h5 class="card-title fw-semibold">Clés USB</h5>
                             <p class="card-text">Transportez vos fichiers facilement.</p>
-                            <a href="produits.html#cles-usb" class="btn btn-outline-primary stretched-link">Découvrir</a>
+                            <a href="produits.html#cles-usb" class="btn btn-outline-primary mt-auto">Découvrir</a> <!-- mt-auto -->
                         </div>
                     </div>
                 </div>
@@ -100,11 +123,11 @@
                 <div class="col-md-4">
                     <div class="card category-card text-center shadow-sm h-100">
                          <!-- Chemin image corrigé -->
-                         <img src="Images/ChatGPT Image 2 avr. 2025, 13_13_47.png" class="card-img-top category-image" alt="AirPods">
-                        <div class="card-body">
+                         <img src="images/air.png" class="card-img-top category-image" alt="AirPods">
+                         <div class="card-body d-flex flex-column"> <!-- Ajout flexbox -->
                             <h5 class="card-title fw-semibold">AirPods & Écouteurs</h5>
                             <p class="card-text">Profitez d'un son de qualité.</p>
-                            <a href="produits.html#airpods" class="btn btn-outline-primary stretched-link">Découvrir</a>
+                            <a href="produits.html#airpods" class="btn btn-outline-primary mt-auto">Découvrir</a> <!-- mt-auto -->
                         </div>
                     </div>
                 </div>
@@ -170,7 +193,7 @@
                      <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
                      <p><i class="bi bi-envelope-fill me-2"></i>info@trusttec.cg</p>
                      <div class="mt-3">
-                         <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4"><i class="bi bi-facebook"></i></a>
+                         <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-facebook"></i></a>
                          <!-- Lien icône WhatsApp mis à jour -->
                          <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-whatsapp"></i></a>
                      </div>
@@ -185,30 +208,35 @@
         </div>
     </footer>
 
-    <!-- Modal Panier -->
+    <!-- Modal Panier (Structure légèrement améliorée pour le message vide) -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable"> <!-- Ajout scrollable -->
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Conteneur pour les articles -->
                     <div id="cart-items-container">
                         <!-- Les articles du panier seront injectés ici par JS -->
-                        <p id="cart-empty-msg">Votre panier est vide.</p>
                     </div>
-                    <hr>
-                    <div class="text-end">
-                        <h4>Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
+                    <!-- Message panier vide (sera montré/caché par JS) -->
+                    <div id="cart-empty-msg" class="text-center py-5" style="display: none;">
+                        <i class="bi bi-emoji-frown fs-1 text-muted"></i>
+                        <p class="mt-3">Votre panier est actuellement vide.</p>
+                        <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal" onclick="window.location.href='produits.html'">Commencer vos achats</button>
                     </div>
                 </div>
-                <div class="modal-footer justify-content-between">
-                     <button type="button" class="btn btn-outline-danger" id="clear-cart-btn"><i class="bi bi-trash me-1"></i> Vider le panier</button>
-                    <div>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continuer les achats</button>
-                        <!-- Note: Le lien WhatsApp de commande est probablement généré par cart.js, assurez-vous de mettre à jour le numéro dans ce fichier aussi si nécessaire -->
-                        <a href="#" id="whatsapp-order-btn" class="btn btn-success" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
+                 <!-- Footer du modal mis à jour -->
+                 <div class="modal-footer justify-content-between flex-column flex-sm-row"> <!-- Responsive footer -->
+                    <div class="mb-2 mb-sm-0"> <!-- Total à gauche -->
+                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
+                    </div>
+                    <div class="modal-footer-buttons d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto"> <!-- Boutons à droite, gère espacement -->
+                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn" title="Vider le panier"><i class="bi bi-trash"></i> <span class="d-sm-none">Vider</span></button>
+                        <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Continuer les achats</button>
+                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
                     </div>
                 </div>
             </div>
