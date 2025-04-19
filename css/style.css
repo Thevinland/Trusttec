@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------
-Variables personnalisées (Optionnel)
+# Variables personnalisées (Optionnel)
 --------------------------------------------------------------*/
 :root {
     --primary-color: #0d6efd; /* Couleur principale de Bootstrap */
@@ -12,10 +12,11 @@ Variables personnalisées (Optionnel)
     --body-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Police plus moderne */
     --heading-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --focus-ring-color: rgba(13, 110, 253, 0.4); /* Couleur pour l'outline de focus */
+    --danger-rgb: 220, 53, 69; /* RGB for danger color (used in rgba) */
 }
 
 /*--------------------------------------------------------------
-Styles Généraux & Reset Léger
+# Styles Généraux & Reset Léger
 --------------------------------------------------------------*/
 *, *::before, ::after {
     box-sizing: border-box; /* Assure un modèle de boîte cohérent */
@@ -34,6 +35,7 @@ body {
     display: flex; /* Utiliser Flexbox pour pousser le footer en bas */
     flex-direction: column; /* Contenu principal et footer en colonne */
     min-height: 100vh; /* Assure que le body prend au moins toute la hauteur */
+    padding-top: 70px; /* Ajustement pour la navbar sticky-top (hauteur approx) */
 }
 
 main {
@@ -58,212 +60,230 @@ a:hover {
 }
 
 /*--------------------------------------------------------------
-Accessibilité : Styles de Focus Visibles
+# Accessibilité : Styles de Focus Visibles
 --------------------------------------------------------------*/
-/* Applique un style de focus clair UNIQUEMENT lors de la navigation au clavier */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-    outline: 3px solid var(--focus-ring-color) !important; /* Style Bootstrap-like */
+    outline: 3px solid var(--focus-ring-color) !important;
     outline-offset: 2px;
-    box-shadow: none !important; /* Évite les doubles indicateurs */
+    box-shadow: none !important;
 }
-
-/* Optionnel : Masquer l'outline par défaut si le focus n'est pas visible (souris) */
-/* Attention: Ne pas masquer le focus complètement ! */
-/*
-a:focus:not(:focus-visible),
-button:focus:not(:focus-visible),
-input:focus:not(:focus-visible),
-textarea:focus:not(:focus-visible),
-select:focus:not(:focus-visible) {
-    outline: none;
-}
-*/
 
 /*--------------------------------------------------------------
-Barre de Navigation (Navbar)
+# Barre de Navigation (Navbar)
 --------------------------------------------------------------*/
 .navbar {
-    transition: box-shadow 0.3s ease; /* Transition douce pour l'ombre */
-    background-color: #fff; /* Fond blanc explicite */
+    transition: box-shadow 0.3s ease;
+    background-color: #fff !important; /* Force le fond blanc */
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    min-height: 65px; /* Hauteur minimale pour cohérence */
 }
 
+.navbar.sticky-top {
+    position: fixed; /* Remplacer sticky par fixed pour consistance */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030; /* Z-index standard Bootstrap pour navbars fixed */
+}
+
+
 .navbar .navbar-brand img {
-    /* Styles originaux conservés pour le logo */
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    /* border: 2px solid var(--light-color); /* Bordure retirée ou ajustée */
+    height: 60px;
+    border-radius: 50%; /* Taille ajustée */
+    width: auto; /* Largeur auto pour garder les proportions */
 }
 
 .navbar .nav-link {
     font-weight: 500;
-    padding: 0.5rem 1rem; /* Ajustement padding pour alignement */
+    padding: 0.6rem 1rem; /* Léger ajustement padding */
     transition: color 0.2s ease, background-color 0.2s ease;
-    border-radius: 0.25rem; /* Léger arrondi au survol/actif */
+    border-radius: 0.25rem;
+    margin: 0 0.2rem; /* Petite marge entre les liens */
 }
 
 .navbar .nav-link:hover,
-.navbar .nav-item.show .nav-link { /* Pour les dropdowns ouverts */
+.navbar .nav-item.show .nav-link {
     color: #000;
     background-color: rgba(0,0,0,0.03);
 }
 
 .navbar .nav-link.active {
-    color: var(--primary-color) !important; /* Rendre la couleur active plus évidente */
+    color: var(--primary-color) !important;
     font-weight: 600;
-    background-color: transparent; /* Pas de fond pour le lien actif par défaut */
+    background-color: transparent;
 }
 
 /* --- Badge Panier sur Navbar --- */
-/* Cible la classe .cart-count-badge maintenant */
-.navbar .btn-outline-primary .badge.cart-count-badge { /* MODIFIÉ ICI: Utilise la classe */
+.navbar .btn-outline-primary .cart-count-badge {
     font-size: 0.7em;
-    padding: 0.3em 0.6em;
-    /* display: none; -> géré par JS */
-    /* Assure l'alignement vertical et horizontal si 'flex' est utilisé par JS */
-    display: flex; /* Forcé ici car JS le met à 'flex' */
+    padding: 0; /* Géré par min-width/height et flex */
+    display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    position: absolute; /* Positionnement plus précis */
-    top: -5px;          /* Ajustez si besoin */
-    left: 100%;         /* Commence à la droite du bouton */
-    transform: translate(-50%, -50%); /* Centre le badge par rapport au coin sup droit */
-    border-radius: 50%; /* Rond */
-    min-width: 20px;    /* Taille minimale */
-    min-height: 20px;   /* Taille minimale */
-    background-color: var(--danger-color); /* Rouge pour attirer l'attention */
+    position: absolute;
+    top: 0px; /* Ajustement position */
+    left: calc(100% - 8px); /* Ajustement position */
+    transform: translate(-50%, -50%); /* Centre le badge */
+    border-radius: 50%;
+    min-width: 20px;
+    min-height: 20px;
+    background-color: var(--danger-color);
     color: white;
-    border: 1px solid white; /* Contraste */
+    border: 1px solid white;
+    font-weight: bold;
 }
 
-/* Cache le badge quand il a 0 et est caché par JS */
-/* MODIFIÉ ICI: Utilise la classe et cible le style 'display: none' */
-.navbar .btn-outline-primary .badge.cart-count-badge:empty,
-.navbar .btn-outline-primary .badge.cart-count-badge[style*="display: none"] {
+/* Cache le badge quand il est vide ou caché par JS */
+.navbar .btn-outline-primary .cart-count-badge:empty,
+.navbar .btn-outline-primary .cart-count-badge[style*="display: none"] {
     display: none !important;
 }
 
+/* Ajustement pour le bouton panier mobile pour mieux aligner badge */
+.navbar .btn-outline-primary.d-lg-none {
+   margin-right: 0.8rem; /* espace avant le toggler */
+}
 
-/* Bouton contact rapide sur grand écran */
+/* Bouton contact rapide navbar */
 .navbar .btn-success {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Responsive Navbar Toggler */
+.navbar-toggler {
+    border: none;
+}
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+
 /*--------------------------------------------------------------
-Hero Section (Accueil)
+# Hero Section (Accueil)
 --------------------------------------------------------------*/
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Images/13978.webp') center center no-repeat;
     background-size: cover;
-    min-height: 60vh; /* Hauteur minimale */
-    padding: 80px 0; /* Plus de padding */
+    padding: 6rem 0; /* Plus de padding vertical */
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--light-color); /* Texte clair sur fond sombre */
+    color: var(--light-color);
+    text-align: center; /* Assure centrage texte */
 }
 
 .hero-section h1 {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Ombre plus prononcée */
-    font-size: clamp(2rem, 6vw, 3.5rem); /* Typographie responsive */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-size: clamp(2.2rem, 6vw, 3.8rem); /* Taille ajustée */
 }
 
 .hero-section .lead {
-    max-width: 700px;
+    max-width: 750px;
     margin-left: auto;
     margin-right: auto;
-    font-size: clamp(1rem, 2.5vw, 1.25rem); /* Typographie responsive */
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem); /* Taille ajustée */
     opacity: 0.9;
+    margin-bottom: 2rem; /* Espace avant boutons */
+}
+
+.hero-section .btn {
+    padding: 0.8rem 1.8rem; /* Boutons plus grands */
+    font-size: 1.05rem;
+    margin: 0.5rem; /* Marge autour des boutons */
 }
 
 /*--------------------------------------------------------------
-Sections Titre de Page avec Image de Fond (Produits, Contact)
+# Sections Titre de Page avec Image de Fond (Produits, Contact)
 --------------------------------------------------------------*/
 .page-title-section-bg {
-    /* --- Propriétés de base pour les sections avec image de fond --- */
-    background-size: cover;         /* Couvre toute la section */
-    background-position: center center; /* Centre l'image */
-    background-repeat: no-repeat;   /* Évite la répétition */
-    position: relative;             /* Contexte pour un éventuel overlay pseudo-élément */
-    color: var(--light-color);      /* Texte clair par défaut sur fond */
-    padding-top: 5rem;              /* Augmenter le padding pour plus d'espace visuel */
-    padding-bottom: 5rem;           /* Augmenter le padding pour plus d'espace visuel */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+    color: var(--light-color);
+    padding: 5rem 0; /* Padding vertical */
+    text-align: center;
 }
 
-/* Styles pour le contenu textuel dans ces sections */
+.page-title-section-bg::before { /* Overlay sombre générique */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55); /* Overlay un peu plus sombre */
+    z-index: 1;
+}
+
 .page-title-section-bg .container {
-    position: relative; /* Assure que le contenu est au-dessus de l'overlay potentiel */
+    position: relative;
     z-index: 2;
 }
 
 .page-title-section-bg h1,
 .page-title-section-bg .lead {
-    color: var(--light-color); /* Forcer le texte en clair */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Ombre portée pour lisibilité */
+    color: var(--light-color);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* Ombre plus forte */
 }
 
+.page-title-section-bg h1 {
+    font-size: clamp(2rem, 6vw, 3rem); /* Titre responsive */
+}
 .page-title-section-bg .lead {
-    opacity: 0.9; /* Légère transparence pour le sous-titre */
+    font-size: clamp(1rem, 3vw, 1.2rem); /* Lead responsive */
+    opacity: 0.9;
 }
 
-/* --- Classes spécifiques pour chaque section --- */
+/* --- Classe spécifique pour la section Produits --- */
 .product-title-section {
-    /* Combine l'overlay et l'image */
-    /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), /* Overlay sombre */
-    url('../Images/2148794530.webp') center center no-repeat; /* VOTRE IMAGE ICI */
-    background-size: cover; /* Assure que l'image couvre */
+    /* !!! REMPLACEZ PAR VOTRE IMAGE POUR PRODUITS !!! */
+    background-image: url('../Images/2148794530.webp'); /* Assurez-vous que ce chemin est correct */
 }
 
+/* --- Classe spécifique pour la section Contact --- */
 .contact-title-section {
-    /* Combine l'overlay et l'image */
-    /* !!! REMPLACEZ LE CHEMIN DE L'IMAGE CI-DESSOUS !!! */
-    background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), /* Overlay (peut être ajusté) */
-    url('../Images/12927.webp') center center no-repeat; /* VOTRE IMAGE ICI */
-    background-size: cover; /* Assure que l'image couvre */
+    /* !!! REMPLACEZ PAR VOTRE IMAGE POUR CONTACT !!! */
+     background-image: url('../Images/contact-background.webp'); /* Assurez-vous que ce chemin est correct */
+     /* Fallback ou autre image si celle-ci n'existe pas :
+     background: linear-gradient(rgba(40, 60, 100, 0.6), rgba(40, 60, 100, 0.6)), url('../Images/default-bg.jpg') no-repeat center center;
+     background-size: cover;
+     */
 }
 
-/* Ajustement responsive des paddings si besoin (hérité de .page-title-section-bg) */
+/* Responsive padding pour sections titre */
 @media (max-width: 767.98px) {
     .page-title-section-bg {
-        padding-top: 4rem;
-        padding-bottom: 4rem;
-    }
-    .page-title-section-bg h1 {
-        font-size: 2rem; /* Ajuster taille titre sur mobile */
-    }
-    .page-title-section-bg .lead {
-        font-size: 1rem; /* Ajuster taille lead sur mobile */
+        padding: 4rem 0;
     }
 }
 
 /*--------------------------------------------------------------
-Cartes Catégorie (Accueil)
+# Cartes Catégorie (Accueil)
 --------------------------------------------------------------*/
 .category-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden; /* Pour contenir l'image lors du zoom */
-    border: none; /* Pas de bordure par défaut */
-    border-radius: 0.375rem; /* Arrondi standard Bootstrap */
+    overflow: hidden;
+    border: none;
+    border-radius: 0.375rem;
+    background-color: #fff; /* Fond blanc */
 }
 
 .category-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1); /* Ombre plus douce/large */
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
 }
 
 .category-card .category-image {
     height: 200px;
     object-fit: cover;
-    transition: transform 0.4s ease-out; /* Transition plus douce */
-    border-bottom: 1px solid #eee; /* Séparateur si besoin */
+    transition: transform 0.4s ease-out;
+    border-bottom: 1px solid #eee;
 }
 
 .category-card:hover .category-image {
@@ -273,108 +293,225 @@ Cartes Catégorie (Accueil)
 .category-card .card-body {
     display: flex;
     flex-direction: column;
-    min-height: 150px; /* Hauteur minimale pour aligner les boutons */
+    min-height: 160px; /* Hauteur ajustée */
+    padding: 1.25rem;
+}
+.category-card .card-title {
+    margin-bottom: 0.5rem;
+}
+.category-card .card-text {
+    flex-grow: 1; /* Pousse le bouton en bas */
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+    font-size: 0.95rem;
 }
 .category-card .btn {
-    margin-top: auto; /* Pousse le bouton vers le bas */
+    margin-top: auto;
+    width: 100%; /* Bouton pleine largeur */
 }
 
 /*--------------------------------------------------------------
-Cartes Produit (Page Produits)
+# Section Pourquoi Nous Choisir (Accueil)
+--------------------------------------------------------------*/
+/* Utilisation d'une classe plutôt qu'un ID pour réutilisabilité potentielle */
+.why-us-section .p-4 {
+    background-color: #fff;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+    height: 100%; /* Assurer même hauteur si contenu variable */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.why-us-section .p-4:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08);
+}
+.why-us-section .display-4 { /* Taille icônes */
+    font-size: 3rem;
+}
+.why-us-section h4 {
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+}
+.why-us-section p {
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+}
+
+/*--------------------------------------------------------------
+# Cartes Produit (Page Produits)
 --------------------------------------------------------------*/
 .product-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #dee2e6; /* Bordure légère */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid #dee2e6;
     border-radius: 0.375rem;
-    display: flex; /* Permet d'utiliser flex-grow pour le body */
+    background-color: #fff; /* Fond blanc */
+    display: flex;
     flex-direction: column;
-    height: 100%; /* Assure que toutes les cartes ont la même hauteur */
+    height: 100%;
+    overflow: hidden; /* Empêche le contenu de déborder lors du survol */
 }
 
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
-    border-color: #adb5bd; /* Légère accentuation bordure */
+    border-color: #adb5bd;
+}
+
+.product-card .product-image-wrapper { /* Conteneur pour image pour gérer le zoom */
+    overflow: hidden;
+    height: 200px;
+    position: relative;
+    background-color: #eee;
+    border-bottom: 1px solid #eee;
 }
 
 .product-card .product-image {
-    height: 200px;         /* Conserve la hauteur fixe pour l'alignement */
-    object-fit: cover;     /* Fait remplir l'image (peut rogner) */
-    width: 100%;           /* Assure que l'image prend toute la largeur */
-    background-color: #eee; /* Fond gris léger si l'image charge lentement */
-    border-bottom: 1px solid #eee; /* Séparateur */
+    height: 100%; /* Prend hauteur du wrapper */
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease-out;
+    display: block; /* Évite espace sous l'image */
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
 }
 
 .product-card .card-body {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Permet au body de prendre l'espace restant */
-    padding: 1rem;
+    flex-grow: 1;
+    padding: 1rem 1.25rem; /* Plus de padding horizontal */
 }
 
 .product-card .card-title {
-    font-size: 1rem;
-    min-height: calc(1.3em * 2); /* Espace minimum pour ~2 lignes (basé sur line-height) */
+    font-size: 1.05rem; /* Légèrement plus grand */
+    min-height: calc(1.3em * 2); /* Espace pour ~2 lignes */
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
 
 .product-card .card-text.small {
-    font-size: 0.875rem; /* Légèrement plus grand */
-    min-height: calc(1.6em * 3); /* Espace pour ~3 lignes */
+    font-size: 0.9rem; /* Légèrement plus grand */
+    min-height: calc(1.6em * 2.5); /* Espace pour ~2-3 lignes */
     margin-bottom: 1rem;
-    flex-grow: 1; /* Permet à la description de prendre l'espace dispo */
+    flex-grow: 1;
     color: var(--secondary-color);
 }
 
-.product-card .fs-5.fw-bold { /* Prix */
-    margin-top: auto; /* Pousse le prix + bouton vers le bas */
-    margin-bottom: 1rem;
-    color: var(--primary-color); /* Prix en couleur primaire */
+.product-card .product-price { /* Classe spécifique pour le prix */
+    font-size: 1.25rem; /* fs-5 */
+    font-weight: bold; /* fw-bold */
+    color: var(--primary-color); /* text-primary */
+    margin-top: auto; /* mt-auto */
+    margin-bottom: 1rem; /* mb-3 */
 }
 
 .product-card .add-to-cart-btn {
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.1s ease;
 }
 .product-card .add-to-cart-btn:active {
-    transform: scale(0.98); /* Léger effet d'appui */
+    transform: scale(0.98);
 }
 
-/* --- Responsive pour les cartes produit --- */
-@media (max-width: 575.98px) { /* xs */
-    .product-card .product-image {
+/* Responsive pour les cartes produit */
+@media (max-width: 575.98px) {
+    .product-card .product-image-wrapper {
         height: 180px;
     }
     .product-card .card-title {
-        font-size: 0.9rem;
-        min-height: auto; /* Laisser la hauteur s'adapter */
+        font-size: 1rem;
+        min-height: auto;
     }
     .product-card .card-text.small {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         min-height: auto;
         margin-bottom: 0.75rem;
     }
-    .product-card .fs-5 { /* Taille du prix */
-        font-size: 1.1rem !important;
+    .product-card .product-price {
+        font-size: 1.15rem !important;
         margin-bottom: 0.75rem;
     }
     .product-card .btn {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
     }
 }
 
 /*--------------------------------------------------------------
-Modal Panier
+# Page Contact
+--------------------------------------------------------------*/
+
+/* Styles spécifiques pour les cartes de contact (précédemment dans HTML) */
+.contact-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #dee2e6; /* Ajout bordure légère pour définition */
+}
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-color: #adb5bd; /* Assombrir bordure au survol */
+}
+.contact-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre les éléments horizontalement */
+    justify-content: space-between; /* Pousse le bouton vers le bas */
+    padding: 1.5rem; /* Padding standard */
+    padding-bottom: 1.5rem; /* Assure espace en bas */
+    text-align: center; /* Texte centré dans les cartes contact */
+}
+ .contact-card .card-body .btn {
+    margin-top: auto; /* Assure que le bouton est poussé en bas */
+    min-width: 150px; /* Donne une largeur minimale aux boutons */
+}
+/* Icône dans les cartes contact */
+.contact-icon {
+    font-size: 3rem; /* Icones plus grandes */
+    margin-bottom: 1rem;
+}
+/* Spécificité carte localisation (qui n'a pas de bouton mt-auto) */
+.contact-card .card-body.justify-content-center {
+    justify-content: center !important; /* Forcer le centrage vertical */
+}
+
+
+/* Liste étapes commande (si utilisée ailleurs, sinon optionnelle) */
+.list-group-item {
+    background-color: transparent; /* Si hérité d'un fond */
+    border-color: rgba(0,0,0,0.08); /* Bordure plus subtile */
+}
+
+/* Carte Google Maps (si vous l'ajoutez plus tard) */
+.map-responsive {
+    overflow: hidden;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    position: relative;
+    height: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+}
+
+.map-responsive iframe {
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+/*--------------------------------------------------------------
+# Modal Panier
 --------------------------------------------------------------*/
 #cartModal .modal-dialog {
-    max-width: 800px; /* lg */
-    margin: 1.75rem auto; /* Marge standard Bootstrap */
+    max-width: 800px;
+    margin: 1.75rem auto;
 }
 
 #cartModal .modal-header {
     border-bottom: 1px solid #dee2e6;
     padding: 1rem 1.5rem;
+    background-color: var(--light-color); /* Fond léger pour header */
 }
 
 #cartModal .modal-title {
@@ -387,30 +524,33 @@ Modal Panier
 }
 
 #cartModal #cart-items-container {
-    max-height: 55vh; /* Limiter hauteur */
+    max-height: 55vh;
     overflow-y: auto;
-    padding-right: 10px; /* Espace barre de scroll */
-    margin-right: -10px; /* Compenser padding */
+    padding-right: 10px;
+    margin-right: -10px; /* Compense padding pour scrollbar */
     margin-bottom: 1.5rem;
 }
 
 #cartModal #cart-empty-msg {
     text-align: center;
-    font-style: italic;
     color: var(--secondary-color);
     padding: 3rem 1rem;
     border: 2px dashed #eee;
     border-radius: 0.375rem;
     background-color: var(--light-color);
 }
+#cartModal #cart-empty-msg i {
+    font-size: 2.5rem; /* Icône plus grande */
+}
 
-/* --- Styles pour chaque article dans le panier (.cart-item) --- */
-/* Généré par JS avec les classes flex d-flex flex-column flex-md-row... */
+/* Styles pour chaque article dans le panier (.cart-item) */
 .cart-item {
     border-bottom: 1px solid #eee;
-    padding-bottom: 1rem !important; /* Espace sous item */
-    margin-bottom: 1rem !important; /* Espace entre items */
-    position: relative; /* Pour positionner potentiels éléments absolus */
+    padding-bottom: 1rem !important;
+    margin-bottom: 1rem !important;
+    display: flex; /* Utilisation de flex par défaut */
+    align-items: center; /* Alignement vertical */
+    flex-wrap: nowrap; /* Pas de retour à la ligne par défaut */
 }
 .cart-item:last-child {
     border-bottom: none;
@@ -418,363 +558,400 @@ Modal Panier
     padding-bottom: 0 !important;
 }
 
-.cart-item img {
-    width: 80px; /* Largeur fixe */
-    height: 80px; /* Hauteur fixe */
-    object-fit: contain; /* Voir le produit */
-    background-color: #fff; /* Fond blanc si transparence */
+.cart-item img.cart-item-img { /* Classe spécifique pour l'image */
+    width: 70px; /* Taille image ajustée */
+    height: 70px;
+    object-fit: contain;
+    background-color: #fff;
     border-radius: 0.25rem;
     border: 1px solid #eee;
-    flex-shrink: 0; /* Empêche l'image de rétrécir */
+    flex-shrink: 0;
+}
+
+.cart-item .cart-item-details { /* Conteneur pour nom/prix */
+    margin-left: 1rem;
+    flex-grow: 1;
+    min-width: 100px; /* Empêche d'être trop écrasé */
 }
 
 .cart-item .cart-item-name {
     font-weight: 600;
     font-size: 1rem;
+    margin-bottom: 0.25rem; /* Espace nom/prix */
 }
 .cart-item .cart-item-price {
     font-size: 0.9em;
     color: var(--secondary-color);
 }
 
-/* --- Contrôles Quantité dans le panier --- */
-
+/* Contrôles Quantité */
+.cart-item .quantity-controls { /* Conteneur pour boutons et input */
+    flex-shrink: 0; /* Empêche de rétrécir */
+    min-width: 130px; /* Largeur minimale pour alignement */
+    margin: 0 1rem; /* Marges horizontales */
+    display: flex; /* S'assurer que c'est flex */
+    align-items: center; /* Aligner verticalement */
+}
 .cart-item .quantity-input {
     text-align: center;
-    border: 1px solid #ced4da; /* Assurer bordure visible */
-    background-color: #fff; /* Fond blanc explicite */
-    /* Empêche les flèches natives */
+    border: 1px solid #ced4da;
+    background-color: #fff;
     -moz-appearance: textfield;
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
-    max-width: 60px; /* Limiter la largeur visuellement */
+    width: 50px; /* Largeur fixe input */
+    height: calc(1.5em + 0.75rem + 2px); /* Hauteur standard Bootstrap btn */
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.5rem;
 }
-/* Style pour les input invalides (si JS ajoute une classe .is-invalid) */
+.cart-item .quantity-input::-webkit-outer-spin-button,
+.cart-item .quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 .cart-item .quantity-input.is-invalid {
     border-color: var(--danger-color);
-    box-shadow: 0 0 0 0.25rem rgba(var(--danger-rgb), 0.25); /* Feedback visuel */
+    box-shadow: 0 0 0 0.25rem rgba(var(--danger-rgb), 0.25);
 }
 
 .cart-item .quantity-decrease,
 .cart-item .quantity-increase {
-    padding: 0.3rem 0.6rem; /* Taille boutons +/- */
-    line-height: 1;
-    border-color: #ced4da;
+    padding: 0.375rem 0.6rem;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    background-color: #f8f9fa; /* Fond léger pour boutons */
     transition: background-color 0.2s ease;
+    color: #495057;
+    cursor: pointer; /* Indique cliquable */
+}
+.cart-item .quantity-decrease {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.cart-item .quantity-increase {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 .cart-item .quantity-decrease:hover,
 .cart-item .quantity-increase:hover {
     background-color: #e9ecef;
 }
-
-.cart-item .cart-item-total {
-    font-weight: bold;
-    font-size: 1rem;
+.cart-item .quantity-decrease:disabled,
+.cart-item .quantity-increase:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
 }
 
-/* --- Bouton Supprimer dans le panier --- */
+.cart-item .cart-item-line-total { /* Total par ligne */
+    font-weight: bold;
+    font-size: 1rem;
+    min-width: 100px; /* Largeur min pour alignement */
+    text-align: right; /* Aligné à droite par défaut */
+    flex-shrink: 0;
+    margin-left: 1rem; /* Espace avant le total */
+}
+
+/* Bouton Supprimer */
 .cart-item .remove-from-cart-btn {
     padding: 0.3rem 0.6rem;
     line-height: 1;
     color: var(--danger-color);
-    border-color: transparent; /* Pour un look plus léger */
+    border: none; /* Pas de bordure */
     background-color: transparent;
     transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 0.25rem;
+    margin-left: 1rem; /* Espace avant bouton suppr */
+    flex-shrink: 0;
+    cursor: pointer; /* Indique cliquable */
 }
 .cart-item .remove-from-cart-btn:hover {
-    background-color: rgba(var(--danger-rgb), 0.1); /* Léger fond rouge au survol */
-    border-color: transparent;
+    background-color: rgba(var(--danger-rgb), 0.1);
     color: var(--danger-color);
 }
 .cart-item .remove-from-cart-btn .bi {
-    vertical-align: text-bottom; /* Aligner icône avec texte */
+    vertical-align: middle; /* Aligner icône */
 }
 
-/* --- Total et Footer du Modal --- */
+/* Total et Footer du Modal */
 #cartModal .modal-footer {
     border-top: 1px solid #dee2e6;
     background-color: var(--light-color);
     padding: 1rem 1.5rem;
-    display: flex; /* Utiliser flex pour aligner les éléments */
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne si nécessaire */
-    gap: 1rem; /* Espace entre les groupes (total et boutons) */
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+#cartModal .cart-total-container { /* Conteneur pour le Total */
+    flex-basis: auto; /* Prend sa largeur naturelle */
 }
 
 #cartModal #cart-total-price {
     color: var(--primary-color);
-    font-size: 1.25rem; /* Plus grand */
+    font-size: 1.25rem;
     font-weight: bold;
 }
 
 #cartModal .modal-footer-buttons { /* Conteneur pour les boutons */
     display: flex;
-    gap: 0.5rem; /* Espace entre les boutons */
-    flex-wrap: wrap; /* Permet aux boutons de passer à la ligne */
-    justify-content: flex-end; /* Aligner les boutons à droite par défaut */
+    gap: 0.75rem; /* Espace ajusté */
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex-grow: 1; /* Permet aux boutons de prendre l'espace restant si nécessaire */
 }
 
 #cartModal .modal-footer .btn {
     min-width: 100px; /* Largeur minimale */
-    margin: 0; /* Enlever les marges ajoutées précédemment */
+    margin: 0;
+    padding: 0.6rem 1rem; /* Padding boutons footer */
 }
 
-/* Style spécifique pour les boutons désactivés (géré par JS via classe .disabled) */
+/* Style spécifique pour les boutons désactivés */
 #cartModal .btn.disabled,
 #cartModal .btn:disabled {
-    pointer-events: none; /* Non cliquable */
-    opacity: 0.65;      /* Apparence grisée (standard Bootstrap) */
+    pointer-events: none;
+    opacity: 0.65;
     cursor: not-allowed;
 }
 
-/* --- Responsive pour le Modal Panier --- */
-@media (max-width: 767.98px) { /* md breakpoint */
+/* Responsive pour le Modal Panier */
+@media (max-width: 767.98px) {
     #cartModal .modal-dialog {
-        margin: 0.5rem; /* Réduire marge */
-        max-width: calc(100% - 1rem); /* Pleine largeur moins marge */
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
     }
     #cartModal .modal-body {
         padding: 1rem;
     }
     #cartModal #cart-items-container {
-        max-height: 65vh; /* Plus de hauteur sur mobile */
+        max-height: 60vh; /* Hauteur ajustée */
         padding-right: 5px;
         margin-right: -5px;
     }
 
-    /* --- Layout des items en colonne --- */
-    /* (Géré par JS avec flex-column, ici on ajuste les alignements/marges) */
+    /* Layout des items en colonne sur mobile */
     .cart-item {
-        align-items: center !important; /* Centrer tous les éléments */
-        text-align: center; /* Centrer le texte */
+        flex-direction: column; /* Passage en colonne */
+        align-items: center !important; /* Centrage */
+        text-align: center;
+        flex-wrap: wrap; /* Autorise le wrap si nécessaire */
     }
-    .cart-item img {
-        margin-bottom: 1rem !important; /* Espace sous l'image */
-        width: 100px; /* Image plus grande */
-        height: 100px;
+    .cart-item img.cart-item-img {
+        margin-bottom: 1rem; /* Espace sous l'image */
+        margin-left: 0; /* Pas de marge gauche */
+        width: 80px;
+        height: 80px;
     }
-    .cart-item > div { /* Espacement entre les sections (nom/prix, quantité, total ligne) */
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        margin-bottom: 1rem !important;
-        width: 100%; /* Prend toute la largeur */
+    .cart-item .cart-item-details {
+        margin-left: 0; /* Pas de marge gauche */
+        margin-bottom: 1rem; /* Espace sous détails */
+        width: 100%; /* Pleine largeur */
+        min-width: unset;
     }
-    .cart-item .d-flex.align-items-center { /* Conteneur quantité */
-        justify-content: center !important; /* Centrer +/-/input */
-        width: auto; /* Ne pas forcer 100% ici, laisser s'adapter */
-        margin-bottom: 1rem !important;
+    .cart-item .quantity-controls {
+        justify-content: center; /* Centre les boutons +/- et input */
+        width: auto; /* Largeur auto */
+        margin: 0 auto 1rem auto; /* Centre horizontalement, marge bas */
+        min-width: unset;
     }
-    .cart-item .quantity-input {
-        max-width: 70px; /* Un peu plus large si besoin */
-    }
-    .cart-item .text-md-end { /* Conteneur prix ligne */
-        text-align: center !important;
-        min-width: auto !important;
-        margin-bottom: 1rem !important;
+    .cart-item .cart-item-line-total {
+        text-align: center; /* Centrer le total */
+        min-width: auto; /* Largeur auto */
+        margin-bottom: 1rem; /* Marge sous le total */
+        margin-left: 0; /* Pas de marge gauche */
+        width: 100%;
     }
     .cart-item .remove-from-cart-btn {
-        align-self: center !important; /* Centrer bouton supprimer */
-        margin-top: 0 !important;
-        width: auto; /* Largeur auto */
-        padding: 0.5rem 1rem; /* Plus facile à cliquer */
+        align-self: center; /* Centrer bouton */
+        margin-top: 0;
+        margin-left: 0; /* Pas de marge gauche */
+        width: auto;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0; /* Pas de marge en bas */
     }
-    .cart-item .remove-from-cart-btn .d-inline.d-md-none {
-        display: inline !important; /* Assure affichage texte "Supprimer" */
-    }
-    .cart-item > *:last-child { /* Pas de marge en bas pour le dernier élément (le bouton) */
-        margin-bottom: 0 !important;
+    .cart-item .remove-from-cart-btn .d-md-none { /* Assure affichage texte "Supprimer" */
+        display: inline !important;
     }
 
-    /* --- Footer du Modal sur mobile --- */
+    /* Footer du Modal sur mobile */
     #cartModal .modal-footer {
-        flex-direction: column; /* Empiler verticalement */
-        align-items: stretch; /* Étirer les éléments */
+        flex-direction: column;
+        align-items: stretch;
     }
-    #cartModal #cart-total-container {
-        text-align: center; /* Centrer le total */
-        margin-bottom: 1rem; /* Espace avant les boutons */
+    #cartModal .cart-total-container { /* Le div qui contient le h4 */
+        text-align: center;
+        margin-bottom: 1rem;
         width: 100%;
-        order: 1; /* Total en premier */
+        order: 1; /* Total affiché avant boutons */
     }
     #cartModal .modal-footer-buttons {
-        flex-direction: column; /* Boutons empilés */
+        flex-direction: column;
         width: 100%;
-        order: 2; /* Boutons après le total */
-        gap: 0.75rem; /* Espace entre boutons empilés */
+        order: 2; /* Boutons après total */
+        gap: 0.75rem;
     }
     #cartModal .modal-footer-buttons .btn {
-        width: 100%; /* Boutons pleine largeur */
-        min-width: unset; /* Pas de largeur min */
+        width: 100%;
+        min-width: unset;
     }
-    /* Option: Mettre Vider Panier en dernier */
-    #cartModal #clear-cart-btn {
-        order: 3; /* Met le bouton vider en dernier dans la colonne */
-    }
-    #cartModal #whatsapp-order-btn {
-        order: 1; /* Met WhatsApp en premier (après le bouton Fermer par défaut) */
-    }
-    /* Ajustement pour le bouton "Fermer" par défaut de Bootstrap */
-    #cartModal .modal-footer-buttons .btn[data-bs-dismiss="modal"] {
-        order: 2;
-    }
+    /* Ordre des boutons sur mobile */
+    #cartModal #whatsapp-order-btn { order: 0; }
+    #cartModal .btn[data-bs-dismiss="modal"] { order: 1; } /* Continuer achats */
+    #cartModal #clear-cart-btn { order: 2; } /* Vider */
 }
 
 
 /*--------------------------------------------------------------
-Page Contact / Commander
---------------------------------------------------------------*/
-.contact-info-card .card-header {
-    font-weight: 600;
-    background-color: var(--light-color); /* Fond léger */
-}
-
-.contact-info-card a {
-    text-decoration: none;
-    font-weight: 500;
-}
-.contact-info-card .bi {
-    margin-right: 0.5rem;
-}
-
-.steps-container .d-flex { /* Les étapes de commande */
-    border: 1px solid #e9ecef;
-    border-radius: 0.375rem;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    background-color: #fff;
-    padding: 1rem 1.5rem;
-}
-.steps-container .d-flex:hover {
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075);
-    border-color: #ced4da;
-}
-.steps-container .flex-shrink-0 span { /* Les numéros 1, 2, 3, 4 */
-    width: 40px;
-    height: 40px;
-    line-height: 38px; /* Ajusté pour centrage vertical avec bordure */
-    text-align: center;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: bold;
-    border: 1px solid var(--primary-color);
-}
-.steps-container h5 {
-    margin-bottom: 0.25rem;
-}
-.steps-container p {
-    margin-bottom: 0;
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-}
-
-/*--------------------------------------------------------------
-Pied de Page (Footer)
+# Pied de Page (Footer)
 --------------------------------------------------------------*/
 footer {
     background-color: var(--dark-color);
-    color: rgba(255, 255, 255, 0.75); /* Blanc un peu plus opaque */
+    color: rgba(255, 255, 255, 0.75);
     padding-top: 3rem;
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem; /* Plus d'espace en bas */
     font-size: 0.9rem;
-    /* Retire margin-top: auto; car géré par flexbox sur body/main */
 }
 
 footer h5 {
     color: var(--warning-color);
     font-weight: bold;
-    margin-bottom: 1rem;
-    text-transform: uppercase; /* Majuscules pour titres */
+    margin-bottom: 1.25rem; /* Plus d'espace sous titres */
+    text-transform: uppercase;
     font-size: 1rem;
     letter-spacing: 0.5px;
 }
 
+footer p {
+    margin-bottom: 0.75rem; /* Espace standard paragraphes */
+}
+
 footer a {
     color: rgba(255, 255, 255, 0.85);
-    text-decoration: none; /* Assurer pas de soulignement */
+    text-decoration: none;
     transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 footer a:hover {
-    color: #fff; /* Blanc plein au survol */
+    color: #fff;
     text-decoration: underline;
 }
 
-footer ul {
-    list-style: none;
-    padding-left: 0;
+footer .text-decoration-none:hover {
+    text-decoration: underline !important; /* Force le soulignement au survol même si classe .text-decoration-none */
 }
-footer ul li {
+
+/* Liens utiles */
+footer .list-unstyled p { /* Cible les <p> contenant les <a> */
     margin-bottom: 0.5rem;
 }
 
-footer .social-links a {
-    display: inline-flex; /* Pour aligner les icônes */
+/* Icônes contact et adresse */
+footer .bi {
+    vertical-align: middle; /* Meilleur alignement icônes */
+}
+
+/* Liens réseaux sociaux */
+/* NOTE: La classe .social-links n'est pas dans le HTML actuel du footer, */
+/* mais la règle est gardée ici si vous la rajoutez. */
+footer .social-links a,
+footer .mt-3 > a { /* Cible aussi les liens directs dans le div.mt-3 */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 38px; /* Taille ajustée */
+    height: 38px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.7);
-    margin-right: 0.5rem;
+    margin-right: 0.6rem; /* Espace ajusté */
     transition: background-color 0.3s ease, color 0.3s ease;
-    text-decoration: none; /* Pas de soulignement pour les icônes */
+    text-decoration: none;
 }
-footer .social-links a:hover {
+footer .social-links a:hover,
+footer .mt-3 > a:hover {
     background-color: var(--warning-color);
     color: var(--dark-color);
     text-decoration: none;
 }
-footer .social-links .bi {
-    font-size: 1.1rem; /* Taille icônes sociales */
+footer .social-links .bi,
+footer .mt-3 > a .bi {
+    font-size: 1.2rem; /* Taille icônes sociales */
+    line-height: 1; /* Assure centrage vertical */
 }
 
+
 footer hr {
-    border-top: 1px solid rgba(255, 255, 255, 0.15); /* Ligne plus visible */
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
     margin-top: 2rem;
     margin-bottom: 1.5rem;
 }
 
-footer .copyright {
+/* NOTE: La classe .copyright n'est pas dans le HTML actuel */
+footer .copyright,
+footer .row.align-items-center p { /* Cible aussi le <p> actuel */
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.6);
-}
-footer .credits a {
-    color: rgba(255, 255, 255, 0.8); /* Couleur liens crédits */
+    margin-top: 1rem; /* Espace au-dessus du copyright */
 }
 
 /*--------------------------------------------------------------
-Toast Notifications
+# Toast Notifications (via cart.js)
 --------------------------------------------------------------*/
-/* Positionnement géré par JS (ajout classe .position-fixed etc.) */
-/* Assurer un z-index élevé pour être au-dessus de tout (y compris modal si besoin) */
-/* Le JS met déjà 1100, on peut le renforcer ici */
 .toast-container {
     z-index: 1100 !important;
-    position: fixed !important; /* Assurer positionnement fixed */
+    position: fixed !important;
+    /* Position (top, bottom, start, end) gérée par JS */
 }
 
-/* Styles de base des toasts (complètent Bootstrap) */
 .toast {
-    /* Bootstrap gère bien la base */
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); /* Ombre plus prononcée */
-    opacity: 0.95; /* Légère transparence optionnelle */
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    border-radius: 0.375rem; /* Standard Bootstrap */
+    border: none; /* Pas de bordure par défaut */
 }
+
+.toast.bg-success { /* Style spécifique pour succès */
+    background-color: var(--success-color) !important;
+    color: white;
+}
+.toast.bg-success .toast-header {
+    background-color: rgba(0,0,0,0.1);
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.toast.bg-success .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Bouton fermer blanc */
+}
+
+/* Style pour toast d'erreur/suppression */
+.toast.bg-danger {
+    background-color: var(--danger-color) !important;
+    color: white;
+}
+.toast.bg-danger .toast-header {
+    background-color: rgba(0,0,0,0.1);
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.toast.bg-danger .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
 
 .toast .toast-body {
     font-weight: 500;
     display: flex;
-    align-items: center; /* Aligner icône et texte */
+    align-items: center;
 }
 
 .toast .toast-body .bi {
-    margin-right: 0.75rem; /* Espace après l'icône */
-    font-size: 1.2rem; /* Taille icône toast */
+    margin-right: 0.75rem;
+    font-size: 1.3rem; /* Taille icône toast */
+    flex-shrink: 0;
 }
 
-/* Bouton fermer dans le toast */
 .toast .btn-close {
-    /* Les classes btn-close-white etc. sont gérées par le JS */
-    font-size: 0.8rem; /* Taille bouton fermer */
+    font-size: 0.8rem;
 }
