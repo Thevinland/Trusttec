@@ -249,7 +249,7 @@ select:focus-visible {
 /* --- Classe spécifique pour la section Contact --- */
 .contact-title-section {
     /* !!! REMPLACEZ PAR VOTRE IMAGE POUR CONTACT !!! */
-     background-image: url('../Images/13978.webp'); /* Assurez-vous que ce chemin est correct */
+     background-image: url('../Images/12927.webp'); /* Assurez-vous que ce chemin est correct */
      /* Fallback ou autre image si celle-ci n'existe pas :
      background: linear-gradient(rgba(40, 60, 100, 0.6), rgba(40, 60, 100, 0.6)), url('../Images/default-bg.jpg') no-repeat center center;
      background-size: cover;
