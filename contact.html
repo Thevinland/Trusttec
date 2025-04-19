@@ -3,284 +3,251 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Titre et Description mis à jour pour Pointe-Noire -->
-    <title>Commander & Contacter Trusttec - Pointe-Noire</title>
-    <meta name="description" content="Contactez Trusttec à Pointe-Noire pour commander vos produits électroniques via WhatsApp ou pour toute question. Panier disponible.">
+    <!-- Titre spécifique à la page contact -->
+    <title>Contact & Commande - Trusttec | Commandez via WhatsApp</title>
+    <!-- Description spécifique -->
+    <meta name="description" content="Contactez Trusttec à Pointe-Noire pour commander vos disques durs, clés USB, AirPods ou obtenir de l'aide. Commande simple via WhatsApp.">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Votre CSS personnalisé -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <!-- Chemin vers votre fichier CSS final -->
     <!-- Favicon -->
-    <!-- Assurez-vous que le chemin vers votre favicon est correct -->
-    <link rel="icon" href="images/favicon.png" type="image/png">
+    <link rel="icon" href="images/favicon.png" type="image/png"> <!-- Assurez-vous que ce chemin est correct -->
+
+    <!-- Le bloc <style> a été supprimé d'ici car les styles sont maintenant dans style.css -->
+
 </head>
 <body>
 
-    <!-- Barre de Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-        <div class="container">
-            <!-- Logo -->
-            <a class="navbar-brand" href="index.html">
-                <img src="Images/ChatGPT Image 31 mars 2025, 22_32_48.webp" alt="Logo Trusttec" height="40">
+<!-- Barre de Navigation (Identique à index.html) -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">
+            <img src="Images/ChatGPT Image 31 mars 2025, 22_32_48.png" alt="Logo Trusttec" height="40"> <!-- Logo .png comme index.html -->
+        </a>
+        <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
+            <i class="bi bi-cart"></i>
+            <span class="visually-hidden">Panier</span>
+            <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="produits.html">Produits</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="contact.html">Commander & Contact</a> <!-- 'active' est ici -->
+                </li>
+            </ul>
+            <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <i class="bi bi-cart"></i> Panier
+                <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                    0 <span class="visually-hidden">articles dans le panier</span>
+                </span>
+            </button>
+             <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
+                <i class="bi bi-whatsapp me-1"></i>Contact Rapide
             </a>
-
-            <!-- Bouton Panier pour Mobile (<lg) -->
-            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
-                <i class="bi bi-cart"></i>
-                <span class="visually-hidden">Panier</span>
-                <!-- class au lieu de id pour les badges -->
-                <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
-            </button>
-
-            <!-- Bouton Burger (Toggler) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Contenu Collapsible -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="produits.html">Produits</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="contact.html">Commander & Contact</a>
-                    </li>
-                </ul>
-
-                <!-- Bouton Panier pour Bureau (>=lg) -->
-                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
-                    <i class="bi bi-cart"></i> Panier
-                    <!-- class au lieu de id pour les badges -->
-                    <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                        0
-                        <span class="visually-hidden">articles dans le panier</span>
-                    </span>
-                </button>
-
-                <!-- Bouton Contact Rapide Bureau (>=lg) -->
-                 <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
+            <div class="d-lg-none mt-3 border-top pt-3">
+                <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success w-100" target="_blank">
                     <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                 </a>
-
-                <!-- Optionnel: Bouton Contact Rapide pour Mobile (<lg) -->
-                <div class="d-lg-none mt-3 border-top pt-3">
-                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success w-100" target="_blank">
-                        <i class="bi bi-whatsapp me-1"></i>Contact Rapide
-                    </a>
-                </div>
             </div>
         </div>
-    </nav>
-    <!-- Fin Barre de Navigation -->
+    </div>
+</nav>
+<!-- Fin Barre de Navigation -->
 
+<!-- Section Titre Contact avec Image de Fond -->
+<!-- Assurez-vous que l'image définie dans .contact-title-section (style.css) existe -->
+<section class="page-title-section-bg contact-title-section">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold">Contactez-nous & Commandez Facilement</h1>
+        <p class="lead">Prêt à passer commande ou besoin d'aide ? Voici comment faire.</p>
+    </div>
+</section>
 
-   <!-- Section Titre Contact (Avec image de fond via CSS) -->
-   <section class="page-title-section-bg contact-title-section">
-        <div class="container text-center">
-            <h1 class="display-5 fw-bold">Comment Commander & Nous Contacter</h1>
-            <p class="lead">Utilisez le panier ou contactez-nous directement via WhatsApp !</p>
-        </div>
+<!-- Contenu Principal -->
+<main class="container my-5">
+
+    <!-- Section Comment Commander -->
+    <section id="comment-commander" class="mb-5 p-4 bg-light rounded shadow-sm">
+        <h2 class="mb-4 fw-bold text-primary border-bottom pb-2"><i class="bi bi-cart-check me-2"></i>Commander via WhatsApp : Simple et Rapide !</h2>
+        <p class="lead">Suivez ces étapes pour passer votre commande facilement :</p>
+        <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item">Naviguez sur notre page <a href="produits.html">Produits</a>.</li>
+            <li class="list-group-item">Cliquez sur <strong class="text-primary"><i class="bi bi-cart-plus"></i> Ajouter au panier</strong> pour les articles souhaités.</li>
+            <li class="list-group-item">Une fois votre sélection terminée, cliquez sur l'icône <strong class="text-primary"><i class="bi bi-cart"></i> Panier</strong> en haut à droite (ou dans le menu sur mobile).</li>
+            <li class="list-group-item">Vérifiez votre panier, puis cliquez sur le bouton <strong class="text-success"><i class="bi bi-whatsapp"></i> Commander via WhatsApp</strong> dans la fenêtre du panier.</li>
+            <li class="list-group-item">Cela ouvrira WhatsApp avec un message pré-rempli contenant votre commande. Envoyez-nous simplement ce message !</li>
+            <li class="list-group-item">Nous vous répondrons rapidement pour finaliser les détails (paiement, livraison/retrait).</li>
+        </ol>
+         <p class="mt-3 text-center text-muted">
+            <i class="bi bi-info-circle-fill me-1"></i> Pour commander, remplissez votre panier puis utilisez le bouton WhatsApp du panier.
+        </p>
     </section>
-    <!-- Fin Section Titre Contact -->
 
-    <!-- Contenu Principal -->
-    <main class="container my-5">
-        <div class="row g-5">
+    <!-- Section Autres Moyens de Contact -->
+    <section id="autres-contacts" class="mb-5">
+        <h2 class="mb-5 fw-bold text-center border-bottom pb-3"><i class="bi bi-headset me-2"></i>Autres Moyens de Nous Joindre</h2>
+        <!-- align-items-stretch sur la ROW pour égaliser hauteur des colonnes -->
+        <div class="row g-4 justify-content-center d-flex align-items-stretch">
 
-            <!-- Colonne Comment Commander -->
-            <div class="col-lg-7">
-                <h2 class="mb-4 fw-bold">Commander vos produits : C'est facile !</h2>
-
-                <!-- Étape 1 -->
-                <div class="d-flex align-items-start mb-4 p-3 border rounded shadow-sm steps-container">
-                    <div class="flex-shrink-0 me-3">
-                        <span class="d-inline-flex align-items-center justify-content-center fs-5 fw-bold" style="width: 40px; height: 40px;">1</span>
-                    </div>
-                    <div>
-                        <h5 class="fw-semibold">Ajoutez au panier</h5>
-                        <p class="mb-0 text-muted">Sur la <a href="produits.html">page Produits</a>, cliquez sur le bouton <span class="badge bg-primary"><i class="bi bi-cart-plus"></i> Ajouter au panier</span> pour les articles souhaités.</p>
-                    </div>
-                </div>
-
-                <!-- Étape 2 -->
-                 <div class="d-flex align-items-start mb-4 p-3 border rounded shadow-sm steps-container">
-                    <div class="flex-shrink-0 me-3">
-                       <span class="d-inline-flex align-items-center justify-content-center fs-5 fw-bold" style="width: 40px; height: 40px;">2</span>
-                    </div>
-                    <div>
-                        <h5 class="fw-semibold">Vérifiez votre panier</h5>
-                        <p class="mb-0 text-muted">Cliquez sur l'icône <i class="bi bi-cart"></i> Panier en haut à droite. Vous pouvez ajuster les quantités ou supprimer des articles.</p>
+            <!-- Carte Contact WhatsApp Direct -->
+            <div class="col-md-6 col-lg-3">
+                <!-- h-100 sur la carte pour qu'elle prenne la hauteur étirée de la colonne -->
+                <div class="card h-100 text-center shadow-sm contact-card">
+                    <div class="card-body"> <!-- Styles pour .contact-card .card-body sont dans style.css -->
+                        <i class="bi bi-whatsapp contact-icon text-success"></i> <!-- Styles pour .contact-icon dans style.css -->
+                        <h5 class="card-title fw-semibold mb-3">WhatsApp Direct</h5>
+                        <p class="card-text text-muted mb-3">Pour toute question rapide ou demande d'information.</p>
+                        <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="btn btn-success mt-auto" target="_blank">
+                           <i class="bi bi-send me-1"></i> Discuter
+                        </a>
                     </div>
                 </div>
-
-                <!-- Étape 3 -->
-                 <div class="d-flex align-items-start mb-4 p-3 border rounded shadow-sm steps-container">
-                    <div class="flex-shrink-0 me-3">
-                        <span class="d-inline-flex align-items-center justify-content-center fs-5 fw-bold" style="width: 40px; height: 40px;">3</span>
-                    </div>
-                    <div>
-                        <h5 class="fw-semibold">Commandez via WhatsApp</h5>
-                        <p class="mb-0 text-muted">Dans le panier, cliquez sur <span class="badge bg-success"><i class="bi bi-whatsapp"></i> Commander via WhatsApp</span>. Votre commande complète sera préparée dans un message WhatsApp.</p>
-                    </div>
-                </div>
-
-                <!-- Étape 4 -->
-                 <div class="d-flex align-items-start mb-4 p-3 border rounded shadow-sm steps-container">
-                    <div class="flex-shrink-0 me-3">
-                       <span class="d-inline-flex align-items-center justify-content-center fs-5 fw-bold" style="width: 40px; height: 40px;">4</span>
-                    </div>
-                    <div>
-                        <h5 class="fw-semibold">Envoyez & Finalisez</h5>
-                        <p class="mb-0 text-muted">Envoyez-nous le message sur WhatsApp. Nous vous répondrons rapidement pour confirmer et organiser le paiement et la livraison/récupération.</p>
-                    </div>
-                </div>
-
-                <!-- Alerte Info -->
-                 <div class="alert alert-info mt-4" role="alert">
-                    <i class="bi bi-info-circle-fill me-2"></i> Vous pouvez aussi nous contacter directement sur WhatsApp pour toute question ou commande spécifique !
-                 </div>
-
-                 <!-- Bouton Question Générale WhatsApp -->
-                 <div class="text-center mt-5">
-                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'ai%20une%20question%20g%C3%A9n%C3%A9rale." class="btn btn-success btn-lg" target="_blank">
-                        <i class="bi bi-whatsapp me-2"></i>Poser une question générale sur WhatsApp
-                    </a>
-                 </div>
             </div>
-            <!-- Fin Colonne Comment Commander -->
 
-            <!-- Colonne Informations de Contact (Sidebar) -->
-            <div class="col-lg-5">
-                <!-- sticky-lg-top pour la sidebar collante sur grand écran -->
-                <!-- style="top: 100px;" pour ajuster l'offset sous la navbar sticky -->
-                <aside class="sticky-lg-top" style="top: 100px;">
-                    <div class="card shadow-sm contact-info-card">
-                        <div class="card-header"> <!-- Classe CSS appliquée ici -->
-                             <h3 class="mb-0 fs-5 fw-bold"><i class="bi bi-person-rolodex me-2"></i>Informations de Contact</h3>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Nom de l'entreprise :</strong> Trusttec</p>
-                            <p><strong>Localisation :</strong> Pointe-Noire, République du Congo</p>
-                            <hr>
-                            <h5 class="mb-3 fw-semibold"><i class="bi bi-telephone-fill text-success me-2"></i>Contact Principal (WhatsApp) :</h5>
-                            <p class="fs-5 fw-bold mb-1">
-                                <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="text-decoration-none text-success" target="_blank">
-                                    <i class="bi bi-whatsapp"></i> +(242) 05 632 37 22
-                                </a>
-                            </p>
-                            <p class="text-muted small mb-3">Cliquez sur le numéro pour nous écrire directement.</p>
-                            <hr>
-                             <h5 class="mb-3 fw-semibold"><i class="bi bi-envelope-fill me-2"></i>Email :</h5>
-                             <p><a href="mailto:info@trusttec.cg">info@trusttec.cg</a> </p>
-                             <!-- Horaires et Retrait supprimés comme dans l'original -->
-                        </div>
+            <!-- Carte Contact Email -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm contact-card">
+                    <div class="card-body">
+                        <i class="bi bi-envelope-fill contact-icon text-secondary"></i>
+                        <h5 class="card-title fw-semibold mb-3">Email</h5>
+                        <p class="card-text text-muted mb-3">Pour les demandes écrites ou moins urgentes.</p>
+                        <a href="mailto:info@trusttec.cg" class="btn btn-secondary mt-auto">
+                           <i class="bi bi-envelope-paper me-1"></i> Envoyer un email
+                        </a>
                     </div>
-                </aside>
+                </div>
             </div>
-            <!-- Fin Colonne Informations de Contact -->
+
+            <!-- Carte Contact Facebook -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm contact-card">
+                    <div class="card-body">
+                        <i class="bi bi-facebook contact-icon text-primary"></i>
+                        <h5 class="card-title fw-semibold mb-3">Facebook</h5>
+                        <p class="card-text text-muted mb-3">Suivez nos actualités et contactez-nous via Messenger.</p>
+                        <a href="https://www.facebook.com/profile.php?id=61574476228813" class="btn btn-primary mt-auto" target="_blank">
+                           <i class="bi bi-facebook me-1"></i> Voir la page
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Adresse/Localisation -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm contact-card">
+                    <!-- justify-content-center car pas de bouton mt-auto -->
+                    <div class="card-body justify-content-center">
+                        <i class="bi bi-geo-alt-fill contact-icon text-danger"></i>
+                        <h5 class="card-title fw-semibold mb-3">Notre Localisation</h5>
+                        <p class="card-text text-muted">Nous sommes basés à Pointe-Noire.</p>
+                        <p class="card-text fw-medium mt-2 mb-0">République du Congo</p>
+                        <p class="card-text mt-2"><small>(Contactez-nous via WhatsApp pour les détails de retrait/livraison)</small></p>
+                    </div>
+                </div>
+            </div>
 
         </div>
-    </main>
-    <!-- Fin Contenu Principal -->
+         <p class="mt-5 text-center text-muted fst-italic">
+            <i class="bi bi-info-circle me-1"></i> Pour une réponse rapide à vos questions, privilégiez <strong class="text-success">WhatsApp Direct</strong> ci-dessus. Pour commander, utilisez le bouton WhatsApp dans votre <strong class="text-primary">panier</strong>.
+        </p>
+    </section>
 
-    <!-- Pied de Page -->
-    <footer class="bg-dark text-white pt-5 pb-4 mt-5"> <!-- Correction : Ajout de bg-dark et text-white -->
-        <div class="container text-center text-md-start">
-             <div class="row gy-4">
-                 <div class="col-md-4 col-lg-4 mx-auto">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
-                     <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service client au cœur de nos préoccupations.</p>
-                     <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
+</main>
+
+<!-- Pied de Page (Exactement celui de index.html) -->
+<footer class="bg-dark text-white pt-5 pb-4">
+    <div class="container text-center text-md-start">
+         <div class="row">
+            <div class="col-md-4 col-lg-4 mx-auto mt-3">
+                 <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
+                 <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service client au cœur de nos préoccupations.</p>
+                 <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
+            </div>
+            <div class="col-md-3 col-lg-2 mx-auto mt-3">
+                <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
+                <p><a href="index.html" class="text-white text-decoration-none">Accueil</a></p>
+                <p><a href="produits.html" class="text-white text-decoration-none">Tous les Produits</a></p>
+                <p><a href="contact.html" class="text-white text-decoration-none">Comment Commander</a></p>
+                <p><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal" class="text-white text-decoration-none">Voir Panier</a></p>
+            </div>
+            <div class="col-md-4 col-lg-3 mx-auto mt-3">
+                 <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
+                 <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
+                 <p><i class="bi bi-envelope-fill me-2"></i>info@trusttec.cg</p>
+                 <div class="mt-3"> <!-- Pas de classe 'social-links' -->
+                     <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-facebook"></i></a>
+                     <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-whatsapp"></i></a>
                  </div>
-                 <div class="col-md-3 col-lg-2 mx-auto">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
-                     <ul class="list-unstyled">
-                         <!-- Correction : Liens en blanc -->
-                         <li class="mb-2"><a href="index.html" class="text-white text-decoration-none">Accueil</a></li>
-                         <li class="mb-2"><a href="produits.html" class="text-white text-decoration-none">Tous les Produits</a></li>
-                         <li class="mb-2"><a href="contact.html" class="text-white text-decoration-none">Comment Commander</a></li>
-                         <li><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal" class="text-white text-decoration-none">Voir Panier</a></li>
-                     </ul>
-                 </div>
-                 <div class="col-md-4 col-lg-3 mx-auto">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
-                     <ul class="list-unstyled">
-                          <!-- Correction : Liens en blanc -->
-                         <li class="mb-2"><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" target="_blank" class="text-white text-decoration-none">+(242) 05 632 37 22</a></li>
-                         <li class="mb-3"><i class="bi bi-envelope-fill me-2"></i><a href="mailto:info@trusttec.cg" class="text-white text-decoration-none">info@trusttec.cg</a></li>
-                         <li class="social-links">
-                              <!-- Correction : Liens sociaux en blanc -->
-                             <a href="https://www.facebook.com/profile.php?id=61574476228813" target="_blank" aria-label="Facebook" class="text-white me-3 fs-4"><i class="bi bi-facebook"></i></a>
-                             <a href="https://wa.me/242056323722" target="_blank" aria-label="WhatsApp" class="text-white fs-4"><i class="bi bi-whatsapp"></i></a>
-                         </li>
-                     </ul>
-                 </div>
-             </div>
-             <hr class="my-4">
-             <div class="row align-items-center">
-                 <div class="col-12 text-center">
-                     <!-- Correction : classe copyright inutile ici, mb-0 suffit -->
-                    <p class="mb-0">© <span id="current-year-contact"></span> Trusttec. Tous droits réservés.</p>
-                 </div>
-             </div>
+            </div>
         </div>
-    </footer>
-    <!-- Fin Pied de Page -->
+        <hr class="my-3">
+        <div class="row align-items-center">
+            <div class="col-md-7 col-lg-8">
+                <p class="text-center text-md-start mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p> <!-- Pas de classe 'copyright' -->
+            </div>
+        </div>
+    </div>
+</footer>
 
-    <!-- Modal Panier (Structure harmonisée avec produits.html) -->
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+<!-- Modal Panier (Identique à index.html) -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items-container">
+                    <!-- Injecté par JS -->
                 </div>
-                <div class="modal-body">
-                    <div id="cart-items-container">
-                        <!-- Injecté par JS -->
-                    </div>
-                    <!-- Message Panier Vide AVEC icône (copié de produits.html) -->
-                    <div id="cart-empty-msg" class="text-center py-5" style="display: none;">
-                        <i class="bi bi-emoji-frown fs-1 text-muted"></i>
-                        <p class="mt-3">Votre panier est actuellement vide.</p>
-                        <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal">Continuer les achats</button>
-                    </div>
+                <div id="cart-empty-msg" class="text-center py-5" style="display: none;">
+                    <i class="bi bi-emoji-frown fs-1 text-muted"></i>
+                    <p class="mt-3">Votre panier est actuellement vide.</p>
+                    <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal" onclick="window.location.href='produits.html'">Commencer vos achats</button>
                 </div>
-                <!-- Footer harmonisé avec produits.html -->
-                <div class="modal-footer justify-content-between flex-column flex-sm-row">
-                    <!-- Total à gauche -->
-                    <div class="mb-2 mb-sm-0">
-                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
-                    </div>
-                     <!-- Boutons à droite -->
-                     <div class="modal-footer-buttons d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
-                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn" title="Vider le panier"><i class="bi bi-trash"></i> <span class="d-sm-none">Vider</span></button>
-                        <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Fermer</button>
-                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
-                    </div>
+            </div>
+             <div class="modal-footer justify-content-between flex-column flex-sm-row">
+                <div class="mb-2 mb-sm-0"> <!-- Pas d'ID cart-total-container -->
+                    <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
+                </div>
+                <div class="modal-footer-buttons d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+                    <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn" title="Vider le panier"><i class="bi bi-trash"></i> <span class="d-sm-none">Vider</span></button>
+                    <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Continuer les achats</button>
+                    <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Fin Modal Panier -->
+</div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="js/cart.js"></script> <!-- Assurez-vous que ce chemin est correct -->
+<script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
 
-    <!-- Votre Script Panier -->
-    <script src="js/cart.js"></script>
-
-     <!-- Script pour l'année en cours -->
-    <script>
-        // ID unique pour l'année pour éviter les conflits
-        document.getElementById('current-year-contact').textContent = new Date().getFullYear();
-    </script>
+    // Fonction formatPrice (si nécessaire ou si non définie globalement par cart.js)
+    function formatPrice(price) {
+         const numericPrice = Number(price);
+        if (isNaN(numericPrice)) {
+            return 'Prix invalide';
+        }
+        return numericPrice.toLocaleString('fr-FR', { style: 'currency', currency: 'XAF', minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace('FCFA', 'XAF').trim();
+    }
+</script>
 </body>
 </html>
