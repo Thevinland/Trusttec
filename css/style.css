@@ -162,6 +162,13 @@ select:focus-visible {
     box-shadow: none;
 }
 
+/* Augmenter légèrement la taille de l'icône du toggler (les "trois barres") */
+.navbar-toggler-icon {
+    width: 2em;  /* Valeur par défaut est généralement 1.5em */
+    height: 2em; /* Valeur par défaut est généralement 1.5em */
+    /* L'image SVG en arrière-plan s'adaptera automatiquement */
+    /* à ces nouvelles dimensions.                         */
+}
 
 /*--------------------------------------------------------------
 # Hero Section (Accueil)
