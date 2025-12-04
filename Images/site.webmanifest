@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Trusttec.store",
+  "short_name": "Trusttec",
   "icons": [
     {
       "src": "/Images/web-app-manifest-192x192.png",
