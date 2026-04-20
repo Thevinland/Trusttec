@@ -1,19 +1,19 @@
 <!doctype html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Titre mis à jour -->
     <title>Trusttec - Électronique Fiable à Pointe-Noire (Disques Durs, Clés USB, AirPods)</title>
-    <!-- Description mise à jour -->
-    <meta name="description" content="Votre fournisseur de confiance pour disques durs, clés USB, AirPods et autres produits électroniques de qualité à Pointe-Noire. Panier et commande facile via WhatsApp.">
-    <meta name="apple-mobile-web-app-title" content="Nom De Votre Site">
-    
+    <meta name="description"
+        content="Votre fournisseur de confiance pour disques durs, clés USB, AirPods et autres produits électroniques de qualité à Pointe-Noire. Panier et commande facile via WhatsApp.">
+    <meta name="apple-mobile-web-app-title" content="Trusttec">
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Votre CSS personnalisé -->
+    <!-- CSS personnalisé -->
     <link rel="stylesheet" href="css/style.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/Images/favicon-96x96.png" sizes="96x96" />
@@ -21,227 +21,346 @@
     <link rel="shortcut icon" href="/Images/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/Images/apple-touch-icon.png" />
     <link rel="manifest" href="/Images/site.webmanifest" />
+
+    <style>
+        .category-image {
+            object-fit: cover;
+            height: 220px;
+            width: 100%;
+            background-color: #f8f9fa;
+        }
+
+        .product-thumb {
+            object-fit: contain;
+            height: 180px;
+            width: 100%;
+            padding: 1.5rem;
+            /* J'ai légèrement augmenté l'espace pour que l'image respire mieux */
+            background-color: #ffffff;
+            /* <-- FOND BLANC PUR ICI */
+            border-radius: 8px 8px 0 0;
+        }
+
+        .loading-container {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
+
 <body>
 
-    <!-- Barre de Navigation -->
+    <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
-            <!-- Logo -->
             <a class="navbar-brand" href="index.html">
                 <img src="Images/logo.webp" alt="Logo Trusttec" height="40">
             </a>
-
-            <!-- Bouton Panier pour Mobile (<lg) -->
-            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
+            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2"
+                type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
                 <i class="bi bi-cart"></i>
                 <span class="visually-hidden">Panier</span>
-                <!-- MODIFIÉ: id remplacé par class -->
-                <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+                <span
+                    class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style="display: none;">0</span>
             </button>
-
-            <!-- Bouton Burger (Toggler) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Contenu Collapsible -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.html">Accueil</a>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Accueil</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="produits.html">Produits</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Commander & Contact</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="produits.html">Produits</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Commander & Contact</a></li>
                 </ul>
-
-                <!-- Bouton Panier pour Bureau (>=lg) -->
-                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button"
+                    data-bs-toggle="modal" data-bs-target="#cartModal">
                     <i class="bi bi-cart"></i> Panier
-                    <!-- MODIFIÉ: id remplacé par class -->
-                    <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                        0
-                        <span class="visually-hidden">articles dans le panier</span>
-                    </span>
+                    <span
+                        class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="display: none;">0</span>
                 </button>
-
-                <!-- Bouton Contact Rapide Bureau (>=lg) -->
-                 <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
+                <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements."
+                    class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
                     <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                 </a>
-
-                <!-- Optionnel: Bouton Contact Rapide pour Mobile (<lg) -->
                 <div class="d-lg-none mt-3 border-top pt-3">
-                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success w-100" target="_blank">
+                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements."
+                        class="btn btn-success w-100" target="_blank">
                         <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                     </a>
                 </div>
             </div>
         </div>
     </nav>
-    <!-- Fin Barre de Navigation -->
 
-    <!-- Hero Section -->
+    <!-- ===================== HERO SECTION ===================== -->
     <header class="hero-section text-white text-center d-flex align-items-center">
-        <div class="container">
+        <div class="container py-5">
             <h1 class="display-4 fw-bold">Trusttec : Votre Électronique de Confiance</h1>
-            <p class="lead my-3">Disques durs, clés USB, AirPods et plus encore. Qualité garantie à Pointe-Noire. Ajoutez au panier et commandez via WhatsApp !</p>
-            <a href="produits.html" class="btn btn-primary btn-lg me-2 mb-2 mb-md-0">Voir Nos Produits</a>
-            <a href="#categories" class="btn btn-outline-light btn-lg mb-2 mb-md-0">Explorer les Catégories</a>
+            <p class="lead my-3">Disques durs, clés USB, AirPods et plus encore. Qualité garantie à Pointe-Noire.
+                Ajoutez au panier et commandez via WhatsApp !</p>
+            <div class="mt-4">
+                <a href="produits.html" class="btn btn-warning btn-lg me-2 mb-2 mb-md-0 fw-bold">Voir Nos Produits</a>
+                <a href="#categories" class="btn btn-outline-light btn-lg mb-2 mb-md-0">Explorer les Catégories</a>
+            </div>
         </div>
     </header>
 
-    <!-- Section Catégories -->
+    <!-- ===================== CATÉGORIES DYNAMIQUES ===================== -->
     <section id="categories" class="py-5">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Nos Catégories Principales</h2>
-            <div class="row g-4">
-                <!-- Catégorie Disques Durs -->
-                <div class="col-md-4">
-                    <div class="card category-card text-center shadow-sm h-100">
-                         <img src="Images/ChatGPT Image 2 avr. 2025, 09_37_47.webp" class="card-img-top category-image" alt="Disques Durs">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Disques Durs Externes</h5>
-                            <p class="card-text">Stockez vos données en toute sécurité.</p>
-                            <a href="produits.html#disques-durs" class="btn btn-outline-primary mt-auto">Découvrir</a>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Catégorie Clés USB -->
-                <div class="col-md-4">
-                    <div class="card category-card text-center shadow-sm h-100">
-                         <img src="Images/usb.webp" class="card-img-top category-image" alt="Clés USB">
-                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Clés USB</h5>
-                            <p class="card-text">Transportez vos fichiers facilement.</p>
-                            <a href="produits.html#cles-usb" class="btn btn-outline-primary mt-auto">Découvrir</a>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Catégorie AirPods -->
-                <div class="col-md-4">
-                    <div class="card category-card text-center shadow-sm h-100">
-                         <img src="Images/air.webp" class="card-img-top category-image" alt="AirPods">
-                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">AirPods & Écouteurs</h5>
-                            <p class="card-text">Profitez d'un son de qualité.</p>
-                            <a href="produits.html#airpods" class="btn btn-outline-primary mt-auto">Découvrir</a>
-                        </div>
-                    </div>
-                </div>
+            <h2 class="text-center mb-5 fw-bold">Nos Catégories</h2>
+
+            <div id="loading-categories" class="loading-container text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            </div>
+
+            <div id="dynamic-categories">
+                <!-- Les catégories seront injectées ici par Javascript depuis l'Admin -->
             </div>
         </div>
     </section>
 
-     <!-- Section Pourquoi Nous Choisir -->
-    <section class="bg-light py-5">
+    <!-- ===================== DERNIERS PRODUITS DYNAMIQUES ===================== -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Derniers ajouts</h2>
+                <a href="produits.html" class="btn btn-outline-primary btn-sm">Tout voir <i
+                        class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div id="loading-products" class="loading-container text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            </div>
+
+            <div class="row g-4" id="dynamic-featured-products">
+                <!-- Les produits récents seront injectés ici -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== POURQUOI NOUS CHOISIR ===================== -->
+    <section class="py-5">
         <div class="container">
             <h2 class="text-center mb-5 fw-bold">Pourquoi Choisir Trusttec ?</h2>
             <div class="row text-center g-4">
                 <div class="col-md-4">
                     <div class="p-4">
-                         <i class="bi bi-patch-check-fill text-primary display-4 mb-3"></i>
+                        <i class="bi bi-patch-check-fill text-primary display-4 mb-3"></i>
                         <h4 class="fw-semibold">Qualité Garantie</h4>
-                        <p>Nous sélectionnons des produits fiables et performants pour votre satisfaction.</p>
+                        <p class="text-muted">Nous sélectionnons des produits fiables et performants pour votre entière
+                            satisfaction.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                     <div class="p-4">
+                    <div class="p-4">
                         <i class="bi bi-whatsapp text-success display-4 mb-3"></i>
                         <h4 class="fw-semibold">Support via WhatsApp</h4>
-                        <p>Commandez et posez vos questions facilement via WhatsApp pour une réponse rapide.</p>
-                     </div>
+                        <p class="text-muted">Commandez et posez vos questions facilement via WhatsApp pour une réponse
+                            instantanée.</p>
+                    </div>
                 </div>
                 <div class="col-md-4">
-                     <div class="p-4">
+                    <div class="p-4">
                         <i class="bi bi-lightning-fill text-warning display-4 mb-3"></i>
                         <h4 class="fw-semibold">Service Rapide</h4>
-                        <p>Nous nous efforçons de traiter vos commandes dans les meilleurs délais à Pointe-Noire.</p>
-                     </div>
+                        <p class="text-muted">Nous nous efforçons de traiter vos commandes dans les meilleurs délais à
+                            Pointe-Noire.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Pied de Page -->
+    <!-- ===================== FOOTER ===================== -->
     <footer class="bg-dark text-white pt-5 pb-4">
         <div class="container text-center text-md-start">
-             <div class="row">
+            <div class="row">
                 <div class="col-md-4 col-lg-4 mx-auto mt-3">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
-                     <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service client au cœur de nos préoccupations.</p>
-                     <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
+                    <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
+                    <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service
+                        client au cœur de nos préoccupations.</p>
+                    <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
                 </div>
                 <div class="col-md-3 col-lg-2 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
                     <p><a href="index.html" class="text-white text-decoration-none">Accueil</a></p>
                     <p><a href="produits.html" class="text-white text-decoration-none">Tous les Produits</a></p>
                     <p><a href="contact.html" class="text-white text-decoration-none">Comment Commander</a></p>
-                    <p><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal" class="text-white text-decoration-none">Voir Panier</a></p>
+                    <p><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal"
+                            class="text-white text-decoration-none">Voir Panier</a></p>
                 </div>
                 <div class="col-md-4 col-lg-3 mx-auto mt-3">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
-                     <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
-                     <p><i class="bi bi-envelope-fill me-2"></i>contact@trusttec.store</p>
-                     <div class="mt-3">
-                         <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-facebook"></i></a>
-                         <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-whatsapp"></i></a>
-                     </div>
+                    <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
+                    <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec"
+                            class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
+                    <p><i class="bi bi-envelope-fill me-2"></i>contact@trusttec.store</p>
+                    <div class="mt-3">
+                        <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4"
+                            target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i
+                                class="bi bi-whatsapp"></i></a>
+                    </div>
                 </div>
             </div>
-            <hr class="my-3">
+            <hr class="my-3 border-light">
             <div class="row align-items-center">
-                <div class="col-md-7 col-lg-8">
-                    <p class="text-center text-md-start mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p>
+                <div class="col-12">
+                    <p class="text-center mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Modal Panier -->
+    <!-- ===================== MODAL PANIER ===================== -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier</h5>
+                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="cart-items-container">
-                        <!-- Injecté par JS -->
-                    </div>
+                    <div id="cart-items-container"></div>
                     <div id="cart-empty-msg" class="text-center py-5" style="display: none;">
                         <i class="bi bi-emoji-frown fs-1 text-muted"></i>
                         <p class="mt-3">Votre panier est actuellement vide.</p>
-                        <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal" onclick="window.location.href='produits.html'">Commencer vos achats</button>
+                        <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal"
+                            onclick="window.location.href='produits.html'">Commencer vos achats</button>
                     </div>
                 </div>
-                 <div class="modal-footer justify-content-between flex-column flex-sm-row">
+                <div class="modal-footer justify-content-between flex-column flex-sm-row">
                     <div class="mb-2 mb-sm-0">
-                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
+                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span>
+                        </h4>
                     </div>
                     <div class="modal-footer-buttons d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
-                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn" title="Vider le panier"><i class="bi bi-trash"></i> <span class="d-sm-none">Vider</span></button>
-                        <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Continuer les achats</button>
-                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
+                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn"
+                            title="Vider le panier"><i class="bi bi-trash"></i> <span
+                                class="d-sm-none">Vider</span></button>
+                        <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Continuer les
+                            achats</button>
+                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i
+                                class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <!-- Script Panier -->
     <script src="js/cart.js"></script>
-    <!-- Script pour l'année en cours -->
+
+    <!-- Année automatique -->
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
+
+    <!-- ===================== SCRIPT SUPABASE DYNAMIQUE ===================== -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Identifiants de connexion depuis votre admin
+        const SUPABASE_URL = 'https://fpllagysfbrxhyzizudy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwbGxhZ3lzZmJyeGh5eml6dWR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODg4MjgsImV4cCI6MjA5MTY2NDgyOH0.D_2f7Nw2XynOvteaIDS5smzF9eYEjmgM71Zp1nXwls0';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loadHomeData() {
+            try {
+                // Requête simultanée : Catégories (triées) ET Produits actifs
+                const [catRes, prodRes] = await Promise.all([
+                    supabase.from('categories').select('*').order('sort_order'),
+                    supabase.from('products').select('*').eq('active', true).order('created_at', { ascending: false }) // Les plus récents en premier si la colonne existe, sinon selon l'ordre par défaut
+                ]);
+
+                if (catRes.error) throw catRes.error;
+                if (prodRes.error) throw prodRes.error;
+
+                const categories = catRes.data || [];
+                const products = prodRes.data || [];
+
+                // 1. GESTION DES CATÉGORIES
+                const catContainer = document.getElementById('dynamic-categories');
+                document.getElementById('loading-categories').style.display = 'none';
+
+                if (categories.length === 0) {
+                    catContainer.innerHTML = '<p class="text-muted">Aucune catégorie disponible.</p>';
+                } else {
+                    let catHtml = '';
+                    categories.forEach(cat => {
+                        // On cherche le premier produit de cette catégorie pour s'en servir d'image de couverture
+                        const prodInCat = products.find(p => p.category === cat.id);
+
+                        // Image par défaut si la catégorie n'a pas encore de produit
+                        const fallbackImg = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'200\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23e9ecef\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' fill=\'%23adb5bd\' font-family=\'sans-serif\' font-size=\'16\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3ECatégorie %3C/text%3E%3C/svg%3E';
+
+                        const coverImage = (prodInCat && prodInCat.image_url) ? prodInCat.image_url : fallbackImg;
+
+                        catHtml += `
+                        <div>
+                            <div class="card category-card text-center shadow-sm h-100 border-0">
+                                <img src="${coverImage}" class="card-img-top category-image" alt="${cat.label}"
+                                     onerror="this.src='${fallbackImg}'">
+                                <div class="card-body d-flex flex-column border border-top-0 rounded-bottom">
+                                    <h5 class="card-title fw-bold" style="color: #0d1b4b;">${cat.label}</h5>
+                                    <p class="card-text text-muted small mb-4">Découvrez toute notre gamme dans cette catégorie.</p>
+                                    <a href="produits.html#${cat.id}" class="btn btn-outline-primary mt-auto w-100 fw-semibold">Découvrir</a>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    catContainer.innerHTML = catHtml;
+                }
+
+                // 2. GESTION DES DERNIERS PRODUITS (Bonus)
+                const prodContainer = document.getElementById('dynamic-featured-products');
+                document.getElementById('loading-products').style.display = 'none';
+
+                if (products.length === 0) {
+                    prodContainer.innerHTML = '<p class="text-muted text-center w-100">Aucun produit disponible.</p>';
+                } else {
+                    // On prend les 4 premiers produits de la liste
+                    const latestProducts = products.slice(0, 4);
+                    let prodHtml = '';
+
+                    latestProducts.forEach(p => {
+                        const price = Number(p.price).toLocaleString('fr-FR');
+                        prodHtml += `
+                        <div class="col-6 col-md-3">
+                            <div class="card h-100 shadow-sm border-0" style="transition: transform 0.2s;">
+                                <img src="${p.image_url}" class="card-img-top product-thumb" alt="${p.name}" 
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'180\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23f0f4fb\'/%3E%3C/svg%3E'">
+                                <div class="card-body d-flex flex-column border border-top-0 rounded-bottom p-3">
+                                    <h6 class="card-title fw-bold mb-1 text-truncate" title="${p.name}">${p.name}</h6>
+                                    <div class="text-primary fw-bold mt-auto">${price} <small>XAF</small></div>
+                                    <a href="produits.html?quickview=${p.id}" class="btn btn-sm btn-primary w-100 mt-2">Voir le produit</a>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    prodContainer.innerHTML = prodHtml;
+                }
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des données :", error);
+                document.getElementById('loading-categories').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des catégories.</div>';
+                document.getElementById('loading-products').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des produits.</div>';
+            }
+        }
+
+        // Lancer la fonction au chargement de la page
+        document.addEventListener("DOMContentLoaded", loadHomeData);
+    </script>
 </body>
+
 </html>
