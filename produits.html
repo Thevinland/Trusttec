@@ -1,303 +1,1442 @@
 <!doctype html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- MODIFIED: Title includes the new product category -->
     <title>Nos Produits - Trusttec | Disques Durs, Clés USB, AirPods, Extracteurs</title>
-    <!-- MODIFIED: Description includes the new product category -->
-    <meta name="description" content="Découvrez notre sélection de disques durs, clés USB, AirPods, extracteurs de jus et plus chez Trusttec à Pointe-Noire. Ajoutez au panier et commandez via WhatsApp.">
-    <meta name="apple-mobile-web-app-title" content="Nom De Votre Site">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
+    <meta name="description"
+        content="Découvrez notre sélection de disques durs, clés USB, AirPods, extracteurs de jus et plus chez Trusttec à Pointe-Noire.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Votre CSS personnalisé -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/Images/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/Images/favicon.svg" />
-    <link rel="shortcut icon" href="/Images/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/Images/apple-touch-icon.png" />
-    <link rel="manifest" href="/Images/site.webmanifest" />
+    <link rel="icon" type="image/png" href="/Images/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/Images/favicon.svg">
+    <link rel="shortcut icon" href="/Images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Images/apple-touch-icon.png">
+    <link rel="manifest" href="/Images/site.webmanifest">
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* ── Section titre ──────────────────────────────── */
+        .page-title-section-bg {
+            padding: 3.5rem 0 2.5rem;
+            color: white;
+        }
+
+        .page-title-section-bg h1 {
+            font-weight: 800;
+        }
+
+        /* ── Barre recherche + filtres ──────────────────── */
+        .search-filter-bar {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 56px;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 420px;
+        }
+
+        .search-wrapper .bi-search {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .95rem;
+            pointer-events: none;
+        }
+
+        #search-input {
+            padding-left: 2.4rem;
+            padding-right: 2.4rem;
+            border-radius: 50px;
+            border: 1.5px solid #dee2e6;
+            font-size: .88rem;
+            font-weight: 500;
+            transition: border-color .2s, box-shadow .2s;
+            height: 40px;
+        }
+
+        #search-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .1);
+            outline: none;
+        }
+
+        #search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: .75rem;
+            display: none;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+        }
+
+        #search-clear:hover {
+            color: #555;
+        }
+
+        /* Boutons filtre catégorie */
+        .filter-btn {
+            border: 1.5px solid #dee2e6;
+            background: #f8f9fa;
+            color: #555;
+            border-radius: 50px;
+            padding: .35rem .9rem;
+            font-size: .8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn:hover {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #f0f4ff;
+        }
+
+        .filter-btn.active {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        /* Bandeau résultats recherche */
+        #search-results-bar {
+            display: none;
+            background: #f0f4ff;
+            border-radius: 10px;
+            padding: .55rem 1rem;
+            font-size: .83rem;
+            color: #0d6efd;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        #search-results-bar.visible {
+            display: flex;
+        }
+
+        #search-results-bar button {
+            background: none;
+            border: none;
+            color: #0d6efd;
+            font-size: .78rem;
+            cursor: pointer;
+            padding: 0;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* ── Carte produit ──────────────────────────────── */
+        .product-card {
+            border: 1px solid rgba(0, 0, 0, .06);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1), box-shadow .35s cubic-bezier(.4, 0, .2, 1);
+            background: #fff;
+        }
+
+        .product-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 28px 56px rgba(13, 110, 253, .13), 0 4px 16px rgba(0, 0, 0, .06);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            background: #f0f4fb;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .5s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.07);
+        }
+
+        .product-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10, 20, 60, .55), rgba(10, 20, 60, .2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity .3s;
+        }
+
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+
+        @media (max-width: 767px) {
+            .product-overlay {
+                display: none;
+            }
+        }
+
+        .btn-quick-view {
+            background: rgba(255, 255, 255, .15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255, 255, 255, .75);
+            color: #fff;
+            padding: .55rem 1.4rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: .82rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-quick-view:hover {
+            background: #fff;
+            color: #0d1b4b;
+            border-color: #fff;
+        }
+
+        .card-body {
+            padding: 1.1rem 1.1rem 1.2rem;
+        }
+
+        .card-title {
+            font-size: .95rem;
+            font-weight: 700;
+            margin-bottom: .35rem;
+            color: #111;
+            line-height: 1.35;
+        }
+
+        /* Mini swatches */
+        .color-swatches-mini {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: .3rem;
+        }
+
+        .swatch-mini {
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2.5px solid #fff;
+            box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .18);
+            transition: transform .15s;
+            flex-shrink: 0;
+        }
+
+        .swatch-mini:hover {
+            transform: scale(1.28);
+        }
+
+        .swatch-mini.selected {
+            box-shadow: 0 0 0 2.5px #0d6efd;
+        }
+
+        .swatch-more {
+            font-size: .68rem;
+            color: #888;
+            align-self: center;
+        }
+
+        .selected-color-name {
+            font-size: .72rem;
+            color: #555;
+            min-height: 1.1em;
+            margin-bottom: .45rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .selected-color-name .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, .18);
+            flex-shrink: 0;
+        }
+
+        .card-text.description {
+            font-size: .8rem;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .product-price {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: #0d6efd;
+            margin-bottom: .75rem;
+        }
+
+        .product-price small {
+            font-size: .68rem;
+            font-weight: 500;
+            color: #aaa;
+            margin-left: 2px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: .5rem;
+        }
+
+        .btn-add-cart-card {
+            flex: 1;
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .5rem .75rem;
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-add-cart-card:hover {
+            background: #0b5ed7;
+        }
+
+        .btn-see-details {
+            flex: 0 0 auto;
+            border: 1.5px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: .5rem .75rem;
+            color: #555;
+            font-size: .88rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-see-details:hover {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #f0f4ff;
+        }
+
+        /* ── Modal Vue Rapide ───────────────────────────── */
+        #quickViewModal .modal-content {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, .25);
+        }
+
+        #quickViewModal .modal-dialog {
+            max-width: 880px;
+        }
+
+        .qv-image-panel {
+            background: linear-gradient(145deg, #e8eef8 0%, #f5f8ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            min-height: 380px;
+            position: relative;
+        }
+
+        .qv-main-img {
+            max-width: 100%;
+            max-height: 340px;
+            object-fit: contain;
+            border-radius: 12px;
+            transition: opacity .3s ease;
+        }
+
+        .qv-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #555;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+            transition: all .2s;
+            z-index: 5;
+        }
+
+        .qv-close-btn:hover {
+            background: #fff;
+            color: #111;
+        }
+
+        .qv-details {
+            padding: 1.75rem 1.75rem 1.5rem;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        .qv-ref {
+            font-size: .72rem;
+            color: #aaa;
+            font-weight: 600;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            margin-bottom: .4rem;
+        }
+
+        .qv-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0d1b4b;
+            margin-bottom: .5rem;
+            line-height: 1.3;
+        }
+
+        .qv-price {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #0d6efd;
+            margin-bottom: 1.25rem;
+        }
+
+        .qv-price small {
+            font-size: .72rem;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .qv-label {
+            font-size: .68rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #aaa;
+            margin-bottom: .55rem;
+            font-weight: 700;
+        }
+
+        .specs-grid {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #edf0f5;
+            margin-bottom: 1.2rem;
+        }
+
+        .spec-row {
+            display: flex;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-key {
+            background: #f8faff;
+            color: #777;
+            font-size: .8rem;
+            font-weight: 600;
+            padding: .55rem .9rem;
+            width: 44%;
+            flex-shrink: 0;
+        }
+
+        .spec-val {
+            color: #1a1a2e;
+            font-size: .8rem;
+            font-weight: 700;
+            padding: .55rem .9rem;
+            background: #fff;
+        }
+
+        .qv-description {
+            font-size: .83rem;
+            color: #666;
+            line-height: 1.65;
+            margin-bottom: 1.25rem;
+        }
+
+        .qty-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1.5px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            width: fit-content;
+            margin-bottom: 1.1rem;
+        }
+
+        .qty-btn {
+            border: none;
+            background: #f8f9fa;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: background .15s;
+        }
+
+        .qty-btn:hover {
+            background: #e9ecef;
+        }
+
+        .qty-num {
+            width: 44px;
+            text-align: center;
+            font-weight: 800;
+            font-size: .95rem;
+            border-left: 1.5px solid #dee2e6;
+            border-right: 1.5px solid #dee2e6;
+            background: #fff;
+            height: 36px;
+            line-height: 36px;
+            display: block;
+        }
+
+        .btn-qv-cart {
+            width: 100%;
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: .8rem;
+            font-weight: 800;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: all .2s;
+            margin-bottom: .5rem;
+        }
+
+        .btn-qv-cart:hover {
+            background: #0b5ed7;
+            transform: translateY(-1px);
+        }
+
+        .btn-qv-wa {
+            width: 100%;
+            background: #25D366;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: .8rem;
+            font-weight: 800;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-qv-wa:hover {
+            background: #1da851;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* ── Bouton Partager ─────────────────────────────── */
+        .btn-share {
+            border: 1.5px solid #dee2e6;
+            background: #f8f9fa;
+            color: #555;
+            border-radius: 10px;
+            padding: .45rem .75rem;
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            white-space: nowrap;
+        }
+
+        .btn-share:hover {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #f0f4ff;
+        }
+
+        .btn-share.copied {
+            border-color: #198754;
+            color: #198754;
+            background: #f0fff4;
+        }
+
+        /* Toast partage */
+        #share-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1a1a2e;
+            color: #fff;
+            border-radius: 50px;
+            padding: .6rem 1.4rem;
+            font-size: .83rem;
+            font-weight: 700;
+            z-index: 9999;
+            opacity: 0;
+            transition: all .3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        #share-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .qv-details::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .qv-details::-webkit-scrollbar-thumb {
+            background: #dee2e6;
+            border-radius: 2px;
+        }
+
+        .qv-sep {
+            border: none;
+            border-top: 1px solid #f0f0f0;
+            margin: 1rem 0;
+        }
+
+        /* ── État vide recherche ────────────────────────── */
+        .empty-search {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .empty-search .empty-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .empty-search h5 {
+            color: #555;
+            font-weight: 700;
+        }
+
+        .empty-search p {
+            color: #aaa;
+            font-size: .88rem;
+        }
+    </style>
 </head>
+
 <body>
 
-    <!-- Barre de Navigation -->
+    <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
-             <!-- Logo -->
             <a class="navbar-brand" href="index.html">
-                <Img src="Images/logo.webp" alt="Logo Trusttec" height="40">
+                <img src="Images/logo.webp" alt="Logo Trusttec" height="40">
             </a>
-
-            <!-- Bouton Panier pour Mobile (<lg) -->
-            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" title="Voir le panier">
+            <button class="btn btn-outline-primary position-relative d-inline-block d-lg-none ms-auto me-2"
+                type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
                 <i class="bi bi-cart"></i>
-                <span class="visually-hidden">Panier</span>
-                <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+                <span
+                    class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style="display:none;">0</span>
             </button>
-
-            <!-- Bouton Burger (Toggler) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Contenu Collapsible -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="produits.html">Produits</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Commander & Contact</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page"
+                            href="produits.html">Produits</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Commander &amp; Contact</a></li>
                 </ul>
-
-                 <!-- Bouton Panier pour Bureau (>=lg) -->
-                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <button class="btn btn-outline-primary ms-lg-3 position-relative d-none d-lg-inline-block" type="button"
+                    data-bs-toggle="modal" data-bs-target="#cartModal">
                     <i class="bi bi-cart"></i> Panier
-                    <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                        0
-                        <span class="visually-hidden">articles dans le panier</span>
-                    </span>
+                    <span
+                        class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="display:none;">0</span>
                 </button>
-
-                <!-- Bouton Contact Rapide Bureau (>=lg) -->
-                 <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
+                <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements."
+                    class="btn btn-success ms-lg-2 d-none d-lg-inline-block" target="_blank">
                     <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                 </a>
-
-                <!-- Optionnel: Bouton Contact Rapide pour Mobile (<lg) -->
                 <div class="d-lg-none mt-3 border-top pt-3">
-                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements." class="btn btn-success w-100" target="_blank">
+                    <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec%2C%20j'aimerais%20avoir%20des%20renseignements."
+                        class="btn btn-success w-100" target="_blank">
                         <i class="bi bi-whatsapp me-1"></i>Contact Rapide
                     </a>
                 </div>
             </div>
         </div>
     </nav>
-    <!-- Fin Barre de Navigation -->
 
-     <!-- Section Titre Produits -->
+    <!-- ===================== TITRE ===================== -->
     <section class="page-title-section-bg product-title-section">
         <div class="container text-center">
             <h1 class="display-5 fw-bold">Notre Sélection de Produits</h1>
-            <p class="lead">Qualité et fiabilité pour tous vos besoins électroniques.</p>
+            <p class="lead opacity-90">Qualité et fiabilité pour tous vos besoins électroniques.</p>
         </div>
     </section>
 
-    <!-- Grille de Produits -->
-    <main class="container my-5">
+    <!-- ===================== BARRE RECHERCHE + FILTRES ===================== -->
+    <div class="search-filter-bar">
+        <div class="container py-3">
+            <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
 
-        <!-- Section Disques Durs -->
-        <section id="disques-durs" class="mb-5">
-            <h2 class="mb-4 fw-bold border-bottom pb-2">Disques Durs Externes</h2>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-
-                <!-- Produit 1 -->
-                <div class="col">
-                    <div class="card product-card h-100 shadow-sm">
-                        <img src="Images/white.webp" class="card-img-top product-image" alt="Disque Dur SSD Puskill 512 Go">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Disque Dur SSD Puskill 512 Go</h5>
-                            <p class="card-text small text-muted flex-grow-1">USB 3.0, portable, sauvegarde facile.</p>
-                            <p class="card-text fs-5 fw-bold text-primary mt-auto mb-3">30 000 XAF</p>
-                            <button class="btn btn-primary w-100 add-to-cart-btn"
-                                    data-id="DD001"
-                                    data-name="Disque Dur SSD Puskill 512 Go"
-                                    data-price="30000"
-                                    data-img="Images/white.webp">
-                                <i class="bi bi-cart-plus me-1"></i> Ajouter au panier
-                            </button>
-                        </div>
-                    </div>
+                <!-- Recherche -->
+                <div class="search-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="search-input" class="form-control" placeholder="Rechercher un produit…"
+                        autocomplete="off">
+                    <button id="search-clear" title="Effacer">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
 
-                <!-- Produit 2 -->
-                 <div class="col">
-                    <div class="card product-card h-100 shadow-sm">
-                        <img src="Images/white.webp" class="card-img-top product-image" alt="Disque Dur SSD Puskill 1To">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Disque Dur SSD Puskill 1To</h5>
-                            <p class="card-text small text-muted flex-grow-1">Grande capacité, fiable, USB 3.0.</p>
-                            <p class="card-text fs-5 fw-bold text-primary mt-auto mb-3">65 000 XAF</p>
-                            <button class="btn btn-primary w-100 add-to-cart-btn"
-                                    data-id="DD002"
-                                    data-name="Disque Dur SSD Puskill 1To"
-                                    data-price="65000"
-                                    data-img="Images/white.webp">
-                                <i class="bi bi-cart-plus me-1"></i> Ajouter au panier
-                            </button>
-                        </div>
-                    </div>
+                <!-- Filtres catégories -->
+                <div class="d-flex gap-2 flex-wrap align-items-center" id="category-filters">
+                    <!-- Injectés dynamiquement -->
                 </div>
 
             </div>
-        </section>
+        </div>
+    </div>
 
-        <!-- Section Clés USB -->
-        <section id="cles-usb" class="mb-5">
-             <h2 class="mb-4 fw-bold border-bottom pb-2">Clés USB</h2>
-             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-
-                <!-- Produit 3 -->
-                <div class="col">
-                    <div class="card product-card h-100 shadow-sm">
-                        <img src="Images/wooden-pen-drive-1000x500-centered.jpg" class="card-img-top product-image" alt="clé en bois 64 go">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">clé en bois 64 go</h5>
-                            <p class="card-text small text-muted flex-grow-1">USB 3.0, vitesse de transfert élevée.</p>
-                            <p class="card-text fs-5 fw-bold text-primary mt-auto mb-3">7 000 XAF</p>
-                            <button class="btn btn-primary w-100 add-to-cart-btn"
-                                    data-id="USB001"
-                                    data-name="clé en bois 64 go"
-                                    data-price="7000"
-                                    data-img="Images/wooden-pen-drive-1000x500-centered.jpg">
-                               <i class="bi bi-cart-plus me-1"></i> Ajouter au panier
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-             </div>
-        </section>
-
-         <!-- Section AirPods & Écouteurs -->
-        <section id="airpods" class="mb-5">
-             <h2 class="mb-4 fw-bold border-bottom pb-2">AirPods & Écouteurs</h2>
-             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-
-                <!-- Produit 5 -->
-                <div class="col">
-                    <div class="card product-card h-100 shadow-sm">
-                        <img src="Images/Resized_Centered_Earbud_800x400.jpg" class="card-img-top product-image" alt="Air31 Tws">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Air31 Tws</h5>
-                            <p class="card-text small text-muted flex-grow-1">Réduction active du bruit, audio spatial.</p>
-                            <p class="card-text fs-5 fw-bold text-primary mt-auto mb-3">5 000 XAF</p>
-                             <button class="btn btn-primary w-100 add-to-cart-btn"
-                                    data-id="AP001"
-                                    data-name="Air31 Tws"
-                                    data-price="5000"
-                                    data-img="Images/Resized_Centered_Earbud_800x400.jpg">
-                               <i class="bi bi-cart-plus me-1"></i> Ajouter au panier
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+    <!-- ===================== CATALOGUE ===================== -->
+    <main class="container my-5" id="catalogue">
+        <div id="loading-state" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;">
+                <span class="visually-hidden">Chargement...</span>
             </div>
-        </section>
+            <p class="mt-3 text-muted">Chargement des produits…</p>
+        </div>
+        <div id="error-state" class="alert alert-danger d-none" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Impossible de charger les produits. Veuillez réessayer ou nous contacter via WhatsApp.
+        </div>
 
-        <!-- NOUVELLE SECTION: Extracteurs De Jus -->
-        <section id="extracteurs-jus" class="mb-5">
-             <h2 class="mb-4 fw-bold border-bottom pb-2">Extracteurs De Jus Électriques</h2>
-             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        <!-- Bandeau résultats -->
+        <div id="search-results-bar">
+            <i class="bi bi-search"></i>
+            <span id="search-results-text"></span>
+            <button id="search-reset-btn">Réinitialiser</button>
+        </div>
 
-                <!-- Produit Extracteur De Jus -->
-                <div class="col">
-                    <div class="card product-card h-100 shadow-sm">
-                        <!-- IMPORTANT: Remplacez 'Images/extracteur-jus-placeholder.jpg' par le chemin réel de votre image -->
-                        <img src="Images/extracteur-jus-placeholder.webp" class="card-img-top product-image" alt="Extracteur de jus électrique">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold">Extracteur de jus électrique</h5>
-                            <p class="card-text small text-muted flex-grow-1">Pour des jus frais et sains en un instant. Facile à utiliser et nettoyer.</p>
-                            <!-- IMPORTANT: Ajustez le prix si nécessaire -->
-                            <p class="card-text fs-5 fw-bold text-primary mt-auto mb-3">25 000 XAF</p>
-                             <button class="btn btn-primary w-100 add-to-cart-btn"
-                                    data-id="EJ001"
-                                    data-name="Extracteur de jus électrique"
-                                    data-price="25000"
-                                    data-img="Images/extracteur-jus-placeholder.webp">
-                               <i class="bi bi-cart-plus me-1"></i> Ajouter au panier
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Ajoutez d'autres extracteurs ici si besoin, en copiant le <div class="col">...</div> -->
-
-            </div>
-        </section>
-        <!-- FIN NOUVELLE SECTION -->
-
+        <div id="products-container"></div>
     </main>
 
-     <!-- Pied de Page -->
-     <footer class="bg-dark text-white pt-5 pb-4 mt-5">
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="bg-dark text-white pt-5 pb-4 mt-5">
         <div class="container text-center text-md-start">
-             <div class="row">
-                 <div class="col-md-4 col-lg-4 mx-auto mt-3">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
-                     <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service client au cœur de nos préoccupations.</p>
-                     <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
-                 </div>
-                 <div class="col-md-3 col-lg-2 mx-auto mt-3">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
-                     <p><a href="index.html" class="text-white text-decoration-none">Accueil</a></p>
-                     <p><a href="produits.html" class="text-white text-decoration-none">Tous les Produits</a></p>
-                     <p><a href="contact.html" class="text-white text-decoration-none">Comment Commander</a></p>
-                      <p><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal" class="text-white text-decoration-none">Voir Panier</a></p>
-                 </div>
-                 <div class="col-md-4 col-lg-3 mx-auto mt-3">
-                     <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
-                      <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
-                     <p><i class="bi bi-envelope-fill me-2"></i>contact@trusttec.store</p>
-                     <div class="mt-3">
-                         <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-facebook"></i></a>
-                         <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i class="bi bi-whatsapp"></i></a>
-                     </div>
-                 </div>
-             </div>
-             <hr class="my-3">
-             <div class="row align-items-center">
-                 <div class="col-md-7 col-lg-8">
-                    <p class="text-center text-md-start mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p>
-                 </div>
-             </div>
+            <div class="row">
+                <div class="col-md-4 col-lg-4 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-warning">Trusttec</h5>
+                    <p>Votre partenaire de confiance pour l'électronique à Pointe-Noire. Qualité, fiabilité et service
+                        client au cœur de nos préoccupations.</p>
+                    <p><i class="bi bi-geo-alt-fill me-2"></i>Pointe-Noire, République du Congo</p>
+                </div>
+                <div class="col-md-3 col-lg-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-warning">Liens Utiles</h5>
+                    <p><a href="index.html" class="text-white text-decoration-none">Accueil</a></p>
+                    <p><a href="produits.html" class="text-white text-decoration-none">Tous les Produits</a></p>
+                    <p><a href="contact.html" class="text-white text-decoration-none">Comment Commander</a></p>
+                    <p><a href="#cartModal" data-bs-toggle="modal" data-bs-target="#cartModal"
+                            class="text-white text-decoration-none">Voir Panier</a></p>
+                </div>
+                <div class="col-md-4 col-lg-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-warning">Contact</h5>
+                    <p><i class="bi bi-whatsapp me-2"></i><a href="https://wa.me/242056323722?text=Bonjour%20Trusttec"
+                            class="text-white text-decoration-none" target="_blank">+(242) 05 632 37 22</a></p>
+                    <p><i class="bi bi-envelope-fill me-2"></i>contact@trusttec.store</p>
+                    <div class="mt-3">
+                        <a href="https://www.facebook.com/profile.php?id=61574476228813" class="text-white me-3 fs-4"
+                            target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="https://wa.me/242056323722" class="text-white me-3 fs-4" target="_blank"><i
+                                class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center">
+                <p class="mb-0">© <span id="current-year"></span> Trusttec. Tous droits réservés.</p>
+            </div>
         </div>
     </footer>
 
-    <!-- Modal Panier -->
-     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <!-- ===================== MODAL PANIER ===================== -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-check-fill me-2"></i>Votre Panier
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="cart-items-container">
-                        <!-- Injecté par JS -->
-                    </div>
-                    <div id="cart-empty-msg" class="text-center py-5" style="display: none;">
+                    <div id="cart-items-container"></div>
+                    <div id="cart-empty-msg" class="text-center py-5" style="display:none;">
                         <i class="bi bi-emoji-frown fs-1 text-muted"></i>
                         <p class="mt-3">Votre panier est actuellement vide.</p>
-                         <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal">Commencer vos achats</button>
+                        <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal">Commencer vos
+                            achats</button>
                     </div>
                 </div>
                 <div class="modal-footer justify-content-between flex-column flex-sm-row">
                     <div class="mb-2 mb-sm-0">
-                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span></h4>
+                        <h4 class="mb-0">Total : <span id="cart-total-price" class="fw-bold text-primary">0 XAF</span>
+                        </h4>
                     </div>
-                     <div class="modal-footer-buttons d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
-                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn" title="Vider le panier"><i class="bi bi-trash"></i> <span class="d-sm-none">Vider</span></button>
-                        <button type="button" class="btn btn-secondary order-sm-2" data-bs-dismiss="modal">Continuer vos achats</button>
-                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
+                    <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+                        <button type="button" class="btn btn-outline-danger order-sm-1" id="clear-cart-btn"><i
+                                class="bi bi-trash"></i> Vider</button>
+                        <button type="button" class="btn btn-secondary order-sm-2"
+                            data-bs-dismiss="modal">Continuer</button>
+                        <a href="#" id="whatsapp-order-btn" class="btn btn-success order-sm-3" target="_blank"><i
+                                class="bi bi-whatsapp me-1"></i> Commander via WhatsApp</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- ===================== MODAL VUE RAPIDE ===================== -->
+    <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <div class="qv-image-panel h-100">
+                            <img id="qv-img" class="qv-main-img" src="" alt=""
+                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'240\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dce3f0\'/%3E%3C/svg%3E'">
+                            <button class="qv-close-btn d-md-none" data-bs-dismiss="modal" tabindex="-1">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-7 position-relative">
+                        <button class="qv-close-btn d-none d-md-flex" data-bs-dismiss="modal" style="top:14px;right:14px;" tabindex="-1">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <div class="qv-details">
+                            <div id="qv-ref" class="qv-ref"></div>
+
+                            <!-- Nom + bouton Partager -->
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+                                <h2 id="qv-name" class="qv-name mb-0 flex-grow-1"></h2>
+                                <button class="btn-share" id="qv-share-btn" title="Copier le lien du produit">
+                                    <i class="bi bi-share"></i>
+                                    <span class="d-none d-sm-inline">Partager</span>
+                                </button>
+                            </div>
+
+                            <div id="qv-price" class="qv-price"></div>
+
+                            <!-- Liste des couleurs et quantités -->
+                            <div id="qv-variants-container" class="mb-4">
+                                <div class="qv-label mb-2" id="qv-variants-label">Sélectionnez vos quantités</div>
+                                <div id="qv-variants-list"></div>
+                            </div>
+
+                            <div class="qv-label">Description</div>
+                            <p id="qv-desc" class="qv-description"></p>
+
+                            <div id="qv-specs-wrap">
+                                <div class="qv-label">Caractéristiques</div>
+                                <div id="qv-specs-grid" class="specs-grid"></div>
+                            </div>
+
+                            <hr class="qv-sep">
+
+                            <button class="btn-qv-cart" id="qv-add-cart">
+                                <i class="bi bi-cart-plus me-2"></i>Ajouter au panier
+                            </button>
+                            <a class="btn-qv-wa" id="qv-wa-btn" href="#" target="_blank">
+                                <i class="bi bi-whatsapp me-2"></i>Commander via WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification partage -->
+    <div id="share-toast">
+        <i class="bi bi-check-circle me-2"></i>Lien copié dans le presse-papiers !
+    </div>
+
+    <!-- ===================== SCRIPTS ===================== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://fpllagysfbrxhyzizudy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwbGxhZ3lzZmJyeGh5eml6dWR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODg4MjgsImV4cCI6MjA5MTY2NDgyOH0.D_2f7Nw2XynOvteaIDS5smzF9eYEjmgM71Zp1nXwls0';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ── État global ────────────────────────────────────────────────────────
+        let qvProduct = null;
+        let qvVariantsState = [];
+        let allCategories = [];
+        let allProductsData = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+
+        const qvModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+
+        // ── Chargement produits ────────────────────────────────────────────────
+        async function loadProducts() {
+            const loadingEl = document.getElementById('loading-state');
+            const errorEl = document.getElementById('error-state');
+
+            try {
+                const [catRes, prodRes] = await Promise.all([
+                    supabase.from('categories').select('*').order('sort_order'),
+                    supabase.from('products').select('*').eq('active', true).order('sort_order')
+                ]);
+                if (catRes.error) throw catRes.error;
+                if (prodRes.error) throw prodRes.error;
+
+                loadingEl.style.display = 'none';
+                allCategories = catRes.data || [];
+                allProductsData = prodRes.data || [];
+                window._allProducts = allProductsData;
+
+                // Construire les boutons de filtre
+                buildFilterButtons();
+
+                // Afficher les produits
+                filterAndRender();
+
+                // ── Ouvrir Vue Rapide si URL contient ?quickview=ID ────────────
+                const params = new URLSearchParams(window.location.search);
+                const qvId = params.get('quickview');
+                if (qvId) {
+                    setTimeout(() => {
+                        openQV(qvId);
+                        history.replaceState(null, '', window.location.pathname);
+                    }, 300);
+                }
+
+                // ── Ancre de catégorie (#cat-id) ───────────────────────────────
+                const hash = window.location.hash.replace('#', '');
+                if (hash && !qvId) {
+                    setTimeout(() => {
+                        const el = document.getElementById(hash);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 400);
+                }
+
+            } catch (err) {
+                console.error('Erreur Supabase :', err);
+                loadingEl.style.display = 'none';
+                errorEl.classList.remove('d-none');
+            }
+        }
+
+        // ── Construction des boutons filtre catégorie ──────────────────────────
+        function buildFilterButtons() {
+            const wrap = document.getElementById('category-filters');
+            wrap.innerHTML = '';
+
+            // Bouton "Tout"
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.dataset.cat = 'all';
+            allBtn.textContent = 'Tout';
+            wrap.appendChild(allBtn);
+
+            allCategories.forEach(cat => {
+                // N'afficher que les catégories qui ont des produits
+                const hasProducts = allProductsData.some(p => p.category === cat.id);
+                if (!hasProducts) return;
+
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.cat = cat.id;
+                btn.textContent = cat.label;
+                wrap.appendChild(btn);
+            });
+
+            // Événement clic sur les filtres
+            wrap.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeCategory = btn.dataset.cat;
+                    wrap.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterAndRender();
+                });
+            });
+        }
+
+        // ── Filtrage + rendu ───────────────────────────────────────────────────
+        function filterAndRender() {
+            let filtered = allProductsData;
+
+            // Filtre catégorie
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === activeCategory);
+            }
+
+            // Filtre recherche
+            const q = searchQuery.trim().toLowerCase();
+            if (q) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(q) ||
+                    (p.description && p.description.toLowerCase().includes(q))
+                );
+            }
+
+            // Bandeau résultats
+            const bar = document.getElementById('search-results-bar');
+            const barText = document.getElementById('search-results-text');
+            if (q || activeCategory !== 'all') {
+                bar.classList.add('visible');
+                const catLabel = activeCategory !== 'all'
+                    ? allCategories.find(c => c.id === activeCategory)?.label
+                    : null;
+                let msg = `${filtered.length} résultat(s)`;
+                if (q) msg += ` pour "<strong>${escHtml(q)}</strong>"`;
+                if (catLabel) msg += ` dans <strong>${escHtml(catLabel)}</strong>`;
+                barText.innerHTML = msg;
+            } else {
+                bar.classList.remove('visible');
+            }
+
+            renderProducts(filtered);
+        }
+
+        // ── Rendu des produits filtrés ─────────────────────────────────────────
+        function renderProducts(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            if (!products.length) {
+                container.innerHTML = `
+                    <div class="empty-search">
+                        <div class="empty-icon"><i class="bi bi-search"></i></div>
+                        <h5>Aucun produit trouvé</h5>
+                        <p>Essayez un autre mot-clé ou explorez toutes les catégories.</p>
+                        <button class="btn btn-outline-primary mt-2" id="empty-reset-btn">
+                            <i class="bi bi-arrow-repeat me-1"></i>Voir tous les produits
+                        </button>
+                    </div>`;
+                document.getElementById('empty-reset-btn')?.addEventListener('click', resetFilters);
+                return;
+            }
+
+            if (activeCategory !== 'all' || searchQuery.trim()) {
+                // Mode recherche / filtre : afficher sans regroupement par catégorie
+                const grid = document.createElement('div');
+                grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-5';
+                grid.innerHTML = products.map(p => buildCard(p)).join('');
+                container.appendChild(grid);
+            } else {
+                // Mode normal : regrouper par catégorie
+                allCategories.forEach(cat => {
+                    const catProds = products.filter(p => p.category === cat.id);
+                    if (!catProds.length) return;
+                    const section = document.createElement('section');
+                    section.id = cat.id;
+                    section.className = 'mb-5';
+                    section.innerHTML = `
+                        <h2 class="mb-4 fw-bold border-bottom pb-2" style="color:#0d1b4b;">${escHtml(cat.label)}</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                            ${catProds.map(p => buildCard(p)).join('')}
+                        </div>`;
+                    container.appendChild(section);
+                });
+            }
+
+            bindCardEvents();
+        }
+
+        // ── Réinitialiser filtres et recherche ─────────────────────────────────
+        function resetFilters() {
+            searchQuery = '';
+            activeCategory = 'all';
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-clear').style.display = 'none';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-cat="all"]')?.classList.add('active');
+            filterAndRender();
+        }
+
+        // ── Recherche en temps réel ────────────────────────────────────────────
+        document.getElementById('search-input').addEventListener('input', function () {
+            searchQuery = this.value;
+            document.getElementById('search-clear').style.display = searchQuery ? 'block' : 'none';
+            filterAndRender();
+        });
+
+        document.getElementById('search-clear').addEventListener('click', () => {
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-clear').style.display = 'none';
+            filterAndRender();
+        });
+
+        document.getElementById('search-reset-btn').addEventListener('click', resetFilters);
+
+        // ── Construction HTML d'une carte ──────────────────────────────────────
+        function buildCard(p) {
+            const price = Number(p.price).toLocaleString('fr-FR');
+            const colors = safeJSON(p.colors);
+            const firstColor = colors.length > 0 ? colors[0] : null;
+
+            let swatchesHTML = '';
+            let colorNameHTML = '';
+            if (colors.length > 0) {
+                swatchesHTML = `<div class="color-swatches-mini">
+                    ${colors.slice(0, 7).map((c, i) =>
+                    `<div class="swatch-mini${i === 0 ? ' selected' : ''}"
+                              style="background:${esc(c.hex)}"
+                              title="${esc(c.name)}"
+                              data-color="${esc(c.name)}"
+                              data-hex="${esc(c.hex)}"></div>`
+                ).join('')}
+                    ${colors.length > 7 ? `<span class="swatch-more">+${colors.length - 7}</span>` : ''}
+                </div>`;
+                colorNameHTML = `<div class="selected-color-name" id="cn-${esc(p.id)}">
+                    <span class="dot" id="cn-dot-${esc(p.id)}" style="background:${esc(colors[0].hex)};"></span>
+                    <span id="cn-label-${esc(p.id)}">${esc(colors[0].name)}</span>
+                </div>`;
+            }
+
+            return `
+            <div class="col">
+              <div class="card product-card h-100">
+                <div class="product-image-wrapper">
+                  <img src="${esc(p.image_url)}" class="product-image" loading="lazy" alt="${esc(p.name)}"
+                       onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'230\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dce3f0\'/%3E%3C/svg%3E'">
+                  <div class="product-overlay">
+                    <button class="btn-quick-view btn-open-qv" data-id="${esc(p.id)}">
+                      <i class="bi bi-eye me-1"></i> Vue rapide
+                    </button>
+                  </div>
+                
+                </div>
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">${esc(p.name)}</h5>
+                  ${swatchesHTML}
+                  ${colorNameHTML}
+                  <p class="card-text description flex-grow-1">${esc(p.description)}</p>
+                  <div class="product-price mt-auto">${price} <small>XAF</small></div>
+                  <div class="card-actions">
+                    <button class="btn-add-cart-card add-to-cart-btn"
+                            data-id="${esc(p.id)}"
+                            data-name="${esc(p.name)}"
+                            data-price="${p.price}"
+                            data-img="${esc(p.image_url)}"
+                            data-card-id="${esc(p.id)}"
+                            data-color-name="${firstColor ? esc(firstColor.name) : ''}"
+                            data-color-hex="${firstColor ? esc(firstColor.hex) : ''}">
+                      <i class="bi bi-cart-plus me-1"></i> Ajouter
+                    </button>
+                    <button class="btn-see-details btn-open-qv" data-id="${esc(p.id)}" title="Voir les détails">
+                      <i class="bi bi-arrows-fullscreen"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+        }
+
+        // ── Attacher les événements sur les cartes ─────────────────────────────
+        function bindCardEvents() {
+
+            document.querySelectorAll('.color-swatches-mini').forEach(wrap => {
+                wrap.querySelectorAll('.swatch-mini').forEach(s => {
+                    s.addEventListener('click', () => {
+                        wrap.querySelectorAll('.swatch-mini').forEach(x => x.classList.remove('selected'));
+                        s.classList.add('selected');
+                        const card = s.closest('.product-card');
+                        if (!card) return;
+                        const addBtn = card.querySelector('.btn-add-cart-card');
+                        const productId = addBtn ? addBtn.dataset.cardId : null;
+                        const dotEl = productId ? document.getElementById('cn-dot-' + productId) : null;
+                        const labelEl = productId ? document.getElementById('cn-label-' + productId) : null;
+                        if (dotEl) dotEl.style.background = s.dataset.hex;
+                        if (labelEl) labelEl.textContent = s.dataset.color;
+                        if (addBtn) {
+                            addBtn.dataset.colorName = s.dataset.color;
+                            addBtn.dataset.colorHex = s.dataset.hex;
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Ajouté !';
+                    btn.style.background = '#198754';
+                    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1500);
+                });
+            });
+
+            document.querySelectorAll('.btn-open-qv').forEach(btn => {
+                btn.addEventListener('click', () => openQV(btn.dataset.id));
+            });
+        }
+
+        // ── Quick View ─────────────────────────────────────────────────────────
+        function openQV(productId) {
+            const p = (window._allProducts || []).find(x => x.id === productId);
+            if (!p) return;
+            qvProduct = p;
+
+            document.getElementById('qv-img').src = p.image_url;
+            document.getElementById('qv-ref').textContent = `Réf : ${p.id}`;
+            document.getElementById('qv-name').textContent = p.name;
+            document.getElementById('qv-price').innerHTML = `${Number(p.price).toLocaleString('fr-FR')} <small>XAF</small>`;
+            document.getElementById('qv-desc').textContent = p.description;
+
+            // Réinitialiser le bouton partager
+            const shareBtn = document.getElementById('qv-share-btn');
+            shareBtn.className = 'btn-share';
+            shareBtn.innerHTML = '<i class="bi bi-share"></i><span class="d-none d-sm-inline">Partager</span>';
+
+            const colors = safeJSON(p.colors);
+            const listEl = document.getElementById('qv-variants-list');
+            const labelEl = document.getElementById('qv-variants-label');
+            qvVariantsState = [];
+            listEl.innerHTML = '';
+
+            if (colors.length > 0) {
+                labelEl.textContent = "Couleurs disponibles :";
+                colors.forEach((c, index) => {
+                    qvVariantsState.push({ colorName: c.name, colorHex: c.hex, qty: 0 });
+                    listEl.innerHTML += `
+                        <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded" style="background:#f8f9fa; border:1px solid #e9ecef;">
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="width:20px;height:20px;border-radius:50%;background:${esc(c.hex)};border:1px solid rgba(0,0,0,0.15);flex-shrink:0;"></span>
+                                <span class="fw-bold text-dark" style="font-size:0.85rem">${esc(c.name)}</span>
+                            </div>
+                            <div class="qty-wrap m-0" style="height:32px;">
+                                <button class="qty-btn" data-index="${index}" data-delta="-1" style="width:32px;height:32px;line-height:1;">−</button>
+                                <span class="qty-num" id="var-qty-${index}" style="width:36px;height:32px;line-height:30px;">0</span>
+                                <button class="qty-btn" data-index="${index}" data-delta="1" style="width:32px;height:32px;line-height:1;">+</button>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                labelEl.textContent = "Quantité :";
+                qvVariantsState.push({ colorName: '', colorHex: '', qty: 1 });
+                listEl.innerHTML = `
+                    <div class="qty-wrap mb-0">
+                        <button class="qty-btn" data-index="0" data-delta="-1">−</button>
+                        <span class="qty-num" id="var-qty-0">1</span>
+                        <button class="qty-btn" data-index="0" data-delta="1">+</button>
+                    </div>`;
+            }
+
+            const specs = safeJSON(p.specs);
+            const specsWrap = document.getElementById('qv-specs-wrap');
+            const specsGrid = document.getElementById('qv-specs-grid');
+            if (specs.length > 0) {
+                specsWrap.style.display = 'block';
+                specsGrid.innerHTML = specs.map(s =>
+                    `<div class="spec-row">
+                        <div class="spec-key">${esc(s.key)}</div>
+                        <div class="spec-val">${esc(s.value)}</div>
+                    </div>`
+                ).join('');
+            } else {
+                specsWrap.style.display = 'none';
+            }
+
+            refreshWALink();
+            qvModal.show();
+        }
+
+        // ── Bouton Partager ────────────────────────────────────────────────────
+        document.getElementById('qv-share-btn').addEventListener('click', () => {
+            if (!qvProduct) return;
+
+            const url = `${window.location.origin}${window.location.pathname}?quickview=${qvProduct.id}`;
+
+            const shareBtn = document.getElementById('qv-share-btn');
+
+            // Utiliser l'API Web Share si disponible (mobile), sinon copier
+            if (navigator.share) {
+                navigator.share({
+                    title: `Trusttec — ${qvProduct.name}`,
+                    text: `Découvrez ${qvProduct.name} à ${Number(qvProduct.price).toLocaleString('fr-FR')} XAF sur Trusttec !`,
+                    url: url
+                }).catch(() => { }); // annulation silencieuse
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    shareBtn.className = 'btn-share copied';
+                    shareBtn.innerHTML = '<i class="bi bi-check-lg"></i><span class="d-none d-sm-inline">Copié !</span>';
+
+                    // Afficher le toast
+                    const toast = document.getElementById('share-toast');
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 3000);
+
+                    // Remettre le bouton à l'état initial après 2.5s
+                    setTimeout(() => {
+                        shareBtn.className = 'btn-share';
+                        shareBtn.innerHTML = '<i class="bi bi-share"></i><span class="d-none d-sm-inline">Partager</span>';
+                    }, 2500);
+                }).catch(() => {
+                    // Fallback : ouvrir une fenêtre WhatsApp avec le lien
+                    const waText = encodeURIComponent(`Regarde ce produit sur Trusttec : ${url}`);
+                    window.open(`https://wa.me/?text=${waText}`, '_blank');
+                });
+            }
+        });
+
+        // ── Quantités Vue Rapide ───────────────────────────────────────────────
+        document.getElementById('qv-variants-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.qty-btn');
+            if (!btn) return;
+            const index = parseInt(btn.dataset.index);
+            const delta = parseInt(btn.dataset.delta);
+            let newQty = qvVariantsState[index].qty + delta;
+            if (qvVariantsState.length === 1 && qvVariantsState[0].colorName === '') {
+                if (newQty < 1) newQty = 1;
+            } else {
+                if (newQty < 0) newQty = 0;
+            }
+            qvVariantsState[index].qty = newQty;
+            document.getElementById(`var-qty-${index}`).textContent = newQty;
+            refreshWALink();
+        });
+
+        // ── Lien WhatsApp Vue Rapide ───────────────────────────────────────────
+        function refreshWALink() {
+            if (!qvProduct) return;
+            let details = '';
+            let totalItems = 0;
+            qvVariantsState.forEach(v => {
+                if (v.qty > 0) {
+                    totalItems += v.qty;
+                    let colorPart = v.colorName ? ` (Couleur : ${v.colorName})` : '';
+                    details += `\n📦 ${qvProduct.name}${colorPart} x ${v.qty}`;
+                }
+            });
+            const waBtn = document.getElementById('qv-wa-btn');
+            if (totalItems === 0) {
+                waBtn.style.opacity = '0.5';
+                waBtn.style.pointerEvents = 'none';
+                return;
+            }
+            waBtn.style.opacity = '1';
+            waBtn.style.pointerEvents = 'auto';
+            const msg = encodeURIComponent(
+                `Bonjour Trusttec, je voudrais commander :\n` +
+                details +
+                `\n\n💰 Prix unitaire : ${Number(qvProduct.price).toLocaleString('fr-FR')} XAF\n\nMerci !`
+            );
+            waBtn.href = `https://wa.me/242056323722?text=${msg}`;
+        }
+
+        // ── Ajouter au panier depuis Vue Rapide ────────────────────────────────
+        document.getElementById('qv-add-cart').addEventListener('click', () => {
+            if (!qvProduct) return;
+            let itemsAdded = 0;
+            qvVariantsState.forEach(v => {
+                if (v.qty > 0) {
+                    document.dispatchEvent(new CustomEvent('addToCartCustom', {
+                        detail: {
+                            id: qvProduct.id,
+                            name: qvProduct.name,
+                            price: qvProduct.price,
+                            img: qvProduct.image_url,
+                            colorName: v.colorName,
+                            colorHex: v.colorHex,
+                            qty: v.qty
+                        }
+                    }));
+                    itemsAdded++;
+                }
+            });
+            if (itemsAdded === 0) {
+                alert("Veuillez ajouter au moins une quantité avec le bouton (+)");
+                return;
+            }
+            const btn = document.getElementById('qv-add-cart');
+            btn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Produits ajoutés !';
+            btn.style.background = '#198754';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Ajouter au panier';
+                btn.style.background = '';
+                qvModal.hide();
+            }, 1400);
+        });
+
+        // ── Utilitaires ────────────────────────────────────────────────────────
+        function safeJSON(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val;
+            try { return JSON.parse(val); } catch { return []; }
+        }
+        function esc(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function escHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // ── Lancement ──────────────────────────────────────────────────────────
+        loadProducts();
+    </script>
+
     <script src="js/cart.js"></script>
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
 </body>
+
 </html>
