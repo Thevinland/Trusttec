@@ -1,0 +1,1287 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin — Trusttec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        .sidebar .brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffc107;
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .sidebar a.nav-link-item {
+            display: block;
+            padding: .5rem .75rem;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: background .15s;
+        }
+
+        .sidebar a.nav-link-item:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+
+        .sidebar a.nav-link-item.active {
+            background: rgba(255, 193, 7, .15);
+            color: #ffc107;
+        }
+
+        .product-img-thumb {
+            width: 60px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #ddd;
+        }
+
+        .badge-active {
+            background: #198754;
+        }
+
+        .badge-inactive {
+            background: #6c757d;
+        }
+
+        .table th {
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #6c757d;
+        }
+
+        #login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .upload-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            background: #f8f9fa;
+        }
+
+        .upload-zone:hover {
+            border-color: #0d6efd;
+            background: #f0f4ff;
+        }
+
+        .upload-zone.dragover {
+            border-color: #0d6efd;
+            background: #e8f0fe;
+        }
+
+        .upload-zone input[type=file] {
+            display: none;
+        }
+
+        .upload-preview {
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: .5rem;
+        }
+
+        .upload-progress {
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            background: #dee2e6;
+            margin-top: .75rem;
+            display: none;
+        }
+
+        .upload-progress .bar {
+            height: 100%;
+            background: #0d6efd;
+            width: 0%;
+            transition: width .3s;
+        }
+
+        .upload-status {
+            font-size: .8rem;
+            margin-top: .4rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ── Colors manager ── */
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        .color-row input[type=color] {
+            width: 44px;
+            height: 34px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .color-row .color-name-input {
+            flex: 1;
+        }
+
+        /* ── Specs manager ── */
+        .spec-row {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        .spec-row .spec-key-input {
+            flex: 0 0 38%;
+        }
+
+        .spec-row .spec-val-input {
+            flex: 1;
+        }
+
+        .spec-arrow {
+            color: #aaa;
+            flex-shrink: 0;
+            font-size: .85rem;
+        }
+
+        /* Section headers in modal */
+        .modal-section-header {
+            font-size: .68rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #999;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            margin-top: .2rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .modal-section-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+
+        /* ── Cropper Modal ── */
+        #cropperModal .modal-dialog {
+            max-width: 700px;
+        }
+
+        #cropper-container {
+            width: 100%;
+            max-height: 460px;
+            overflow: hidden;
+            background: #1a1a2e;
+            border-radius: 8px;
+        }
+
+        #cropper-image {
+            display: block;
+            max-width: 100%;
+        }
+
+        .cropper-hint {
+            font-size: .8rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            margin-top: .6rem;
+        }
+
+        .cropper-hint i {
+            color: #0d6efd;
+        }
+
+        #crop-format-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            background: #e8f4fd;
+            color: #0a58ca;
+            border-radius: 20px;
+            padding: .2rem .7rem;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===================== ÉCRAN DE CONNEXION ===================== -->
+    <div id="login-screen">
+        <div class="login-card shadow-lg text-center">
+            <h2 class="fw-bold mb-1" style="color:#1a1a2e">Trusttec</h2>
+            <p class="text-muted mb-4">Administration</p>
+            <div id="login-error" class="alert alert-danger d-none mb-3"></div>
+            <div class="mb-3 text-start">
+                <label class="form-label fw-semibold">Email</label>
+                <input type="email" id="login-email" class="form-control" placeholder="admin@trusttec.store">
+            </div>
+            <div class="mb-4 text-start">
+                <label class="form-label fw-semibold">Mot de passe</label>
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••">
+            </div>
+            <button id="login-btn" class="btn btn-warning w-100 fw-bold">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Se connecter
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================== INTERFACE ADMIN ===================== -->
+    <div id="admin-screen" class="d-none">
+        <div class="d-flex">
+
+            <!-- Sidebar -->
+            <div class="sidebar d-none d-md-flex flex-column" style="width:220px;flex-shrink:0;">
+                <div class="brand"><i class="bi bi-shield-lock me-2"></i>Admin</div>
+                <nav class="flex-grow-1 p-3">
+                    <p class="small text-secondary text-uppercase mb-1" style="font-size:.7rem">Gestion</p>
+                    <a href="#" class="nav-link-item active" id="nav-products"
+                        onclick="showPage('products');return false;">
+                        <i class="bi bi-box-seam me-2"></i>Produits
+                    </a>
+                    <a href="#" class="nav-link-item" id="nav-categories"
+                        onclick="showPage('categories');return false;">
+                        <i class="bi bi-tags me-2"></i>Catégories
+                    </a>
+                    <hr style="border-color:rgba(255,255,255,.1)">
+                    <a href="produits.html" class="nav-link-item" target="_blank">
+                        <i class="bi bi-eye me-2"></i>Voir le site
+                    </a>
+                </nav>
+                <div class="p-3 border-top" style="border-color:rgba(255,255,255,.1)!important;">
+                    <small id="admin-email" class="text-secondary d-block mb-2"></small>
+                    <button id="logout-btn" class="btn btn-outline-warning btn-sm w-100">
+                        <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex-grow-1 p-4">
+                <div id="admin-alert" class="d-none mb-3"></div>
+
+                <!-- PAGE PRODUITS -->
+                <div class="page active" id="page-products">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Produits</h4>
+                            <small class="text-muted" id="product-count"></small>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal"
+                            id="new-product-btn">
+                            <i class="bi bi-plus-lg me-1"></i>Nouveau produit
+                        </button>
+                    </div>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-3">Image</th>
+                                            <th>Produit</th>
+                                            <th>Catégorie</th>
+                                            <th>Prix (XAF)</th>
+                                            <th>Couleurs</th>
+                                            <th>Statut</th>
+                                            <th class="text-end pe-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="products-table-body">
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE CATÉGORIES -->
+                <div class="page" id="page-categories">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Catégories</h4>
+                            <small class="text-muted" id="category-count"></small>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal"
+                            id="new-category-btn">
+                            <i class="bi bi-plus-lg me-1"></i>Nouvelle catégorie
+                        </button>
+                    </div>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-3">ID</th>
+                                            <th>Libellé</th>
+                                            <th>Ordre</th>
+                                            <th>Nb produits</th>
+                                            <th class="text-end pe-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="categories-table-body">
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">
+                                                <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL PRODUIT ===================== -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="productModalLabel">Nouveau produit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="form-error" class="alert alert-danger d-none mb-3"></div>
+                    <div class="row g-3">
+
+                        <!-- Infos de base -->
+                        <div class="col-12">
+                            <div class="modal-section-header">Informations de base</div>
+                        </div>
+
+                        <!-- Champ ID caché — géré automatiquement -->
+                        <div class="col-md-6 d-none">
+                            <input type="text" id="field-id">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Catégorie</label>
+                            <select class="form-select" id="field-category">
+                                <option value="">-- Choisir --</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Nom du produit</label>
+                            <input type="text" class="form-control" id="field-name" placeholder="Disque Dur SSD 2To">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Description courte</label>
+                            <textarea class="form-control" id="field-description" rows="2"
+                                placeholder="USB 3.0, portable…"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Prix (XAF)</label>
+                            <input type="number" class="form-control" id="field-price" placeholder="30000" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ordre d'affichage</label>
+                            <input type="number" class="form-control" id="field-sort" placeholder="1" min="0">
+                        </div>
+
+                        <!-- Image -->
+                        <div class="col-12">
+                            <div class="modal-section-header">Image</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="upload-zone" id="upload-zone">
+                                <input type="file" id="field-image-file" accept="image/*">
+                                <img id="upload-preview" class="upload-preview d-none" alt="Aperçu">
+                                <div id="upload-placeholder">
+                                    <i class="bi bi-crop fs-2 text-muted"></i>
+                                    <p class="text-muted mb-0 mt-1 small">Cliquez ou glissez une image ici</p>
+                                    <p class="text-muted small">JPG, PNG, WEBP — max 5 Mo</p>
+                                    <div class="mt-1">
+                                        <span id="crop-format-badge"
+                                            style="display:inline-flex;align-items:center;gap:.3rem;background:#e8f4fd;color:#0a58ca;border-radius:20px;padding:.2rem .7rem;font-size:.75rem;font-weight:600;">
+                                            <i class="bi bi-aspect-ratio"></i> Recadrage automatique 4:3 · WebP
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="upload-progress" id="upload-progress">
+                                    <div class="bar" id="upload-bar"></div>
+                                </div>
+                                <div class="upload-status" id="upload-status"></div>
+                            </div>
+                            <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                                <small class="text-muted">Ou entrez une URL manuellement :</small>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="re-crop-btn"
+                                    style="display:none;">
+                                    <i class="bi bi-crop me-1"></i>Recadrer à nouveau
+                                </button>
+                            </div>
+                            <input type="text" class="form-control form-control-sm mt-1" id="field-image-url"
+                                placeholder="https://… ou Images/photo.webp">
+                        </div>
+
+                        <!-- Couleurs disponibles -->
+                        <div class="col-12">
+                            <div class="modal-section-header">Couleurs disponibles</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="colors-list"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="add-color-btn">
+                                <i class="bi bi-plus-circle me-1"></i>Ajouter une couleur
+                            </button>
+                            <div class="form-text">Les couleurs s'affichent sous forme de pastilles cliquables sur la
+                                fiche produit.</div>
+                        </div>
+
+                        <!-- Caractéristiques -->
+                        <div class="col-12">
+                            <div class="modal-section-header">Caractéristiques techniques</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="specs-list"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="add-spec-btn">
+                                <i class="bi bi-plus-circle me-1"></i>Ajouter une caractéristique
+                            </button>
+                            <div class="form-text">Exemples : Capacité → 1 To, Interface → USB 3.2, Garantie → 2 ans…
+                            </div>
+                        </div>
+
+                        <!-- Statut -->
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="field-active" checked>
+                                <label class="form-check-label" for="field-active">Produit visible sur le site</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary fw-bold" id="save-product-btn">
+                        <i class="bi bi-floppy me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL RECADRAGE (CROPPER) ===================== -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-crop me-2 text-primary"></i>Recadrer l'image
+                    </h5>
+                    <button type="button" class="btn-close" id="cropper-cancel-btn"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cropper-container">
+                        <img id="cropper-image" src="" alt="À recadrer">
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
+                        <div class="cropper-hint">
+                            <i class="bi bi-mouse2"></i>
+                            <span>Déplacez le cadre · Molette pour zoomer · Format 4:3 verrouillé</span>
+                        </div>
+                        <div>
+                            <span
+                                style="display:inline-flex;align-items:center;gap:.3rem;background:#e8f4fd;color:#0a58ca;border-radius:20px;padding:.2rem .7rem;font-size:.75rem;font-weight:600;">
+                                <i class="bi bi-file-earmark-image"></i> Sortie : WebP · 800×600 px
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Contrôles de zoom -->
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <span class="text-muted small"><i class="bi bi-zoom-out"></i></span>
+                        <input type="range" class="form-range flex-grow-1" id="zoom-slider" min="0" max="1" step="0.01"
+                            value="0">
+                        <span class="text-muted small"><i class="bi bi-zoom-in"></i></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="rotate-left-btn"
+                            title="Rotation -90°">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="rotate-right-btn"
+                            title="Rotation +90°">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="flip-h-btn"
+                            title="Miroir horizontal">
+                            <i class="bi bi-symmetry-vertical"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="reset-crop-btn"
+                            title="Réinitialiser">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cropper-cancel-btn2">
+                        <i class="bi bi-x-lg me-1"></i>Annuler
+                    </button>
+                    <button type="button" class="btn btn-primary fw-bold" id="cropper-validate-btn">
+                        <i class="bi bi-check2-circle me-1"></i>Valider et envoyer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL CATÉGORIE ===================== -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="categoryModalLabel">Nouvelle catégorie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cat-form-error" class="alert alert-danger d-none mb-3"></div>
+                    <div class="row g-3">
+
+                        <!-- Champ ID caché — auto-généré depuis le libellé -->
+                        <div class="col-12 d-none">
+                            <input type="text" id="cat-field-id">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Libellé affiché</label>
+                            <input type="text" class="form-control" id="cat-field-label" placeholder="Câbles USB">
+                            <div class="form-text">
+                                L'identifiant sera généré automatiquement depuis le libellé.
+                                <span id="cat-id-preview" class="fw-semibold text-primary"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Ordre d'affichage</label>
+                            <input type="number" class="form-control" id="cat-field-sort" placeholder="5" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary fw-bold" id="save-category-btn">
+                        <i class="bi bi-floppy me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL SUPPRESSION ===================== -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-trash me-2"></i>Supprimer ?</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Voulez-vous vraiment supprimer <strong id="delete-item-name"></strong> ?<br>
+                        <small class="text-muted">Cette action est irréversible.</small>
+                    </p>
+                    <div id="delete-warning" class="alert alert-warning d-none p-2">
+                        <small><i class="bi bi-exclamation-triangle me-1"></i>Cette catégorie contient des produits.
+                            Supprimez-les d'abord.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                    <button class="btn btn-danger btn-sm fw-bold" id="confirm-delete-btn">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Cropper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://fpllagysfbrxhyzizudy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwbGxhZ3lzZmJyeGh5eml6dWR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODg4MjgsImV4cCI6MjA5MTY2NDgyOH0.D_2f7Nw2XynOvteaIDS5smzF9eYEjmgM71Zp1nXwls0';
+        const STORAGE_BUCKET = 'images';
+
+        const _mem = {};
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: false,
+                storage: {
+                    getItem: (k) => _mem[k] ?? null,
+                    setItem: (k, v) => { _mem[k] = v; },
+                    removeItem: (k) => { delete _mem[k]; },
+                }
+            }
+        });
+
+        let categories = [];
+        let allProducts = [];
+        let editingId = null;
+        let editingCatId = null;
+        let deletingId = null;
+        let deletingType = null;
+        let uploadedImageUrl = null;
+
+        // ── Cropper state ─────────────────────────────────────────────────────────
+        let cropperInstance = null;
+        let pendingFile = null;
+        let currentFlipH = 1;
+        let currentFlipV = 1;
+
+        const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+        const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+
+        // ── Génération auto ID catégorie depuis le libellé ─────────────────────────
+        document.getElementById('cat-field-label').addEventListener('input', function () {
+            if (editingCatId) return; // ne pas écraser en mode édition
+            const generated = this.value
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // supprime les accents
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+            document.getElementById('cat-field-id').value = generated;
+            document.getElementById('cat-id-preview').textContent = generated ? `→ ID : ${generated}` : '';
+        });
+
+        // ── Navigation ─────────────────────────────────────────────────────────────
+        window.showPage = function (page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link-item').forEach(a => a.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.getElementById('nav-' + page).classList.add('active');
+            if (page === 'categories') loadCategoriesTable();
+        };
+
+        // ── Connexion ──────────────────────────────────────────────────────────────
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            errEl.classList.add('d-none');
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { errEl.textContent = 'Identifiants incorrects : ' + error.message; errEl.classList.remove('d-none'); return; }
+            showAdmin(email);
+        });
+        ['login-email', 'login-password'].forEach(id =>
+            document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-btn').click(); })
+        );
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            document.getElementById('admin-screen').classList.add('d-none');
+            document.getElementById('login-screen').style.display = 'flex';
+        });
+
+        async function showAdmin(email) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-screen').classList.remove('d-none');
+            document.getElementById('admin-email').textContent = email;
+            await loadCategories();
+            await loadProductsTable();
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) showAdmin(session.user.email);
+
+        // ── Catégories (pour select produits) ─────────────────────────────────────
+        async function loadCategories() {
+            const { data } = await supabase.from('categories').select('*').order('sort_order');
+            categories = data || [];
+            refreshCategorySelect();
+        }
+
+        function refreshCategorySelect() {
+            const select = document.getElementById('field-category');
+            const current = select.value;
+            select.innerHTML = '<option value="">-- Choisir --</option>' +
+                categories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+            select.value = current;
+        }
+
+        // ── TABLE PRODUITS ─────────────────────────────────────────────────────────
+        async function loadProductsTable() {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Chargement…</td></tr>';
+            const { data: products, error } = await supabase.from('products').select('*').order('category').order('sort_order');
+            if (error) { tbody.innerHTML = `<tr><td colspan="7" class="text-danger text-center py-3">Erreur : ${error.message}</td></tr>`; return; }
+            allProducts = products || [];
+            document.getElementById('product-count').textContent = `${allProducts.length} produit(s)`;
+            if (!allProducts.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Aucun produit.</td></tr>'; return; }
+            tbody.innerHTML = allProducts.map(p => {
+                const catLabel = categories.find(c => c.id === p.category)?.label || p.category;
+                const price = Number(p.price).toLocaleString('fr-FR');
+                const badge = p.active ? '<span class="badge badge-active">Visible</span>' : '<span class="badge badge-inactive">Masqué</span>';
+                const colors = safeJSON(p.colors);
+                const colorChips = colors.length > 0
+                    ? colors.slice(0, 5).map(c =>
+                        `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${c.hex};border:1px solid rgba(0,0,0,.15);margin-right:3px;" title="${c.name}"></span>`
+                    ).join('') + (colors.length > 5 ? `<small class="text-muted">+${colors.length - 5}</small>` : '')
+                    : '<small class="text-muted">—</small>';
+                return `<tr>
+                <td class="ps-3"><img src="${p.image_url}" class="product-img-thumb" alt=""
+                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'45\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dee2e6\'/%3E%3C/svg%3E'"></td>
+                <td><div class="fw-semibold">${p.name}</div><small class="text-muted">${p.id}</small></td>
+                <td><small>${catLabel}</small></td>
+                <td class="fw-semibold text-primary">${price}</td>
+                <td>${colorChips}</td>
+                <td>${badge}</td>
+                <td class="text-end pe-3">
+                    <button class="btn btn-sm btn-outline-secondary me-1 btn-edit-product" data-id="${p.id}"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete-product" data-id="${p.id}" data-name="${p.name}"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>`;
+            }).join('');
+            document.querySelectorAll('.btn-edit-product').forEach(btn => btn.addEventListener('click', () => openEditProduct(btn.dataset.id)));
+            document.querySelectorAll('.btn-delete-product').forEach(btn => btn.addEventListener('click', () => openDelete('product', btn.dataset.id, btn.dataset.name)));
+        }
+
+        // ── TABLE CATÉGORIES ───────────────────────────────────────────────────────
+        async function loadCategoriesTable() {
+            const tbody = document.getElementById('categories-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Chargement…</td></tr>';
+            const { data: cats, error } = await supabase.from('categories').select('*').order('sort_order');
+            if (error) { tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center py-3">Erreur : ${error.message}</td></tr>`; return; }
+            categories = cats || [];
+            refreshCategorySelect();
+            document.getElementById('category-count').textContent = `${categories.length} catégorie(s)`;
+            if (!categories.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Aucune catégorie.</td></tr>'; return; }
+            const { data: prods } = await supabase.from('products').select('category');
+            const countMap = {};
+            (prods || []).forEach(p => { countMap[p.category] = (countMap[p.category] || 0) + 1; });
+            tbody.innerHTML = categories.map(c => `<tr>
+            <td class="ps-3"><code class="text-secondary">${c.id}</code></td>
+            <td class="fw-semibold">${c.label}</td>
+            <td>${c.sort_order}</td>
+            <td><span class="badge bg-secondary">${countMap[c.id] || 0} produit(s)</span></td>
+            <td class="text-end pe-3">
+                <button class="btn btn-sm btn-outline-secondary me-1 btn-edit-cat" data-id="${c.id}"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger btn-delete-cat" data-id="${c.id}" data-name="${c.label}" data-count="${countMap[c.id] || 0}"><i class="bi bi-trash"></i></button>
+            </td>
+        </tr>`).join('');
+            document.querySelectorAll('.btn-edit-cat').forEach(btn => btn.addEventListener('click', () => openEditCategory(btn.dataset.id)));
+            document.querySelectorAll('.btn-delete-cat').forEach(btn => btn.addEventListener('click', () => openDelete('category', btn.dataset.id, btn.dataset.name, btn.dataset.count)));
+        }
+
+        // ── Nouveau produit — ID auto généré ──────────────────────────────────────
+        document.getElementById('new-product-btn').addEventListener('click', () => {
+            editingId = null; uploadedImageUrl = null;
+            document.getElementById('productModalLabel').textContent = 'Nouveau produit';
+            document.getElementById('field-id').disabled = false;
+
+            // Générer un ID unique : préfixe P + base36 du timestamp (ex: P2KF3A)
+            const autoId = 'P' + Date.now().toString(36).toUpperCase().slice(-5);
+
+            clearProductForm();
+
+            // Remettre l'ID après clearProductForm (qui efface tout)
+            document.getElementById('field-id').value = autoId;
+
+            document.getElementById('form-error').classList.add('d-none');
+        });
+
+        // ── Éditer produit ─────────────────────────────────────────────────────────
+        function openEditProduct(id) {
+            editingId = id; uploadedImageUrl = null;
+            const p = allProducts.find(x => x.id === id);
+            document.getElementById('productModalLabel').textContent = 'Modifier le produit';
+            document.getElementById('field-id').value = p.id;
+            document.getElementById('field-id').disabled = true;
+            document.getElementById('field-name').value = p.name;
+            document.getElementById('field-description').value = p.description;
+            document.getElementById('field-price').value = p.price;
+            document.getElementById('field-sort').value = p.sort_order;
+            document.getElementById('field-image-url').value = p.image_url;
+            document.getElementById('field-category').value = p.category;
+            document.getElementById('field-active').checked = p.active;
+            document.getElementById('form-error').classList.add('d-none');
+
+            const preview = document.getElementById('upload-preview');
+            if (p.image_url) {
+                preview.src = p.image_url; preview.classList.remove('d-none');
+                document.getElementById('upload-placeholder').classList.add('d-none');
+                document.getElementById('re-crop-btn').style.display = '';
+            } else {
+                preview.classList.add('d-none');
+                document.getElementById('upload-placeholder').classList.remove('d-none');
+                document.getElementById('re-crop-btn').style.display = 'none';
+            }
+            document.getElementById('upload-progress').style.display = 'none';
+            document.getElementById('upload-status').innerHTML = '';
+
+            clearColorsList();
+            const colors = safeJSON(p.colors);
+            colors.forEach(c => addColorRow(c.hex, c.name));
+
+            clearSpecsList();
+            const specs = safeJSON(p.specs);
+            specs.forEach(s => addSpecRow(s.key, s.value));
+
+            productModal.show();
+        }
+
+        // ── Enregistrer produit ────────────────────────────────────────────────────
+        document.getElementById('save-product-btn').addEventListener('click', async () => {
+            const errEl = document.getElementById('form-error');
+            errEl.classList.add('d-none');
+
+            const id = document.getElementById('field-id').value.trim().toUpperCase();
+            const name = document.getElementById('field-name').value.trim();
+            const description = document.getElementById('field-description').value.trim();
+            const price = parseInt(document.getElementById('field-price').value, 10);
+            const sort_order = parseInt(document.getElementById('field-sort').value, 10) || 0;
+            const category = document.getElementById('field-category').value;
+            const active = document.getElementById('field-active').checked;
+            const image_url = document.getElementById('field-image-url').value.trim();
+
+            if (!id || !name || !category || isNaN(price)) {
+                errEl.textContent = 'Veuillez remplir tous les champs obligatoires (Nom, Catégorie, Prix).';
+                errEl.classList.remove('d-none'); return;
+            }
+
+            const colors = [];
+            document.querySelectorAll('#colors-list .color-row').forEach(row => {
+                const hex = row.querySelector('.color-hex').value;
+                const nm = row.querySelector('.color-name-input').value.trim();
+                if (nm) colors.push({ hex, name: nm });
+            });
+
+            const specs = [];
+            document.querySelectorAll('#specs-list .spec-row').forEach(row => {
+                const key = row.querySelector('.spec-key-input').value.trim();
+                const val = row.querySelector('.spec-val-input').value.trim();
+                if (key && val) specs.push({ key, value: val });
+            });
+
+            const payload = { name, description, price, sort_order, image_url, category, active, colors, specs };
+            let error;
+            if (editingId) { ({ error } = await supabase.from('products').update(payload).eq('id', editingId)); }
+            else { ({ error } = await supabase.from('products').insert({ id, ...payload })); }
+
+            if (error) {
+                errEl.textContent = 'Erreur : ' + (error.message.includes('duplicate') ? `L'ID "${id}" existe déjà.` : error.message);
+                errEl.classList.remove('d-none'); return;
+            }
+            productModal.hide();
+            showAlert(`Produit "${name}" enregistré avec succès.`, 'success');
+            await loadProductsTable();
+        });
+
+        // ── Gestion couleurs ───────────────────────────────────────────────────────
+        document.getElementById('add-color-btn').addEventListener('click', () => addColorRow());
+
+        function addColorRow(hex = '#000000', name = '') {
+            const list = document.getElementById('colors-list');
+            const row = document.createElement('div');
+            row.className = 'color-row';
+            row.innerHTML = `
+            <input type="color" class="form-control form-control-color color-hex" value="${hex}" title="Choisir couleur">
+            <input type="text" class="form-control form-control-sm color-name-input" placeholder="Nom de la couleur (ex: Noir)" value="${escapeAttr(name)}">
+            <button type="button" class="btn btn-sm btn-outline-danger remove-color-btn" title="Supprimer">
+                <i class="bi bi-x-lg"></i>
+            </button>`;
+            row.querySelector('.remove-color-btn').addEventListener('click', () => row.remove());
+            list.appendChild(row);
+        }
+
+        function clearColorsList() { document.getElementById('colors-list').innerHTML = ''; }
+
+        // ── Gestion specs ──────────────────────────────────────────────────────────
+        document.getElementById('add-spec-btn').addEventListener('click', () => addSpecRow());
+
+        function addSpecRow(key = '', value = '') {
+            const list = document.getElementById('specs-list');
+            const row = document.createElement('div');
+            row.className = 'spec-row';
+            row.innerHTML = `
+            <input type="text" class="form-control form-control-sm spec-key-input" placeholder="Caractéristique (ex: Capacité)" value="${escapeAttr(key)}">
+            <span class="spec-arrow">→</span>
+            <input type="text" class="form-control form-control-sm spec-val-input" placeholder="Valeur (ex: 1 To)" value="${escapeAttr(value)}">
+            <button type="button" class="btn btn-sm btn-outline-danger remove-spec-btn" title="Supprimer">
+                <i class="bi bi-x-lg"></i>
+            </button>`;
+            row.querySelector('.remove-spec-btn').addEventListener('click', () => row.remove());
+            list.appendChild(row);
+        }
+
+        function clearSpecsList() { document.getElementById('specs-list').innerHTML = ''; }
+
+        // ── Nouvelle catégorie ─────────────────────────────────────────────────────
+        document.getElementById('new-category-btn').addEventListener('click', () => {
+            editingCatId = null;
+            document.getElementById('categoryModalLabel').textContent = 'Nouvelle catégorie';
+            document.getElementById('cat-field-id').value = '';
+            document.getElementById('cat-field-id').disabled = false;
+            document.getElementById('cat-field-label').value = '';
+            document.getElementById('cat-field-sort').value = '';
+            document.getElementById('cat-id-preview').textContent = '';
+            document.getElementById('cat-form-error').classList.add('d-none');
+        });
+
+        // ── Éditer catégorie ───────────────────────────────────────────────────────
+        function openEditCategory(id) {
+            editingCatId = id;
+            const c = categories.find(x => x.id === id);
+            document.getElementById('categoryModalLabel').textContent = 'Modifier la catégorie';
+            document.getElementById('cat-field-id').value = c.id;
+            document.getElementById('cat-field-id').disabled = true;
+            document.getElementById('cat-field-label').value = c.label;
+            document.getElementById('cat-field-sort').value = c.sort_order;
+            // Afficher l'ID existant en aperçu
+            document.getElementById('cat-id-preview').textContent = `→ ID : ${c.id}`;
+            document.getElementById('cat-form-error').classList.add('d-none');
+            categoryModal.show();
+        }
+
+        // ── Enregistrer catégorie ──────────────────────────────────────────────────
+        document.getElementById('save-category-btn').addEventListener('click', async () => {
+            const errEl = document.getElementById('cat-form-error');
+            errEl.classList.add('d-none');
+            const id = document.getElementById('cat-field-id').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const label = document.getElementById('cat-field-label').value.trim();
+            const sort_order = parseInt(document.getElementById('cat-field-sort').value, 10) || 0;
+            if (!id || !label) { errEl.textContent = "Le libellé est obligatoire."; errEl.classList.remove('d-none'); return; }
+            let error;
+            if (editingCatId) { ({ error } = await supabase.from('categories').update({ label, sort_order }).eq('id', editingCatId)); }
+            else { ({ error } = await supabase.from('categories').insert({ id, label, sort_order })); }
+            if (error) { errEl.textContent = 'Erreur : ' + (error.message.includes('duplicate') ? `L'ID "${id}" existe déjà.` : error.message); errEl.classList.remove('d-none'); return; }
+            categoryModal.hide();
+            showAlert(`Catégorie "${label}" enregistrée avec succès.`, 'success');
+            await loadCategoriesTable();
+        });
+
+        // ── Suppression ────────────────────────────────────────────────────────────
+        function openDelete(type, id, name, count = 0) {
+            deletingId = id; deletingType = type;
+            document.getElementById('delete-item-name').textContent = name;
+            const warn = document.getElementById('delete-warning');
+            const btn = document.getElementById('confirm-delete-btn');
+            if (type === 'category' && parseInt(count) > 0) { warn.classList.remove('d-none'); btn.disabled = true; }
+            else { warn.classList.add('d-none'); btn.disabled = false; }
+            deleteModal.show();
+        }
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            const table = deletingType === 'product' ? 'products' : 'categories';
+            const { error } = await supabase.from(table).delete().eq('id', deletingId);
+            deleteModal.hide();
+            if (error) { showAlert('Erreur lors de la suppression : ' + error.message, 'danger'); return; }
+            showAlert('Élément supprimé.', 'warning');
+            if (deletingType === 'product') await loadProductsTable();
+            else await loadCategoriesTable();
+        });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  CROPPER
+        // ════════════════════════════════════════════════════════════════════════════
+
+        function openCropperModal(file) {
+            pendingFile = file;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const cropImg = document.getElementById('cropper-image');
+
+                if (cropperInstance) {
+                    cropperInstance.destroy();
+                    cropperInstance = null;
+                }
+
+                currentFlipH = 1;
+                currentFlipV = 1;
+
+                cropImg.src = e.target.result;
+
+                productModal.hide();
+
+                document.getElementById('cropperModal').addEventListener('shown.bs.modal', () => {
+                    cropperInstance = new Cropper(cropImg, {
+                        aspectRatio: 4 / 3,
+                        viewMode: 0,
+                        dragMode: 'move',
+                        autoCropArea: 0.85,
+                        responsive: true,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                        zoom(event) {
+                            const slider = document.getElementById('zoom-slider');
+                            const ratio = Math.min(Math.max(event.detail.ratio, 0.1), 3);
+                            slider.value = (ratio - 0.1) / (3 - 0.1);
+                        }
+                    });
+                }, { once: true });
+
+                cropperModal.show();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Slider de zoom
+        document.getElementById('zoom-slider').addEventListener('input', function () {
+            if (!cropperInstance) return;
+            const ratio = 0.1 + parseFloat(this.value) * (3 - 0.1);
+            cropperInstance.zoomTo(ratio);
+        });
+
+        // Rotation
+        document.getElementById('rotate-left-btn').addEventListener('click', () => {
+            if (cropperInstance) cropperInstance.rotate(-90);
+        });
+        document.getElementById('rotate-right-btn').addEventListener('click', () => {
+            if (cropperInstance) cropperInstance.rotate(90);
+        });
+
+        // Miroir horizontal
+        document.getElementById('flip-h-btn').addEventListener('click', () => {
+            if (!cropperInstance) return;
+            currentFlipH *= -1;
+            cropperInstance.scaleX(currentFlipH);
+        });
+
+        // Réinitialiser
+        document.getElementById('reset-crop-btn').addEventListener('click', () => {
+            if (!cropperInstance) return;
+            cropperInstance.reset();
+            currentFlipH = 1; currentFlipV = 1;
+            document.getElementById('zoom-slider').value = 0;
+        });
+
+        // Annuler le recadrage
+        function cancelCrop() {
+            cropperModal.hide();
+            document.getElementById('cropperModal').addEventListener('hidden.bs.modal', () => {
+                if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+                pendingFile = null;
+                productModal.show();
+            }, { once: true });
+        }
+        document.getElementById('cropper-cancel-btn').addEventListener('click', cancelCrop);
+        document.getElementById('cropper-cancel-btn2').addEventListener('click', cancelCrop);
+
+        // ── Valider le recadrage ──────────────────────────────────────────────────
+        document.getElementById('cropper-validate-btn').addEventListener('click', async () => {
+            if (!cropperInstance) return;
+
+            const btn = document.getElementById('cropper-validate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Upload en cours…';
+
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 800,
+                height: 600,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+                fillColor: '#ffffff',
+            });
+
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    showAlert('Erreur lors de la conversion de l\'image.', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Valider et envoyer';
+                    return;
+                }
+
+                cropperModal.hide();
+                document.getElementById('cropperModal').addEventListener('hidden.bs.modal', async () => {
+                    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+
+                    const croppedPreviewUrl = URL.createObjectURL(blob);
+                    const preview = document.getElementById('upload-preview');
+                    preview.src = croppedPreviewUrl;
+                    preview.classList.remove('d-none');
+                    document.getElementById('upload-placeholder').classList.add('d-none');
+                    document.getElementById('re-crop-btn').style.display = '';
+
+                    productModal.show();
+
+                    const url = await uploadBlob(blob, 'webp');
+                    if (url) {
+                        uploadedImageUrl = url;
+                        document.getElementById('field-image-url').value = url;
+                    }
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Valider et envoyer';
+                }, { once: true });
+
+            }, 'image/webp', 0.88);
+        });
+
+        // ── Bouton "Recadrer à nouveau" ───────────────────────────────────────────
+        document.getElementById('re-crop-btn').addEventListener('click', () => {
+            if (pendingFile) {
+                openCropperModal(pendingFile);
+            } else {
+                document.getElementById('field-image-file').click();
+            }
+        });
+
+        // ── Upload zone ───────────────────────────────────────────────────────────
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('field-image-file');
+
+        uploadZone.addEventListener('click', (e) => {
+            if (e.target.closest('#re-crop-btn')) return;
+            fileInput.click();
+        });
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) handleFileSelected(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) handleFileSelected(fileInput.files[0]);
+            fileInput.value = '';
+        });
+
+        function handleFileSelected(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('L\'image est trop lourde (max 5 Mo).', 'danger');
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                showAlert('Veuillez sélectionner un fichier image.', 'danger');
+                return;
+            }
+            openCropperModal(file);
+        }
+
+        // ── Upload Blob vers Supabase ─────────────────────────────────────────────
+        async function uploadBlob(blob, ext) {
+            const fileName = `product_${Date.now()}.${ext}`;
+            const progressEl = document.getElementById('upload-progress');
+            const barEl = document.getElementById('upload-bar');
+            const statusEl = document.getElementById('upload-status');
+
+            progressEl.style.display = 'block';
+            barEl.style.width = '30%';
+            barEl.style.background = '#0d6efd';
+            statusEl.innerHTML = '<span class="text-primary"><span class="spinner-border spinner-border-sm me-1"></span>Envoi en cours…</span>';
+
+            const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(fileName, blob, {
+                upsert: true,
+                contentType: `image/${ext}`
+            });
+
+            if (error) {
+                barEl.style.width = '100%';
+                barEl.style.background = '#dc3545';
+                statusEl.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle me-1"></i>${error.message}</span>`;
+                return null;
+            }
+
+            barEl.style.width = '100%';
+            const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(fileName);
+            statusEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Image uploadée avec succès ! (WebP 800×600)</span>';
+            return urlData.publicUrl;
+        }
+
+        // ── Helpers ────────────────────────────────────────────────────────────────
+        function clearProductForm() {
+            ['field-name', 'field-description', 'field-price', 'field-sort', 'field-image-url'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('field-id').value = '';
+            document.getElementById('field-category').value = '';
+            document.getElementById('field-active').checked = true;
+            document.getElementById('upload-preview').classList.add('d-none');
+            document.getElementById('upload-placeholder').classList.remove('d-none');
+            document.getElementById('upload-progress').style.display = 'none';
+            document.getElementById('upload-status').innerHTML = '';
+            document.getElementById('field-image-file').value = '';
+            document.getElementById('re-crop-btn').style.display = 'none';
+            clearColorsList();
+            clearSpecsList();
+            uploadedImageUrl = null;
+            pendingFile = null;
+        }
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('admin-alert');
+            el.className = `alert alert-${type} alert-dismissible fade show`;
+            el.innerHTML = `${msg} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+            el.classList.remove('d-none');
+            setTimeout(() => el.classList.add('d-none'), 4000);
+        }
+
+        function safeJSON(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val;
+            try { return JSON.parse(val); } catch { return []; }
+        }
+
+        function escapeAttr(str) {
+            return String(str ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+    </script>
+</body>
+
+</html>
