@@ -103,18 +103,20 @@
     <!-- Section Autres Moyens de Contact -->
     <section id="autres-contacts" class="mb-5">
         <h2 class="mb-5 fw-bold text-center border-bottom pb-3"><i class="bi bi-headset me-2"></i>Autres Moyens de Nous Joindre</h2>
+       
         <!-- align-items-stretch sur la ROW pour égaliser hauteur des colonnes -->
-        <div class="row g-4 justify-content-center d-flex align-items-stretch">
+        <div class="row g-4 justify-content-center align-items-stretch">
 
             <!-- Carte Contact WhatsApp Direct -->
             <div class="col-md-6 col-lg-3">
-                <!-- h-100 sur la carte pour qu'elle prenne la hauteur étirée de la colonne -->
                 <div class="card h-100 text-center shadow-sm contact-card">
-                    <div class="card-body"> <!-- Styles pour .contact-card .card-body sont dans style.css -->
-                        <i class="bi bi-whatsapp contact-icon text-success"></i> <!-- Styles pour .contact-icon dans style.css -->
+                    <!-- AJOUT DE: d-flex flex-column -->
+                    <div class="card-body d-flex flex-column"> 
+                        <i class="bi bi-whatsapp contact-icon text-success mb-3 fs-1"></i>
                         <h5 class="card-title fw-semibold mb-3">WhatsApp Direct</h5>
-                        <p class="card-text text-muted mb-3">Pour toute question rapide ou demande d'information.</p>
-                        <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="btn btn-success mt-auto" target="_blank">
+                        <p class="card-text text-muted mb-4 flex-grow-1">Pour toute question rapide ou demande d'information.</p>
+                        <!-- AJOUT DE: w-100 -->
+                        <a href="https://wa.me/242056323722?text=Bonjour%20Trusttec" class="btn btn-success mt-auto w-100" target="_blank">
                            <i class="bi bi-send me-1"></i> Discuter
                         </a>
                     </div>
@@ -124,12 +126,13 @@
             <!-- Carte Contact Email -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 text-center shadow-sm contact-card">
-                    <div class="card-body">
-                        <i class="bi bi-envelope-fill contact-icon text-secondary"></i>
+                    <div class="card-body d-flex flex-column">
+                        <i class="bi bi-envelope-fill contact-icon text-secondary mb-3 fs-1"></i>
                         <h5 class="card-title fw-semibold mb-3">Email</h5>
-                        <p class="card-text text-muted mb-3">Pour les demandes écrites ou moins urgentes.</p>
-                        <a href="mailto:contact@trusttec.store" class="btn btn-secondary mt-auto">
-                           <i class="bi bi-envelope-paper me-1"></i> Envoyer un email
+                        <p class="card-text text-muted mb-4 flex-grow-1">Pour les demandes écrites ou moins urgentes.</p>
+                        <!-- AJOUT DE: w-100 et text-nowrap -->
+                        <a href="mailto:contact@trusttec.store" class="btn btn-secondary mt-auto w-100 text-nowrap">
+                           <i class="bi bi-envelope-paper me-1"></i> Nous écrire
                         </a>
                     </div>
                 </div>
@@ -138,11 +141,11 @@
             <!-- Carte Contact Facebook -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 text-center shadow-sm contact-card">
-                    <div class="card-body">
-                        <i class="bi bi-facebook contact-icon text-primary"></i>
+                    <div class="card-body d-flex flex-column">
+                        <i class="bi bi-facebook contact-icon text-primary mb-3 fs-1"></i>
                         <h5 class="card-title fw-semibold mb-3">Facebook</h5>
-                        <p class="card-text text-muted mb-3">Suivez nos actualités et contactez-nous via Messenger.</p>
-                        <a href="https://www.facebook.com/profile.php?id=61574476228813" class="btn btn-primary mt-auto" target="_blank">
+                        <p class="card-text text-muted mb-4 flex-grow-1">Suivez nos actualités et contactez-nous via Messenger.</p>
+                        <a href="https://www.facebook.com/profile.php?id=61574476228813" class="btn btn-primary mt-auto w-100" target="_blank">
                            <i class="bi bi-facebook me-1"></i> Voir la page
                         </a>
                     </div>
@@ -152,13 +155,12 @@
             <!-- Carte Adresse/Localisation -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 text-center shadow-sm contact-card">
-                    <!-- justify-content-center car pas de bouton mt-auto -->
-                    <div class="card-body justify-content-center">
-                        <i class="bi bi-geo-alt-fill contact-icon text-danger"></i>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <i class="bi bi-geo-alt-fill contact-icon text-danger mb-3 fs-1"></i>
                         <h5 class="card-title fw-semibold mb-3">Notre Localisation</h5>
-                        <p class="card-text text-muted">Nous sommes basés à Pointe-Noire.</p>
-                        <p class="card-text fw-medium mt-2 mb-0">République du Congo</p>
-                        <p class="card-text mt-2"><small>(Contactez-nous via WhatsApp pour les détails de retrait/livraison)</small></p>
+                        <p class="card-text text-muted mb-1">Nous sommes basés à Pointe-Noire.</p>
+                        <p class="card-text fw-bold text-dark mt-1 mb-2">République du Congo</p>
+                        <p class="card-text text-muted small mt-auto mb-0">(Contactez-nous via WhatsApp pour les détails de retrait/livraison)</p>
                     </div>
                 </div>
             </div>
