@@ -707,6 +707,17 @@ export function updateNavAuthUI() {
         </button>`;
       }
     });
+    document.querySelectorAll('.mobile-auth-btn-placeholder').forEach(el => {
+      if (user) {
+        el.innerHTML = `<a href="compte.html" class="btn btn-outline-secondary position-relative" title="Mon compte">
+          <i class="bi bi-person-circle"></i>
+        </a>`;
+      } else {
+        el.innerHTML = `<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal" title="Connexion / Inscription">
+          <i class="bi bi-person"></i>
+        </button>`;
+      }
+    });
   } catch (err) {
     console.error('updateNavAuthUI error:', err);
   }
