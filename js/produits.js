@@ -296,8 +296,7 @@ function bindCardEvents() {
 function openQV(productId) {
     const p = (window._allProducts || []).find(x => x.id === productId);
     if (!p) return;
-    resetQVChat();
-    document.getElementById('qv-chat-panel').style.display = 'none';
+    qvChatActive = false;
     document.getElementById('qv-details').style.display = 'block';
     qvProduct = p;
 
@@ -421,28 +420,11 @@ function refreshQVChatButton() {
     chatBtn.disabled = totalItems === 0;
 }
 
-let qvConvId = null;
-let qvMessageSub = null;
 let qvChatActive = false;
-
-function resetQVChat() {
-    if (qvMessageSub) { qvMessageSub.unsubscribe(); qvMessageSub = null; }
-    stopQVPolling();
-    if (qvConvId && qvProduct) {
-        sessionStorage.setItem(`qv_conv_${qvProduct.id}`, qvConvId);
-    }
-    qvConvId = null;
-    qvChatActive = false;
-}
-
-function formatChatTime(dateStr) {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-}
 
 async function openQVChat() {
     if (!qvProduct || qvChatActive) return;
-    const { getUser } = await import('./auth.js');
+    const { getUser, showToast } = await import('./auth.js');
     const user = getUser();
     if (!user) {
         new bootstrap.Modal(document.getElementById('authModal')).show();
@@ -458,240 +440,31 @@ async function openQVChat() {
 
     qvChatActive = true;
 
-    const detailsEl = document.getElementById('qv-details');
-    const chatPanelEl = document.getElementById('qv-chat-panel');
-    const msgListEl = document.getElementById('qv-chat-messages');
-    const inputAreaEl = document.getElementById('qv-chat-input-area');
-    const productLabelEl = document.getElementById('qv-chat-product');
+    const { createProductConversation } = await import('./chat.js');
+    const conv = await createProductConversation(qvProduct.name);
+    qvChatActive = false;
 
-    if (!chatPanelEl || !msgListEl) { qvChatActive = false; return; }
-
-    if (detailsEl) detailsEl.style.display = 'none';
-    chatPanelEl.style.display = 'flex';
-    if (productLabelEl) productLabelEl.textContent = qvProduct.name;
-
-    msgListEl.innerHTML = '<div class="trusttc-empty-chat"><i class="bi bi-chat-dots"></i><p>Connexion au service client...</p></div>';
-    if (inputAreaEl) inputAreaEl.style.display = 'none';
-
-    const savedKey = `qv_conv_${qvProduct.id}`;
-    const savedConvId = sessionStorage.getItem(savedKey);
-
-    if (savedConvId) {
-        const { data: existingConv, error: convErr } = await supabase.from('conversations').select('id').eq('id', savedConvId).maybeSingle();
-        if (!convErr && existingConv) {
-            qvConvId = savedConvId;
-        } else {
-            if (convErr) console.warn('Conversation sauvegardée introuvable:', convErr);
-            sessionStorage.removeItem(savedKey);
-        }
-    }
-
-    if (!qvConvId) {
-        const { createProductConversation, loadConversations: syncWidgetConversations } = await import('./chat.js');
-        const conv = await createProductConversation(qvProduct.name);
-        if (!conv) {
-            msgListEl.innerHTML = '<div class="trusttc-empty-chat"><i class="bi bi-exclamation-triangle"></i><p>Erreur de connexion. Réessayez.</p></div>';
-            qvChatActive = false;
-            return;
-        }
-        qvConvId = conv.id;
-        sessionStorage.setItem(savedKey, qvConvId);
-        syncWidgetConversations(true);
-    }
-
-    const existingEmpty = msgListEl.querySelector('.trusttc-empty-chat');
-    if (existingEmpty) existingEmpty.remove();
-    if (inputAreaEl) inputAreaEl.style.display = 'flex';
-
-    await loadQVChatMessages();
-    subscribeQVChatMessages();
-}
-
-async function loadQVChatMessages() {
-    if (!qvConvId) return;
-    const list = document.getElementById('qv-chat-messages');
-    const { data: messages, error } = await supabase
-        .rpc('get_conv_messages', { conv_id: qvConvId });
-
-    if (error) {
-        console.error('Erreur chargement messages QV:', error);
-        list.innerHTML = '<div class="trusttc-empty-chat"><i class="bi bi-exclamation-triangle text-danger" style="font-size:32px;"></i><p class="text-danger">Erreur de chargement.</p><button class="btn btn-sm btn-outline-primary mt-2" id="qv-retry-msgs"><i class="bi bi-arrow-repeat me-1"></i>Réessayer</button></div>';
-        document.getElementById('qv-retry-msgs')?.addEventListener('click', () => loadQVChatMessages());
+    if (!conv) {
+        showToast("Erreur lors de la création de la conversation.", 'error');
         return;
     }
 
-    if (!messages || messages.length === 0) {
-        const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'trusttc-empty-chat';
-        emptyMsg.innerHTML = '<i class="bi bi-chat"></i><p>Envoyez votre premier message !</p>';
-        list.appendChild(emptyMsg);
-        return;
-    }
+    sessionStorage.setItem(`product_conv_${conv.id}`, JSON.stringify({
+        name: qvProduct.name,
+        image: qvProduct.image_url
+    }));
 
-    const user = (await import('./auth.js')).getUser();
-    list.innerHTML = messages.map(msg => {
-        const isSent = msg.sender_id === user?.id;
-        const time = formatChatTime(msg.created_at);
-        const safeContent = escapeHtml(msg.content);
-        if (isSent) {
-            return `<div class="trusttec-msg sent"><div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div></div>`;
-        }
-        const safeName = escapeHtml(msg.sender_name || 'Inconnu');
-        const avatar = msg.sender_avatar
-            ? `<img class="msg-avatar" src="${msg.sender_avatar}" alt="" onerror="this.style.display='none'">`
-            : `<div class="msg-avatar msg-avatar-placeholder">${safeName.charAt(0).toUpperCase()}</div>`;
-        return `<div class="trusttec-msg received">
-            <div class="msg-sender-line">${avatar}<span class="msg-sender-name">${safeName}</span></div>
-            <div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div>
-        </div>`;
-    }).join('');
-    list.scrollTop = list.scrollHeight;
-}
+    sessionStorage.setItem('chat_active_conv', conv.id);
 
-function subscribeQVChatMessages() {
-    if (qvMessageSub) qvMessageSub.unsubscribe();
+    qvModal.hide();
 
-    qvMessageSub = supabase
-        .channel(`qv-messages:${qvConvId}`)
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages',
-            filter: `conversation_id=eq.${qvConvId}`
-        }, async (payload) => {
-            const list = document.getElementById('qv-chat-messages');
-            if (!list) return;
-            const empty = list.querySelector('.trusttc-empty-chat');
-            if (empty) empty.remove();
-
-            const { getUser } = await import('./auth.js');
-            const user = getUser();
-            const isSent = payload.new.sender_id === user?.id;
-            const time = formatChatTime(payload.new.created_at);
-
-            const msgEl = document.createElement('div');
-            msgEl.className = `trusttec-msg ${isSent ? 'sent' : 'received'}`;
-            const safeContent = escapeHtml(payload.new.content);
-            if (isSent) {
-                msgEl.innerHTML = `<div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div>`;
-            } else {
-                let senderName = 'Inconnu';
-                let avatarHtml = '<div class="msg-avatar msg-avatar-placeholder">?</div>';
-                if (payload.new.sender_name) {
-                    senderName = payload.new.sender_name;
-                    avatarHtml = payload.new.sender_avatar
-                        ? `<img class="msg-avatar" src="${payload.new.sender_avatar}" alt="" onerror="this.style.display='none'">`
-                        : `<div class="msg-avatar msg-avatar-placeholder">${senderName.charAt(0).toUpperCase()}</div>`;
-                } else {
-                    if (!window._qvProfileCache) window._qvProfileCache = {};
-                    if (!window._qvProfileCache[payload.new.sender_id]) {
-                        const { data: profile } = await supabase.from('profiles').select('full_name, email, avatar_url').eq('id', payload.new.sender_id).maybeSingle();
-                        if (profile) window._qvProfileCache[payload.new.sender_id] = profile;
-                    }
-                    const cached = window._qvProfileCache[payload.new.sender_id];
-                    if (cached) {
-                        senderName = cached.full_name || cached.email?.split('@')[0] || 'Inconnu';
-                        avatarHtml = cached.avatar_url
-                            ? `<img class="msg-avatar" src="${cached.avatar_url}" alt="" onerror="this.style.display='none'">`
-                            : `<div class="msg-avatar msg-avatar-placeholder">${senderName.charAt(0).toUpperCase()}</div>`;
-                    }
-                }
-                msgEl.innerHTML = `<div class="msg-sender-line">${avatarHtml}<span class="msg-sender-name">${escapeHtml(senderName)}</span></div><div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div>`;
-            }
-            list.appendChild(msgEl);
-            list.scrollTop = list.scrollHeight;
-
-            if (!isSent) {
-                const { loadConversations: syncWidget } = await import('./chat.js');
-                syncWidget(true);
-            }
-        })
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                qvSubscriptionHealthy = true;
-            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                console.warn('Realtime QV chat error, starting polling');
-                qvSubscriptionHealthy = false;
-                startQVPolling();
-            }
-        });
-}
-
-let qvPollingInterval = null;
-let qvSubscriptionHealthy = false;
-
-function startQVPolling() {
-    if (qvPollingInterval) return;
-    qvPollingInterval = setInterval(async () => {
-        if (!qvConvId) { stopQVPolling(); return; }
-        if (!qvSubscriptionHealthy) {
-            const { data: messages } = await supabase
-                .from('messages')
-                .select('id')
-                .eq('conversation_id', qvConvId)
-                .order('created_at', { ascending: false })
-                .limit(1);
-            if (messages?.length) await loadQVChatMessages();
-        }
-    }, 3000);
-}
-
-function stopQVPolling() {
-    if (qvPollingInterval) { clearInterval(qvPollingInterval); qvPollingInterval = null; }
-}
-
-async function sendQVChatMessage() {
-    if (!qvConvId) return;
-    const input = document.getElementById('qv-chat-input');
-    if (!input) return;
-    const content = input.value.trim();
-    if (!content) return;
-
-    const { getUser } = await import('./auth.js');
-    const user = getUser();
-    if (!user) return;
-
-    input.value = '';
-    input.disabled = true;
-
-    const list = document.getElementById('qv-chat-messages');
-    const empty = list?.querySelector('.trusttc-empty-chat');
-    if (empty) empty.remove();
-
-    try {
-        await supabase.rpc('send_chat_msg', {
-            conv_id: qvConvId,
-            sender_id: user.id,
-            content
-        });
-    } catch (err) {
-        console.error('Erreur envoi message QV:', err);
-    } finally {
-        input.disabled = false;
-        input.focus();
-    }
+    setTimeout(() => {
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        if (toggleBtn) toggleBtn.click();
+    }, 300);
 }
 
 document.getElementById('qv-chat-btn')?.addEventListener('click', openQVChat);
-
-document.getElementById('qv-chat-back')?.addEventListener('click', () => {
-    resetQVChat();
-    document.getElementById('qv-chat-panel').style.display = 'none';
-    document.getElementById('qv-details').style.display = 'block';
-});
-
-document.getElementById('qv-chat-send')?.addEventListener('click', sendQVChatMessage);
-document.getElementById('qv-chat-input')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQVChatMessage(); }
-});
-
-document.getElementById('quickViewModal')?.addEventListener('hidden.bs.modal', () => {
-    if (qvChatActive || qvConvId || qvMessageSub) {
-        resetQVChat();
-        document.getElementById('qv-chat-panel').style.display = 'none';
-        document.getElementById('qv-details').style.display = 'block';
-    }
-});
 
 document.getElementById('qv-add-cart').addEventListener('click', () => {
     if (!qvProduct) return;

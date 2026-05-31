@@ -1,3 +1,34 @@
+-- Fix #3: create_conv_with_admin — éviter doublon PK si l'utilisateur est admin
+CREATE OR REPLACE FUNCTION public.create_conv_with_admin(subject text, user_id uuid)
+  RETURNS uuid
+  LANGUAGE plpgsql SECURITY DEFINER
+  SET search_path TO ''
+AS $$
+DECLARE
+  new_conv_id uuid;
+  admin_profile RECORD;
+BEGIN
+  INSERT INTO public.conversations (subject)
+    VALUES (subject)
+    RETURNING id INTO new_conv_id;
+
+  INSERT INTO public.conversation_participants (conversation_id, profile_id)
+    VALUES (new_conv_id, user_id);
+
+  FOR admin_profile IN
+    SELECT id FROM public.profiles
+    WHERE role IN ('admin', 'super_admin')
+      AND deleted_at IS NULL
+      AND id <> user_id
+  LOOP
+    INSERT INTO public.conversation_participants (conversation_id, profile_id)
+      VALUES (new_conv_id, admin_profile.id);
+  END LOOP;
+
+  RETURN new_conv_id;
+END;
+$$;
+
 -- Fix #1: send_chat_msg — restore deleted_at BEFORE INSERT pour Realtime
 -- et pour TOUS les participants (y compris l'expéditeur)
 CREATE OR REPLACE FUNCTION public.send_chat_msg(conv_id uuid, sender_id uuid, content text)
