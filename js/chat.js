@@ -547,7 +547,7 @@ async function openConversation(convId) {
   document.getElementById('msg-with-label').textContent = conv.withName || 'Conversation';
   const prodLabel = document.getElementById('msg-product-label');
   const subject = conv.subject || '';
-  if (subject && subject !== 'Support Trusttec' && isAdmin()) {
+  if (subject && subject !== 'Support Trusttec') {
     prodLabel.textContent = subject;
     prodLabel.style.display = 'block';
   } else {
@@ -909,8 +909,29 @@ export async function createProductConversation(subject) {
   const user = getUser();
   if (!user || !supabase) return null;
 
+  const lookupSubject = subject || 'Support Trusttec';
+
+  const { data: parts } = await supabase
+    .from('conversation_participants')
+    .select('conversation_id')
+    .eq('profile_id', user.id)
+    .is('deleted_at', null);
+
+  const convIds = (parts || []).map(p => p.conversation_id);
+
+  if (convIds.length > 0) {
+    const { data: existing } = await supabase
+      .from('conversations')
+      .select('*')
+      .in('id', convIds)
+      .eq('subject', lookupSubject)
+      .maybeSingle();
+
+    if (existing) return existing;
+  }
+
   const { data: convId, error } = await supabase.rpc('create_conv_with_admin', {
-    subject: subject || 'Support Trusttec',
+    subject: lookupSubject,
     user_id: user.id
   });
 
