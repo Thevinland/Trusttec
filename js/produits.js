@@ -438,6 +438,12 @@ async function openQVChat() {
         return;
     }
 
+    const btn = document.getElementById('qv-chat-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Ouverture...';
+    }
+
     qvChatActive = true;
 
     const { createProductConversation } = await import('./chat.js');
@@ -445,6 +451,10 @@ async function openQVChat() {
     qvChatActive = false;
 
     if (!conv) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-chat-dots me-2"></i>Commander via Chat';
+        }
         showToast("Erreur lors de la création de la conversation.", 'error');
         return;
     }
@@ -459,6 +469,10 @@ async function openQVChat() {
     qvModal.hide();
 
     setTimeout(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-chat-dots me-2"></i>Commander via Chat';
+        }
         const toggleBtn = document.getElementById('chat-toggle-btn');
         if (toggleBtn) toggleBtn.click();
     }, 300);
