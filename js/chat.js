@@ -3,12 +3,10 @@ import { getSupabase, getUser, getProfile, isAdmin, showToast, onAuthChange } fr
 let supabase = null;
 let conversations = [];
 let activeConversationId = null;
-let messageSubscription = null;
 let unreadTotal = 0;
 let chatInitialized = false;
 const profileCache = {};
 let pendingDeleteCallback = null;
-let chatSubscriptionHealthy = false;
 function getSuppressAutoCreate() { return sessionStorage.getItem('chat_suppress_auto') === '1'; }
 function setSuppressAutoCreate(v) { if (v) sessionStorage.setItem('chat_suppress_auto', '1'); else sessionStorage.removeItem('chat_suppress_auto'); }
 
@@ -76,6 +74,7 @@ const CHAT_STYLES = `
   display: none;
   flex-direction: column;
   overflow: hidden;
+  z-index: 1;
 }
 
 .trusttec-chat-panel.open { display: flex; }
@@ -406,6 +405,7 @@ async function ensureAdminConversation() {
 }
 
 export async function loadConversations(skipEnsure = false) {
+  console.log('[CONV] loadConversations appelé', new Date().toISOString(), new Error().stack.split('\n')[2]);
   const user = getUser();
   if (!user) {
     document.getElementById('chat-conversations-list').innerHTML = `
@@ -533,11 +533,6 @@ function startNewChat() {
 }
 
 async function openConversation(convId) {
-  if (messageSubscription) {
-    messageSubscription.unsubscribe();
-    messageSubscription = null;
-  }
-
   let conv = conversations.find(c => c.id === convId);
   if (!conv) {
     await loadConversations(true);
@@ -549,6 +544,7 @@ async function openConversation(convId) {
   }
 
   activeConversationId = convId;
+  console.log('[CHAT DEBUG] Conversation ouverte:', convId);
 
   const prodLabel = document.getElementById('msg-product-label');
   const prodImg = document.getElementById('msg-product-img');
@@ -586,20 +582,23 @@ async function openConversation(convId) {
 
   try { await markAsRead(convId); } catch (e) { console.warn('markAsRead failed:', e); }
   await loadMessages(convId);
+
+  const convData = conversations.find(c => c.id === convId);
+  if (convData?.last_message_at) {
+    window._chatLastMessageAt = convData.last_message_at;
+  }
+
   subscribeToMessages(convId);
 }
 
 function showConversationsList() {
   activeConversationId = null;
+  window._chatLastMessageAt = null;
+  stopPolling();
   document.getElementById('chat-conversations-list').style.display = 'block';
   document.getElementById('chat-messages-view').classList.remove('active');
   document.getElementById('msg-product-label').style.display = 'none';
   document.getElementById('msg-list').innerHTML = '';
-  if (messageSubscription) {
-    messageSubscription.unsubscribe();
-    messageSubscription = null;
-  }
-  stopChatPolling();
 }
 
 async function deleteUserConversation(convId) {
@@ -617,12 +616,6 @@ async function deleteUserConversation(convId) {
     if (error) throw error;
 
     console.log('[CHAT DEBUG] RPC delete ok, filtered conversations avant:', conversations.map(c => c.id));
-
-    if (messageSubscription) {
-      messageSubscription.unsubscribe();
-      messageSubscription = null;
-    }
-    stopChatPolling();
 
     conversations = conversations.filter(c => c.id !== convId);
 
@@ -657,12 +650,6 @@ async function deleteAllUserConversations() {
     });
 
     if (error) throw error;
-
-    if (messageSubscription) {
-      messageSubscription.unsubscribe();
-      messageSubscription = null;
-    }
-    stopChatPolling();
 
     conversations = [];
     setSuppressAutoCreate(true);
@@ -704,7 +691,7 @@ async function loadMessages(convId) {
   const list = document.getElementById('msg-list');
   list.innerHTML = '<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Chargement...</div>';
 
-  console.log('[CHAT DEBUG] loadMessages convId:', convId, '| activeConversationId:', activeConversationId, '| conversations:', conversations.map(c => c.id));
+  const conv = conversations.find(c => c.id === convId);
 
   const { data: messages, error } = await supabase
     .rpc('get_conv_messages', { conv_id: convId });
@@ -716,7 +703,21 @@ async function loadMessages(convId) {
     return;
   }
 
-  console.log('[CHAT DEBUG] Messages loaded count:', messages?.length, 'for convId:', convId);
+  if ((!messages || messages.length === 0) && conv?.last_message) {
+    console.warn('[CHAT DEBUG] RPC empty but conv has last_message, fallback direct query for convId:', convId);
+    const { data: directMsgs, error: directErr } = await supabase
+      .from('messages')
+      .select('id, conversation_id, sender_id, content, media_url, created_at, sender_name, sender_avatar')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending: true });
+    if (!directErr && directMsgs?.length > 0) {
+      console.log('[CHAT DEBUG] Fallback direct query found', directMsgs.length, 'messages');
+      renderMessages(directMsgs);
+      return;
+    }
+    console.warn('[CHAT DEBUG] Fallback direct query also empty for convId:', convId);
+  }
+
   renderMessages(messages || []);
 }
 
@@ -752,147 +753,128 @@ function renderMessages(messages) {
   list.scrollTop = list.scrollHeight;
 }
 
-async function sendMessage() {
-  if (!activeConversationId || !getUser()) return;
-  const input = document.getElementById('msg-input');
-  if (!input) return;
-  const content = input.value.trim();
-  if (!content) return;
+let sendMessageLock = false;
+let pollingPaused = false;
 
-  const list = document.getElementById('msg-list');
-  const empty = list?.querySelector('.trusttc-empty-chat');
-  if (empty) empty.remove();
+async function sendMessage() {
+  if (sendMessageLock) return;
+  sendMessageLock = true;
+
+  if (!activeConversationId || !getUser()) { sendMessageLock = false; return; }
+  const input = document.getElementById('msg-input');
+  if (!input || input.disabled) { sendMessageLock = false; return; }
+  const content = input.value.trim();
+  if (!content) { sendMessageLock = false; return; }
 
   input.disabled = true;
+  pollingPaused = true;
+
+  stopPolling();
+  await new Promise(r => setTimeout(r, 150));
+
+  console.log('[SEND] Début envoi — pollingPaused=true', new Date().toISOString());
 
   try {
-    await supabase.rpc('send_chat_msg', {
-      conv_id: activeConversationId,
-      sender_id: getUser().id,
-      content
-    });
-    input.value = '';
+    const t0 = Date.now();
+    const result = await Promise.race([
+      supabase.rpc('send_chat_msg', {
+        conv_id: activeConversationId,
+        sender_id: getUser().id,
+        content
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 15000))
+    ]);
+    console.log('[SEND] RPC terminé en', Date.now() - t0, 'ms — erreur:', result?.error);
+    if (result?.error) {
+      showToast("Erreur d'envoi: " + result.error.message, 'error');
+    } else {
+      input.value = '';
+      window._chatLastMessageAt = new Date().toISOString();
+    }
   } catch (err) {
-    console.error('Erreur envoi message:', err);
-    showToast("Erreur d'envoi. Vérifiez votre connexion.", 'error');
+    console.log('[SEND] Exception:', err.message);
+    showToast(err.message === 'Timeout' ? "L'envoi a pris trop de temps. Réessayez." : "Erreur d'envoi.", 'error');
   } finally {
+    pollingPaused = false;
+    console.log('[SEND] Fin — pollingPaused=false', new Date().toISOString());
     input.disabled = false;
+    sendMessageLock = false;
     input.focus();
   }
 }
 
 function subscribeToMessages(convId) {
-  if (messageSubscription) {
-    messageSubscription.unsubscribe();
-    messageSubscription = null;
-  }
-  chatSubscriptionHealthy = false;
-
-  messageSubscription = supabase
-    .channel(`messages:${convId}`)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'messages',
-      filter: `conversation_id=eq.${convId}`
-    }, async (payload) => {
-      chatSubscriptionHealthy = true;
-      if (activeConversationId !== convId) return;
-      const list = document.getElementById('msg-list');
-      const user = getUser();
-      const isSent = payload.new.sender_id === user?.id;
-
-      if (list.querySelector('.trusttc-empty-chat')) {
-        list.innerHTML = '';
-      }
-
-      const msgEl = document.createElement('div');
-      msgEl.className = `trusttec-msg ${isSent ? 'sent' : 'received'}`;
-      const time = formatTime(payload.new.created_at);
-      const safeContent = escapeHtml(payload.new.content);
-      if (isSent) {
-        msgEl.innerHTML = `<div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div>`;
-      } else {
-        let senderName = payload.new.sender_name || 'Inconnu';
-        let avatarHtml = payload.new.sender_avatar
-          ? `<img class="msg-avatar" src="${payload.new.sender_avatar}" alt="" onerror="this.style.display='none'">`
-          : `<div class="msg-avatar msg-avatar-placeholder">${senderName.charAt(0).toUpperCase()}</div>`;
-
-        if (!payload.new.sender_name) {
-          if (!profileCache[payload.new.sender_id]) {
-            const { data: profile } = await supabase.from('profiles').select('full_name, email, avatar_url').eq('id', payload.new.sender_id).maybeSingle();
-            if (profile) profileCache[payload.new.sender_id] = profile;
-          }
-          const cached = profileCache[payload.new.sender_id];
-          if (cached) {
-            senderName = cached.full_name || cached.email?.split('@')[0] || 'Inconnu';
-            avatarHtml = cached.avatar_url
-              ? `<img class="msg-avatar" src="${cached.avatar_url}" alt="" onerror="this.style.display='none'">`
-              : `<div class="msg-avatar msg-avatar-placeholder">${senderName.charAt(0).toUpperCase()}</div>`;
-          }
-        }
-        msgEl.innerHTML = `<div class="msg-sender-line">${avatarHtml}<span class="msg-sender-name">${escapeHtml(senderName)}</span></div><div class="msg-bubble">${safeContent}<span class="trusttec-msg-time">${time}</span></div>`;
-      }
-      list.appendChild(msgEl);
-      list.scrollTop = list.scrollHeight;
-
-      if (!isSent) {
-        loadConversations(true);
-      }
-    })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        chatSubscriptionHealthy = true;
-        stopChatPolling();
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        console.warn('Realtime messages channel error, starting polling fallback');
-        chatSubscriptionHealthy = false;
-        startChatPolling();
-      }
-    });
+  // Rien à faire — le polling global gère tout
 }
 
-let chatPollingInterval = null;
-
-function stopChatPolling() {
-  if (chatPollingInterval) { clearInterval(chatPollingInterval); chatPollingInterval = null; }
-}
-
-let globalChatChannel = null;
+let globalPollingTimeout = null;
+let currentPollAbort = null;
 
 function setupRealtime() {
-  if (!supabase) return;
+  stopPolling();
+  schedulePoll();
+}
 
-  const user = getUser();
-  const userId = user?.id;
-
-  if (globalChatChannel) {
-    supabase.removeChannel(globalChatChannel);
-    globalChatChannel = null;
+function stopPolling() {
+  if (globalPollingTimeout) {
+    clearTimeout(globalPollingTimeout);
+    globalPollingTimeout = null;
   }
+  if (currentPollAbort) {
+    currentPollAbort.abort();
+    currentPollAbort = null;
+  }
+}
 
-  if (!userId) return;
+async function schedulePoll() {
+  globalPollingTimeout = setTimeout(async () => {
+    if (pollingPaused) {
+      schedulePoll();
+      return;
+    }
 
-  globalChatChannel = supabase
-    .channel('chat-global')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'conversation_participants',
-      filter: `profile_id=eq.${userId}`
-    }, () => {
-      if (document.getElementById('chat-panel')?.classList.contains('open')) {
-        loadConversations(true);
+    const panelOpen = document.getElementById('chat-panel')?.classList.contains('open');
+    if (!panelOpen) {
+      schedulePoll();
+      return;
+    }
+
+    const abort = new AbortController();
+    currentPollAbort = abort;
+
+    try {
+      if (activeConversationId) {
+        const response = await fetch(
+          `${supabase.supabaseUrl}/rest/v1/conversations?select=last_message_at&id=eq.${activeConversationId}&limit=1`,
+          {
+            headers: {
+              'apikey': supabase.supabaseKey,
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            },
+            signal: abort.signal
+          }
+        );
+        if (abort.signal.aborted) return;
+
+        const [conv] = await response.json();
+        const serverTime = conv?.last_message_at;
+
+        if (serverTime && serverTime !== window._chatLastMessageAt) {
+          window._chatLastMessageAt = serverTime;
+          const { data: messages } = await supabase
+            .rpc('get_conv_messages', { conv_id: activeConversationId });
+          if (!abort.signal.aborted && messages?.length) renderMessages(messages);
+        }
+      } else {
+        await loadConversations(true);
       }
-    })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        stopChatPolling();
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        console.warn('Realtime chat-global error, starting polling fallback');
-        startChatPolling();
-      }
-    });
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('[POLL] Erreur:', e.message);
+    } finally {
+      currentPollAbort = null;
+      schedulePoll();
+    }
+  }, 3000);
 }
 
 let lastKnownUserId = null;
@@ -904,35 +886,6 @@ onAuthChange((user) => {
   lastKnownUserId = uid;
   setupRealtime();
 });
-
-function startChatPolling() {
-  if (chatPollingInterval) return;
-  chatPollingInterval = setInterval(async () => {
-    if (activeConversationId) {
-      if (!chatSubscriptionHealthy) {
-        await loadMessages(activeConversationId);
-        tryResubscribe(activeConversationId);
-      }
-    }
-    if (document.getElementById('chat-panel')?.classList.contains('open')) {
-      await loadConversations(true);
-    }
-  }, 5000);
-}
-
-let resubmitAttempts = 0;
-
-function tryResubscribe(convId) {
-  resubmitAttempts++;
-  if (resubmitAttempts > 6) {
-    resubmitAttempts = 0;
-    if (messageSubscription) {
-      messageSubscription.unsubscribe();
-      messageSubscription = null;
-    }
-    subscribeToMessages(convId);
-  }
-}
 
 export async function createProductConversation(subject) {
   const user = getUser();
