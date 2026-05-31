@@ -847,7 +847,7 @@ function renderAdminChatList() {
             <div class="d-flex align-items-center gap-1" style="flex-shrink:0;">
                 <div class="text-end">
                     <div class="text-muted" style="font-size:10px;">${conv.last_message_at ? formatChatTime(conv.last_message_at) : ''}</div>
-                    ${conv.last_message_at && conv.last_read_at && new Date(conv.last_message_at) > new Date(conv.last_read_at) ? `<span class="badge bg-danger rounded-pill">!</span>` : ''}
+                    ${conv.unread_count > 0 ? `<span class="badge bg-danger rounded-pill">${conv.unread_count}</span>` : ''}
                 </div>
                 <button class="btn btn-sm text-danger border-0 admin-conv-delete" data-conv-id="${conv.id}" data-conv-name="${conv.withName || 'Client'}" title="Supprimer cette conversation" style="opacity:0.4;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
                     <i class="bi bi-trash"></i>
@@ -895,6 +895,9 @@ async function openAdminConversation(convId) {
         p_profile_id: user.id
     });
 
+    if (conv.unread_count > 0) {
+        conv.unread_count = 0;
+    }
     renderAdminChatList();
     await loadAdminMessages(convId);
 

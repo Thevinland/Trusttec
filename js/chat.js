@@ -769,7 +769,9 @@ async function sendMessage() {
   input.disabled = true;
   pollingPaused = true;
 
+  console.log('[SEND] Avant stopPolling — globalPollingTimeout:', globalPollingTimeout, 'currentPollAbort:', currentPollAbort);
   stopPolling();
+  console.log('[SEND] Après stopPolling');
   await new Promise(r => setTimeout(r, 150));
 
   console.log('[SEND] Début envoi — pollingPaused=true', new Date().toISOString());
@@ -827,7 +829,9 @@ function stopPolling() {
 }
 
 async function schedulePoll() {
+  console.log('[POLL] schedulePoll appelé', new Date().toISOString());
   globalPollingTimeout = setTimeout(async () => {
+    console.log('[POLL] setTimeout déclenché', new Date().toISOString());
     if (pollingPaused) {
       schedulePoll();
       return;
