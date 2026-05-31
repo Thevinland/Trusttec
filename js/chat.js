@@ -350,7 +350,7 @@ function buildChatWidget() {
 
   document.getElementById('msg-delete-btn').addEventListener('click', () => {
     const conv = conversations.find(c => c.id === activeConversationId);
-    const name = conv?.withName || 'cet utilisateur';
+    const name = isAdmin() ? (conv?.withName || 'cet utilisateur') : "l'équipe Trusttec";
     document.getElementById('chat-delete-msg').innerHTML = `Masquer la conversation avec <strong>${name}</strong> ?<br><small class="text-muted">Elle réapparaîtra si l'équipe vous répond.</small>`;
     const capturedId = activeConversationId;
     pendingDeleteCallback = () => deleteUserConversation(capturedId);
@@ -446,7 +446,7 @@ export async function loadConversations(skipEnsure = false) {
       });
       conversations.forEach(conv => {
         conv.participants = partsByConv[conv.id] || [];
-        conv.withName = conv.participants[0]?.full_name || conv.participants[0]?.email || 'Inconnu';
+        conv.withName = isAdmin() ? (conv.participants[0]?.full_name || conv.participants[0]?.email || 'Client inconnu') : 'Équipe Trusttec';
       });
     }
 
@@ -577,7 +577,7 @@ async function openConversation(convId) {
     prodLabel.style.display = 'block';
     prodImg.style.display = 'none';
   } else {
-    document.getElementById('msg-with-label').textContent = conv.withName || 'Conversation';
+    document.getElementById('msg-with-label').textContent = isAdmin() ? (conv.withName || 'Conversation') : 'Équipe Trusttec';
     prodLabel.style.display = 'none';
     prodImg.style.display = 'none';
   }
