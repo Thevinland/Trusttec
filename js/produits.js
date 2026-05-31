@@ -11,6 +11,13 @@ initApp();
 
 const supabase = getSupabase();
 
+const searchInput = document.getElementById('search-input');
+searchInput.setAttribute('readonly', '');
+searchInput.addEventListener('focus', function rmReadonly() {
+  this.removeAttribute('readonly');
+  this.removeEventListener('focus', rmReadonly);
+}, { once: true });
+
 let qvProduct = null;
 let qvVariantsState = [];
 let allCategories = [];
@@ -173,14 +180,14 @@ function renderProducts(products) {
 function resetFilters() {
     searchQuery = '';
     activeCategory = 'all';
-    document.getElementById('search-input').value = '';
+    searchInput.value = '';
     document.getElementById('search-clear').style.display = 'none';
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filter-btn[data-cat="all"]')?.classList.add('active');
     filterAndRender();
 }
 
-document.getElementById('search-input').addEventListener('input', function () {
+searchInput.addEventListener('input', function () {
     searchQuery = this.value;
     document.getElementById('search-clear').style.display = searchQuery ? 'block' : 'none';
     filterAndRender();
@@ -188,7 +195,7 @@ document.getElementById('search-input').addEventListener('input', function () {
 
 document.getElementById('search-clear').addEventListener('click', () => {
     searchQuery = '';
-    document.getElementById('search-input').value = '';
+    searchInput.value = '';
     document.getElementById('search-clear').style.display = 'none';
     filterAndRender();
 });

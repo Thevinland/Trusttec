@@ -9,6 +9,8 @@ let chatInitialized = false;
 const profileCache = {};
 let pendingDeleteCallback = null;
 let chatSubscriptionHealthy = false;
+function getSuppressAutoCreate() { return sessionStorage.getItem('chat_suppress_auto') === '1'; }
+function setSuppressAutoCreate(v) { if (v) sessionStorage.setItem('chat_suppress_auto', '1'); else sessionStorage.removeItem('chat_suppress_auto'); }
 
 function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -248,9 +250,10 @@ function buildChatWidget() {
         <div class="trusttec-chat-messages" id="chat-messages-view">
           <div class="trusttec-msg-header">
             <button class="trusttec-msg-back" id="msg-back-btn"><i class="bi bi-arrow-left"></i></button>
+            <img id="msg-product-img" src="" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;display:none;flex-shrink:0;">
             <div style="min-width:0;flex:1;">
               <div class="trusttec-msg-with" id="msg-with-label">Conversation</div>
-              <small id="msg-product-label" class="text-muted" style="font-size:11px;display:none;"></small>
+              <small id="msg-product-label" class="text-muted" style="font-size:11px;"></small>
             </div>
             <button class="trusttec-msg-delete" id="msg-delete-btn" title="Supprimer la conversation"><i class="bi bi-trash"></i></button>
           </div>
@@ -369,6 +372,8 @@ async function ensureAdminConversation() {
   if (!profile) return null;
 
   if (isAdmin()) return null;
+
+  if (getSuppressAutoCreate()) return null;
 
   let existingConv = conversations.find(c => c.participants?.some(p => p.role === 'admin'));
   if (existingConv) return existingConv;
@@ -516,6 +521,7 @@ function renderConversationsList() {
 }
 
 function startNewChat() {
+  setSuppressAutoCreate(false);
   if (!getUser()) {
     const panel = document.getElementById('chat-panel');
     panel.classList.remove('open');
@@ -544,14 +550,36 @@ async function openConversation(convId) {
 
   activeConversationId = convId;
 
-  document.getElementById('msg-with-label').textContent = conv.withName || 'Conversation';
   const prodLabel = document.getElementById('msg-product-label');
+  const prodImg = document.getElementById('msg-product-img');
   const subject = conv.subject || '';
-  if (subject && subject !== 'Support Trusttec') {
+
+  const storedInfo = sessionStorage.getItem(`product_conv_${convId}`);
+  if (storedInfo) {
+    try {
+      const info = JSON.parse(storedInfo);
+      document.getElementById('msg-with-label').textContent = 'Service Client';
+      prodLabel.textContent = info.name;
+      prodLabel.style.display = 'block';
+      if (info.image) {
+        prodImg.src = info.image;
+        prodImg.style.display = 'inline';
+      } else {
+        prodImg.style.display = 'none';
+      }
+    } catch (e) {
+      prodLabel.style.display = 'none';
+      prodImg.style.display = 'none';
+    }
+  } else if (subject && subject !== 'Support Trusttec') {
+    document.getElementById('msg-with-label').textContent = 'Service Client';
     prodLabel.textContent = subject;
     prodLabel.style.display = 'block';
+    prodImg.style.display = 'none';
   } else {
+    document.getElementById('msg-with-label').textContent = conv.withName || 'Conversation';
     prodLabel.style.display = 'none';
+    prodImg.style.display = 'none';
   }
   document.getElementById('chat-conversations-list').style.display = 'none';
   document.getElementById('chat-messages-view').classList.add('active');
@@ -600,6 +628,8 @@ async function deleteUserConversation(convId) {
 
     console.log('[CHAT DEBUG] conversations après filtre:', conversations.map(c => c.id));
 
+    if (conversations.length === 0) setSuppressAutoCreate(true);
+
     sessionStorage.removeItem('chat_active_conv');
 
     if (activeConversationId === convId || !activeConversationId) {
@@ -622,11 +652,9 @@ async function deleteAllUserConversations() {
   const ids = conversations.map(c => c.id);
 
   try {
-    const { error } = await supabase
-      .from('conversation_participants')
-      .update({ deleted_at: new Date().toISOString() })
-      .in('conversation_id', ids)
-      .eq('profile_id', user.id);
+    const { error } = await supabase.rpc('delete_all_user_conversations', {
+      user_id: user.id
+    });
 
     if (error) throw error;
 
@@ -637,6 +665,7 @@ async function deleteAllUserConversations() {
     stopChatPolling();
 
     conversations = [];
+    setSuppressAutoCreate(true);
     sessionStorage.removeItem('chat_active_conv');
     showConversationsList();
     renderConversationsList();
