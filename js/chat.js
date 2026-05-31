@@ -769,15 +769,10 @@ async function sendMessage() {
   input.disabled = true;
   pollingPaused = true;
 
-  console.log('[SEND] Avant stopPolling — globalPollingTimeout:', globalPollingTimeout, 'currentPollAbort:', currentPollAbort);
   stopPolling();
-  console.log('[SEND] Après stopPolling');
   await new Promise(r => setTimeout(r, 150));
 
-  console.log('[SEND] Début envoi — pollingPaused=true', new Date().toISOString());
-
   try {
-    const t0 = Date.now();
     const result = await Promise.race([
       supabase.rpc('send_chat_msg', {
         conv_id: activeConversationId,
@@ -786,22 +781,29 @@ async function sendMessage() {
       }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 15000))
     ]);
-    console.log('[SEND] RPC terminé en', Date.now() - t0, 'ms — erreur:', result?.error);
     if (result?.error) {
       showToast("Erreur d'envoi: " + result.error.message, 'error');
     } else {
       input.value = '';
-      window._chatLastMessageAt = new Date().toISOString();
+      // Re-fetch messages immediately so the user sees their sent message
+      const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId });
+      if (messages?.length) renderMessages(messages);
+      // Sync last_message_at to avoid duplicate fetch on next poll
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('last_message_at')
+        .eq('id', activeConversationId)
+        .maybeSingle();
+      if (conv?.last_message_at) window._chatLastMessageAt = conv.last_message_at;
     }
   } catch (err) {
-    console.log('[SEND] Exception:', err.message);
     showToast(err.message === 'Timeout' ? "L'envoi a pris trop de temps. Réessayez." : "Erreur d'envoi.", 'error');
   } finally {
     pollingPaused = false;
-    console.log('[SEND] Fin — pollingPaused=false', new Date().toISOString());
     input.disabled = false;
     sendMessageLock = false;
     input.focus();
+    setupRealtime();
   }
 }
 
