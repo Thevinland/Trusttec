@@ -709,11 +709,11 @@ export function updateNavAuthUI() {
     });
     document.querySelectorAll('.mobile-auth-btn-placeholder').forEach(el => {
       if (user) {
-        el.innerHTML = `<a href="compte.html" class="btn btn-outline-secondary position-relative" title="Mon compte">
+        el.innerHTML = `<a href="compte.html" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="width:38px;height:38px;" title="Mon compte">
           <i class="bi bi-person-circle"></i>
         </a>`;
       } else {
-        el.innerHTML = `<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal" title="Connexion / Inscription">
+        el.innerHTML = `<button class="btn btn-outline-primary d-flex align-items-center justify-content-center" style="width:38px;height:38px;" data-bs-toggle="modal" data-bs-target="#authModal" title="Connexion / Inscription">
           <i class="bi bi-person"></i>
         </button>`;
       }
