@@ -211,6 +211,15 @@ export function initChat() {
   document.getElementById('chat-conversations-list')?.addEventListener('click', (e) => {
     const item = e.target.closest('.trusttec-chat-conversation');
     if (item) openConversation(item.dataset.convId);
+    const newBtn = e.target.closest('#start-new-chat');
+    if (newBtn) startNewChat();
+    const deleteBtn = e.target.closest('#delete-all-chat-btn');
+    if (deleteBtn) {
+      const count = conversations.length;
+      document.getElementById('chat-delete-msg').innerHTML = `Masquer les <strong>${count}</strong> conversation${count > 1 ? 's' : ''} ?<br><small class="text-muted">Elles réapparaîtront si l'équipe vous répond.</small>`;
+      pendingDeleteCallback = () => deleteAllUserConversations();
+      chatDeleteModal.show();
+    }
   });
 }
 
@@ -406,10 +415,6 @@ export async function loadConversations(skipEnsure = false) {
   }
 
   try {
-    if (!isAdmin() && !skipEnsure) {
-      await ensureAdminConversation();
-    }
-
     const { data: participants, error: partErr } = await supabase
       .from('conversation_participants')
       .select('conversation_id, unread_count, conversations(*)')
@@ -440,6 +445,10 @@ export async function loadConversations(skipEnsure = false) {
       });
     }
 
+    if (!isAdmin() && !skipEnsure && conversations.length === 0) {
+      await ensureAdminConversation();
+    }
+
     unreadTotal = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
     updateUnreadBadge();
   } catch (err) {
@@ -455,16 +464,12 @@ function renderConversationsList() {
   const profile = getProfile();
 
   if (conversations.length === 0) {
-    const newBtn = `<button class="trusttec-chat-new-btn" id="start-new-chat"><i class="bi bi-plus-circle me-1"></i> Nouvelle conversation</button>`;
     list.innerHTML = `
       <div class="trusttc-empty-chat">
         <i class="bi bi-chat-dots"></i>
         <p>Aucune conversation</p>
       </div>
-      ${!isAdmin() ? newBtn : ''}`;
-    if (!isAdmin()) {
-      document.getElementById('start-new-chat')?.addEventListener('click', startNewChat);
-    }
+      ${!isAdmin() ? '<button class="trusttec-chat-new-btn" id="start-new-chat"><i class="bi bi-plus-circle me-1"></i> Nouvelle conversation</button>' : ''}`;
     return;
   }
 
@@ -508,14 +513,6 @@ function renderConversationsList() {
   </div>`;
 
   list.innerHTML = html;
-
-  document.getElementById('start-new-chat')?.addEventListener('click', startNewChat);
-  document.getElementById('delete-all-chat-btn')?.addEventListener('click', () => {
-    const count = conversations.length;
-    document.getElementById('chat-delete-msg').innerHTML = `Masquer les <strong>${count}</strong> conversation${count > 1 ? 's' : ''} ?<br><small class="text-muted">Elles réapparaîtront si l'équipe vous répond.</small>`;
-    pendingDeleteCallback = () => deleteAllUserConversations();
-    chatDeleteModal.show();
-  });
 }
 
 function startNewChat() {
@@ -530,17 +527,19 @@ function startNewChat() {
 }
 
 async function openConversation(convId) {
-  console.log('[CHAT DEBUG] openConversation called with convId:', convId, '| activeConversationId avant:', activeConversationId);
-
   if (messageSubscription) {
     messageSubscription.unsubscribe();
     messageSubscription = null;
   }
 
-  const conv = conversations.find(c => c.id === convId);
+  let conv = conversations.find(c => c.id === convId);
   if (!conv) {
-    console.warn('[CHAT DEBUG] Conversation not found in array:', convId, 'available:', conversations.map(c => c.id));
-    return;
+    await loadConversations(true);
+    conv = conversations.find(c => c.id === convId);
+    if (!conv) {
+      showConversationsList();
+      return;
+    }
   }
 
   activeConversationId = convId;
@@ -731,11 +730,11 @@ async function sendMessage() {
   const content = input.value.trim();
   if (!content) return;
 
-  input.value = '';
-
   const list = document.getElementById('msg-list');
   const empty = list?.querySelector('.trusttc-empty-chat');
   if (empty) empty.remove();
+
+  input.disabled = true;
 
   try {
     await supabase.rpc('send_chat_msg', {
@@ -743,8 +742,13 @@ async function sendMessage() {
       sender_id: getUser().id,
       content
     });
+    input.value = '';
   } catch (err) {
     console.error('Erreur envoi message:', err);
+    showToast("Erreur d'envoi. Vérifiez votre connexion.", 'error');
+  } finally {
+    input.disabled = false;
+    input.focus();
   }
 }
 

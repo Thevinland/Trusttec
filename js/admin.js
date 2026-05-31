@@ -779,8 +779,12 @@ let adminConversations = [];
 let adminActiveConvId = null;
 let adminMsgSub = null;
 const adminProfileCache = {};
+let adminChatsLoading = false;
 
 async function loadAdminChats() {
+    if (adminChatsLoading) return;
+    adminChatsLoading = true;
+    try {
     const user = (await supabase.auth.getSession()).data.session?.user;
     if (!user) return;
 
@@ -808,6 +812,11 @@ async function loadAdminChats() {
     }
 
     renderAdminChatList();
+    } catch (err) {
+        console.error('Erreur chargement conversations admin:', err);
+    } finally {
+        adminChatsLoading = false;
+    }
 }
 
 function renderAdminChatList() {
@@ -964,7 +973,6 @@ function subscribeAdminMessages(convId) {
                 </div>
             `);
             list.scrollTop = list.scrollHeight;
-            loadAdminChats();
         })
         .subscribe();
 }
@@ -978,10 +986,11 @@ async function sendAdminMessage() {
     const input = document.getElementById('admin-msg-input');
     const content = input.value.trim();
     if (!content || !adminActiveConvId) return;
-    input.value = '';
 
     const user = (await supabase.auth.getSession()).data.session?.user;
     if (!user) return;
+
+    input.disabled = true;
 
     try {
         await supabase.rpc('send_admin_msg', {
@@ -989,11 +998,14 @@ async function sendAdminMessage() {
             sender_id: user.id,
             content
         });
+        input.value = '';
     } catch (err) {
         console.error('Erreur envoi message admin:', err);
+        showAlert("Erreur d'envoi. Vérifiez votre connexion.", 'danger');
+    } finally {
+        input.disabled = false;
+        input.focus();
     }
-
-    loadAdminChats();
 }
 
 async function deleteAdminConversation(convId) {
