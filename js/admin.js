@@ -778,6 +778,8 @@ function escapeAttr(str) {
 let adminConversations = [];
 let adminActiveConvId = null;
 let adminMsgSub = null;
+let adminPollingTimeout = null;
+let adminLastMessageAt = null;
 const adminProfileCache = {};
 let adminChatsLoading = false;
 
@@ -894,7 +896,11 @@ async function openAdminConversation(convId) {
     });
 
     renderAdminChatList();
-    loadAdminMessages(convId);
+    await loadAdminMessages(convId);
+
+    const convData = adminConversations.find(c => c.id === convId);
+    if (convData?.last_message_at) adminLastMessageAt = convData.last_message_at;
+
     subscribeAdminMessages(convId);
 }
 
@@ -936,45 +942,41 @@ async function loadAdminMessages(convId) {
 }
 
 function subscribeAdminMessages(convId) {
-    if (adminMsgSub) { adminMsgSub.unsubscribe(); }
+    if (adminPollingTimeout) {
+        clearTimeout(adminPollingTimeout);
+        adminPollingTimeout = null;
+    }
+    if (adminMsgSub) {
+        adminMsgSub.unsubscribe();
+        adminMsgSub = null;
+    }
 
-    adminMsgSub = supabase
-        .channel(`admin-msgs-${convId}`)
-        .on('postgres_changes', {
-            event: 'INSERT', schema: 'public', table: 'messages',
-            filter: `conversation_id=eq.${convId}`
-        }, async (payload) => {
-            const user = (await supabase.auth.getSession()).data.session?.user;
-            if (!user) return;
+    adminLastMessageAt = null;
 
-            const list = document.getElementById('admin-msg-list');
-            const isSent = payload.new.sender_id === user.id;
+    async function pollAdminMessages() {
+        if (adminActiveConvId !== convId) return;
 
-            const emptyMsg = list.querySelector('.text-center.py-5');
-            if (emptyMsg) list.innerHTML = '';
+        try {
+            const { data: conv } = await supabase
+                .from('conversations')
+                .select('last_message_at')
+                .eq('id', convId)
+                .single();
 
-            let nameLabel = isSent ? 'Vous' : (payload.new.sender_name || 'Inconnu');
-            if (!isSent && !payload.new.sender_name) {
-                if (!adminProfileCache[payload.new.sender_id]) {
-                    const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', payload.new.sender_id).maybeSingle();
-                    if (profile) adminProfileCache[payload.new.sender_id] = profile;
-                }
-                const cached = adminProfileCache[payload.new.sender_id];
-                if (cached) nameLabel = cached.full_name || cached.email?.split('@')[0] || 'Inconnu';
+            if (conv?.last_message_at && conv.last_message_at !== adminLastMessageAt) {
+                adminLastMessageAt = conv.last_message_at;
+                await loadAdminMessages(convId);
             }
+        } catch (e) {
+            console.warn('[ADMIN POLL] Erreur:', e.message);
+        } finally {
+            if (adminActiveConvId === convId) {
+                adminPollingTimeout = setTimeout(pollAdminMessages, 3000);
+            }
+        }
+    }
 
-            list.insertAdjacentHTML('beforeend', `
-                <div class="d-flex mb-2 ${isSent ? 'justify-content-end' : 'justify-content-start'}">
-                    <div class="p-2 px-3 rounded-3" style="max-width:75%;${isSent ? 'background:#0d6efd;color:white;border-bottom-right-radius:4px;' : 'background:white;border:1px solid #dee2e6;border-bottom-left-radius:4px;'}">
-                        <div style="font-size:11px;opacity:0.7;margin-bottom:2px;">${escapeHtml(nameLabel)}</div>
-                        <div style="font-size:14px;">${escapeHtml(payload.new.content)}</div>
-                        <div style="font-size:10px;opacity:0.6;margin-top:4px;">${formatChatTime(payload.new.created_at)}</div>
-                    </div>
-                </div>
-            `);
-            list.scrollTop = list.scrollHeight;
-        })
-        .subscribe();
+    pollAdminMessages();
 }
 
 document.getElementById('admin-msg-send')?.addEventListener('click', sendAdminMessage);
@@ -1017,6 +1019,7 @@ async function deleteAdminConversation(convId) {
         document.getElementById('admin-chat-with').textContent = 'Chat';
         document.getElementById('admin-msg-list').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-chat fs-1 d-block mb-2"></i>Sélectionnez une conversation</div>';
         document.getElementById('admin-msg-input-area').style.display = 'none';
+        if (adminPollingTimeout) { clearTimeout(adminPollingTimeout); adminPollingTimeout = null; }
         if (adminMsgSub) { adminMsgSub.unsubscribe(); adminMsgSub = null; }
     }
 
