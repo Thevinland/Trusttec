@@ -712,9 +712,33 @@ export function updateNavAuthUI() {
     });
     document.querySelectorAll('.mobile-auth-btn-placeholder').forEach(el => {
       if (user) {
-        el.innerHTML = `<a href="compte.html" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="width:38px;height:38px;" title="Mon compte">
-          <i class="bi bi-person-circle"></i>
-        </a>`;
+        const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+        if (isAdmin) {
+          el.innerHTML = `<div class="dropdown">
+            <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center dropdown-toggle" style="width:38px;height:38px;" data-bs-toggle="dropdown" title="Mon compte" aria-label="Mon compte">
+              <i class="bi bi-person-circle"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="compte.html"><i class="bi bi-person me-2"></i>Mon compte</a></li>
+              <li><a class="dropdown-item" href="Admin.html"><i class="bi bi-shield-lock me-2"></i>Administration</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" id="mobile-nav-logout"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+            </ul>
+          </div>`;
+          el.querySelector('#mobile-nav-logout')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+              await signOut();
+            } catch (err) {
+              console.error('Logout error:', err);
+            }
+            updateNavAuthUI();
+          });
+        } else {
+          el.innerHTML = `<a href="compte.html" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="width:38px;height:38px;" title="Mon compte">
+            <i class="bi bi-person-circle"></i>
+          </a>`;
+        }
       } else {
         el.innerHTML = `<button class="btn btn-outline-primary d-flex align-items-center justify-content-center" style="width:38px;height:38px;" data-bs-toggle="modal" data-bs-target="#authModal" title="Connexion / Inscription">
           <i class="bi bi-person"></i>
