@@ -1465,18 +1465,36 @@ async function loadAdmins() {
 
     const currentUser = (await supabase.auth.getSession()).data.session?.user;
     const isSuper = currentAdminRole === 'super_admin';
+
+    profiles.sort((a, b) => {
+        if (a.id === currentUser?.id) return -1;
+        if (b.id === currentUser?.id) return 1;
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
+
     tbody.innerHTML = profiles.map(p => {
         const isSelf = p.id === currentUser?.id;
+        const isTargetAdmin = isSuper && !isSelf && p.role === 'admin';
         const roleBadge = p.role === 'super_admin'
             ? '<span class="badge bg-danger"><i class="bi bi-star-fill me-1"></i>Super Admin</span>'
             : '<span class="badge bg-warning text-dark">Admin</span>';
+
+        let actionsHtml;
+        if (isSelf) {
+            actionsHtml = '<span class="text-muted small">Vous</span>';
+        } else if (isSuper) {
+            actionsHtml = `
+                ${isTargetAdmin ? `<button class="btn btn-sm btn-outline-primary me-1 btn-transfer-super" data-id="${p.id}" data-name="${p.full_name || p.email}"><i class="bi bi-arrow-up-circle"></i></button>` : ''}
+                <button class="btn btn-sm btn-outline-danger btn-delete-admin" data-id="${p.id}" data-name="${p.full_name || p.email}"><i class="bi bi-trash"></i></button>`;
+        } else {
+            actionsHtml = '<span class="text-muted small">—</span>';
+        }
+
         return `<tr>
             <td class="ps-3">${p.email || '—'}</td>
             <td>${p.full_name || '—'}</td>
             <td>${roleBadge}</td>
-            <td class="text-end pe-3">
-                ${!isSelf && isSuper ? `<button class="btn btn-sm btn-outline-danger btn-delete-admin" data-id="${p.id}" data-name="${p.full_name || p.email}"><i class="bi bi-trash"></i></button>` : '<span class="text-muted small">' + (isSelf ? 'Vous' : '—') + '</span>'}
-            </td>
+            <td class="text-end pe-3">${actionsHtml}</td>
         </tr>`;
     }).join('');
 
@@ -1486,6 +1504,16 @@ async function loadAdmins() {
             const name = btn.dataset.name;
             if (confirm(`Rétrograder ${name} au rôle client ?\nIl/elle ne pourra plus accéder à l'administration.`)) {
                 demoteAdmin(id);
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-transfer-super').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            if (confirm(`Transférer le rôle Super Admin à ${name} ?\n\nVous serez rétrogradé au rôle Admin et ne pourrez plus gérer les autres admins.\n\nCette action est irréversible.`)) {
+                transferSuperAdmin(id);
             }
         });
     });
@@ -1503,6 +1531,36 @@ async function demoteAdmin(adminId) {
     }
     showAlert('Admin rétrogradé au rôle client.', 'warning');
     loadAdmins();
+}
+
+async function transferSuperAdmin(targetAdminId) {
+    const btn = document.querySelector(`.btn-transfer-super[data-id="${targetAdminId}"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    }
+
+    const { error } = await supabase.rpc('transfer_super_admin', {
+        target_admin_id: targetAdminId,
+    });
+
+    if (error) {
+        showAlert('Erreur : ' + error.message, 'danger');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-up-circle"></i>';
+        }
+        return;
+    }
+
+    showAlert(
+        'Rôle Super Admin transféré avec succès ! Vous êtes maintenant Admin.',
+        'success'
+    );
+
+    setTimeout(() => {
+        window.location.reload();
+    }, 2000);
 }
 
 async function loadLogs() {

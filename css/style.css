@@ -1817,7 +1817,8 @@ body.page-produits {
 --------------------------------------------------------------*/
 
 /* --- Login --- */
-#login-screen {
+#login-screen,
+#change-password-screen {
     min-height: 100vh;
     display: flex;
     align-items: center;

@@ -197,7 +197,10 @@ export async function signUp(email, password, fullName) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName, role: 'customer' } }
+    options: {
+      data: { full_name: fullName, role: 'customer' },
+      emailRedirectTo: window.location.origin
+    }
   });
   if (error) throw error;
   return data;
