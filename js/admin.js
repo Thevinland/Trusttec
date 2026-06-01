@@ -887,7 +887,7 @@ async function openAdminConversation(convId) {
     const subject = conv.subject || '';
     const productInfo = subject && subject !== 'Support Trusttec' ? ` · ${subject}` : '';
     document.getElementById('admin-chat-with').textContent = `Chat avec : ${conv.withName}${productInfo}`;
-    document.getElementById('admin-msg-input-area').style.display = 'flex';
+    document.getElementById('admin-msg-input-area').classList.remove('d-none');
 
     const user = (await supabase.auth.getSession()).data.session?.user;
     await supabase.rpc('mark_conversation_read', {
@@ -974,7 +974,7 @@ function subscribeAdminMessages(convId) {
             console.warn('[ADMIN POLL] Erreur:', e.message);
         } finally {
             if (adminActiveConvId === convId) {
-                adminPollingTimeout = setTimeout(pollAdminMessages, 3000);
+                adminPollingTimeout = setTimeout(pollAdminMessages, 10000);
             }
         }
     }
@@ -1021,7 +1021,7 @@ async function deleteAdminConversation(convId) {
         adminActiveConvId = null;
         document.getElementById('admin-chat-with').textContent = 'Chat';
         document.getElementById('admin-msg-list').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-chat fs-1 d-block mb-2"></i>Sélectionnez une conversation</div>';
-        document.getElementById('admin-msg-input-area').style.display = 'none';
+        document.getElementById('admin-msg-input-area').classList.add('d-none');
         if (adminPollingTimeout) { clearTimeout(adminPollingTimeout); adminPollingTimeout = null; }
         if (adminMsgSub) { adminMsgSub.unsubscribe(); adminMsgSub = null; }
     }

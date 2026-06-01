@@ -887,7 +887,7 @@ async function schedulePoll() {
       currentPollAbort = null;
       schedulePoll();
     }
-  }, 3000);
+  }, 10000);
 }
 
 let lastKnownUserId = null;

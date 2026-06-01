@@ -18,7 +18,7 @@
 
 </head>
 
-<body>
+<body class="page-admin">
 
     <!-- ===================== ÉCRAN DE CONNEXION ===================== -->
     <div id="login-screen">
@@ -246,9 +246,11 @@
 
                 <!-- PAGE CHAT -->
                 <div class="page" id="page-chat">
-                    <div class="mb-4">
-                        <h4 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2"></i>Chat Clients</h4>
-                        <small class="text-muted" id="chat-conv-count"></small>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2"></i>Chat Clients</h4>
+                            <small class="text-muted" id="chat-conv-count"></small>
+                        </div>
                     </div>
                     <div class="row g-4">
                         <div class="col-md-4">
@@ -269,13 +271,13 @@
                                     <span class="fw-semibold" id="admin-chat-with">Sélectionnez une conversation</span>
                                 </div>
                                 <div class="card-body p-0 d-flex flex-column" style="min-height:500px;">
-                                    <div id="admin-msg-list" class="flex-grow-1 p-3" style="overflow-y:auto;max-height:420px;background:#f8f9fa;">
+                                    <div id="admin-msg-list" class="flex-grow-1 p-3" style="overflow-y:auto;background:#f8f9fa;">
                                         <div class="text-center py-5 text-muted">
                                             <i class="bi bi-chat-dots fs-1 d-block mb-2"></i>
                                             <span>Cliquez sur une conversation à gauche</span>
                                         </div>
                                     </div>
-                                    <div class="p-3 border-top d-flex gap-2" id="admin-msg-input-area" style="display:none;">
+                                    <div class="p-3 border-top d-flex gap-2 d-none" id="admin-msg-input-area">
                                         <input type="text" class="form-control" id="admin-msg-input" placeholder="Écrivez votre réponse..." autocomplete="off">
                                         <button class="btn btn-primary" id="admin-msg-send"><i class="bi bi-send"></i></button>
                                     </div>
@@ -477,7 +479,7 @@
                     </div>
 
                     <!-- ACTIVITÉ CHAT + TOP CLIENTS -->
-                    <div class="row g-3">
+                    <div class="row g-3 mb-4">
                         <!-- Activité messages par jour (7 derniers jours) -->
                         <div class="col-md-7">
                             <div class="card border-0 shadow-sm">
@@ -807,7 +809,7 @@
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
+                <div class="modal-header border-0">
                     <h5 class="modal-title fw-bold text-danger"><i class="bi bi-trash me-2"></i>Supprimer ?</h5>
                 </div>
                 <div class="modal-body">
@@ -819,7 +821,7 @@
                             Supprimez-les d'abord.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
+                <div class="modal-footer border-0">
                     <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
                     <button class="btn btn-danger btn-sm fw-bold" id="confirm-delete-btn">Supprimer</button>
                 </div>
@@ -831,13 +833,13 @@
     <div class="modal fade" id="deleteConvModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
+                <div class="modal-header border-0">
                     <h5 class="modal-title fw-bold text-danger"><i class="bi bi-trash me-2"></i>Supprimer ?</h5>
                 </div>
                 <div class="modal-body">
                     <p id="delete-conv-msg"></p>
                 </div>
-                <div class="modal-footer border-0 pt-0">
+                <div class="modal-footer border-0">
                     <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
                     <button class="btn btn-danger btn-sm fw-bold" id="confirm-delete-conv-btn">Supprimer</button>
                 </div>
