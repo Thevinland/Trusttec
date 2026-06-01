@@ -788,13 +788,20 @@ async function sendMessage() {
       // Re-fetch messages immediately so the user sees their sent message
       const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId });
       if (messages?.length) renderMessages(messages);
-      // Sync last_message_at to avoid duplicate fetch on next poll
-      const { data: conv } = await supabase
-        .from('conversations')
-        .select('last_message_at')
-        .eq('id', activeConversationId)
-        .maybeSingle();
-      if (conv?.last_message_at) window._chatLastMessageAt = conv.last_message_at;
+      // Sync last_message_at via REST API (same endpoint as poll) to avoid format mismatch
+      try {
+        const syncRes = await fetch(
+          `${supabase.supabaseUrl}/rest/v1/conversations?select=last_message_at&id=eq.${activeConversationId}&limit=1`,
+          {
+            headers: {
+              'apikey': supabase.supabaseKey,
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            }
+          }
+        );
+        const [syncConv] = await syncRes.json();
+        if (syncConv?.last_message_at) window._chatLastMessageAt = syncConv.last_message_at;
+      } catch (_) { /* sync non bloquant */ }
     }
   } catch (err) {
     showToast(err.message === 'Timeout' ? "L'envoi a pris trop de temps. Réessayez." : "Erreur d'envoi.", 'error');
