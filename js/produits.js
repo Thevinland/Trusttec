@@ -216,7 +216,8 @@ function buildCard(p) {
                       style="background:${esc(c.hex)}"
                       title="${esc(c.name)}"
                       data-color="${esc(c.name)}"
-                      data-hex="${esc(c.hex)}"></div>`
+                      data-hex="${esc(c.hex)}"
+                      data-image="${esc(c.image_url || '')}"></div>`
         ).join('')}
             ${colors.length > 7 ? `<span class="swatch-more">+${colors.length - 7}</span>` : ''}
         </div>`;
@@ -231,6 +232,7 @@ function buildCard(p) {
       <div class="card product-card h-100">
         <div class="product-image-wrapper">
           <img src="${esc(p.image_url)}" class="product-image" loading="lazy" alt="${esc(p.name)}"
+               data-default-src="${esc(p.image_url)}"
                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'230\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dce3f0\'/%3E%3C/svg%3E'">
           <div class="product-overlay">
             <button class="btn-quick-view btn-open-qv" data-id="${esc(p.id)}">
@@ -281,6 +283,11 @@ function bindCardEvents() {
                 if (addBtn) {
                     addBtn.dataset.colorName = s.dataset.color;
                     addBtn.dataset.colorHex = s.dataset.hex;
+                    addBtn.dataset.colorImage = s.dataset.image || '';
+                }
+                const productImg = card.querySelector('.product-image');
+                if (productImg) {
+                    productImg.src = s.dataset.image || productImg.dataset.defaultSrc;
                 }
             });
         });

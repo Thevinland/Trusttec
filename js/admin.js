@@ -307,6 +307,7 @@ document.getElementById('new-product-btn').addEventListener('click', () => {
     clearProductForm();
     document.getElementById('field-id').value = autoId;
     document.getElementById('form-error').classList.add('d-none');
+    document.getElementById('save-product-btn').disabled = false;
 });
 
 function openEditProduct(id) {
@@ -323,6 +324,7 @@ function openEditProduct(id) {
     document.getElementById('field-category').value = p.category;
     document.getElementById('field-active').checked = p.active;
     document.getElementById('form-error').classList.add('d-none');
+    document.getElementById('save-product-btn').disabled = false;
 
     const preview = document.getElementById('upload-preview');
     if (p.image_url) {
@@ -559,29 +561,39 @@ function openCropperModal(file) {
         if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
         currentFlipH = 1; currentFlipV = 1;
         cropImg.src = e.target.result;
-        productModal.hide();
-        document.getElementById('cropperModal').addEventListener('shown.bs.modal', () => {
-            cropperInstance = new Cropper(cropImg, {
-                aspectRatio: 4 / 3,
-                viewMode: 0,
-                dragMode: 'move',
-                autoCropArea: 0.85,
-                responsive: true,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-                zoom(event) {
-                    const slider = document.getElementById('zoom-slider');
-                    const ratio = Math.min(Math.max(event.detail.ratio, 0.1), 3);
-                    slider.value = (ratio - 0.1) / (3 - 0.1);
-                }
-            });
-        }, { once: true });
-        cropperModal.show();
+
+        const initCropper = () => {
+            document.getElementById('cropperModal').addEventListener('shown.bs.modal', () => {
+                cropperInstance = new Cropper(cropImg, {
+                    aspectRatio: 4 / 3,
+                    viewMode: 0,
+                    dragMode: 'move',
+                    autoCropArea: 0.85,
+                    responsive: true,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    zoom(event) {
+                        const slider = document.getElementById('zoom-slider');
+                        const ratio = Math.min(Math.max(event.detail.ratio, 0.1), 3);
+                        slider.value = (ratio - 0.1) / (3 - 0.1);
+                    }
+                });
+            }, { once: true });
+            cropperModal.show();
+        };
+
+        const productEl = document.getElementById('productModal');
+        if (productEl.classList.contains('show')) {
+            productModal.hide();
+            productEl.addEventListener('hidden.bs.modal', initCropper, { once: true });
+        } else {
+            initCropper();
+        }
     };
     reader.readAsDataURL(file);
 }
@@ -662,6 +674,7 @@ document.getElementById('cropper-validate-btn').addEventListener('click', async 
             }
 
             productModal.show();
+            document.getElementById('save-product-btn').disabled = true;
 
             const url = await uploadBlob(blob, 'webp');
 
@@ -676,6 +689,7 @@ document.getElementById('cropper-validate-btn').addEventListener('click', async 
                 }
             }
 
+            document.getElementById('save-product-btn').disabled = false;
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Valider et envoyer';
         }, { once: true });
