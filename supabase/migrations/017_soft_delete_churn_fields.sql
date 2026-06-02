@@ -142,13 +142,9 @@ CREATE OR REPLACE FUNCTION public.get_admin_for_chat()
 AS $$
   SELECT p.id
   FROM public.profiles p
-  LEFT JOIN public.conversation_participants cp
-    ON  cp.profile_id    = p.id
-    AND cp.deleted_at IS NULL
   WHERE p.role IN ('admin', 'super_admin')
     AND p.deleted_at IS NULL
-  GROUP BY p.id
-  ORDER BY COUNT(cp.conversation_id) ASC
+  ORDER BY p.last_seen_at DESC NULLS LAST
   LIMIT 1;
 $$;
 
