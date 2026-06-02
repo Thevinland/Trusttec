@@ -904,6 +904,35 @@ export async function createProductConversation(subject) {
   return { id: '__pending__' };
 }
 
+export async function sendCartOrderMessage(content, subject) {
+  const user = getUser();
+  if (!user || !supabase) {
+    showToast('Vous devez etre connecte.', 'error');
+    return null;
+  }
+
+  try {
+    const result = await supabase.rpc('send_chat_msg', {
+      conv_id: null,
+      sender_id: user.id,
+      content,
+      subject: subject || 'Nouvelle Commande Panier'
+    });
+
+    if (result?.error) {
+      showToast("Erreur d'envoi: " + result.error.message, 'error');
+      return null;
+    }
+
+    const newConvId = result.data;
+    showToast('Commande envoyee via le chat !', 'success');
+    return newConvId;
+  } catch (err) {
+    showToast("Erreur d'envoi de la commande.", 'error');
+    return null;
+  }
+}
+
 export function updateUnreadBadge() {
   const badge = document.getElementById('chat-unread-badge');
   if (!badge) return;
