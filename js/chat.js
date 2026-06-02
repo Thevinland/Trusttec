@@ -8,8 +8,6 @@ let unreadCounts = new Map();
 let chatInitialized = false;
 const profileCache = {};
 let pendingDeleteCallback = null;
-function getSuppressAutoCreate() { return sessionStorage.getItem('chat_suppress_auto') === '1'; }
-function setSuppressAutoCreate(v) { if (v) sessionStorage.setItem('chat_suppress_auto', '1'); else sessionStorage.removeItem('chat_suppress_auto'); }
 
 function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -329,7 +327,7 @@ function buildChatWidget() {
   });
 
   closeBtn.addEventListener('click', () => {
-    if (activeConversationId) {
+    if (activeConversationId && !window._pendingNewConv) {
       sessionStorage.setItem('chat_active_conv', activeConversationId);
     } else {
       sessionStorage.removeItem('chat_active_conv');
@@ -339,16 +337,25 @@ function buildChatWidget() {
   });
 
   document.getElementById('msg-back-btn').addEventListener('click', () => {
+    if (window._pendingNewConv) {
+      window._pendingNewConv = false;
+      window._pendingConvSubject = null;
+      window._pendingProductInfo = null;
+    }
     showConversationsList();
     loadConversations();
   });
 
-  document.getElementById('msg-send-btn').addEventListener('click', sendMessage);
+  document.getElementById('msg-send-btn').addEventListener('click', () => sendMessage());
   document.getElementById('msg-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
   document.getElementById('msg-delete-btn').addEventListener('click', () => {
+    if (!activeConversationId) {
+      showConversationsList();
+      return;
+    }
     const conv = conversations.find(c => c.id === activeConversationId);
     const name = isAdmin() ? (conv?.withName || 'cet utilisateur') : "l'équipe Trusttec";
     document.getElementById('chat-delete-msg').innerHTML = `Masquer la conversation avec <strong>${name}</strong> ?<br><small class="text-muted">Elle réapparaîtra si l'équipe vous répond.</small>`;
@@ -358,51 +365,14 @@ function buildChatWidget() {
   });
 
   window.addEventListener('beforeunload', () => {
-    if (activeConversationId) {
+    if (activeConversationId && !window._pendingNewConv) {
       sessionStorage.setItem('chat_active_conv', activeConversationId);
     }
   });
 }
 
-async function ensureAdminConversation() {
-  const user = getUser();
-  if (!user) return null;
-
-  const profile = getProfile();
-  if (!profile) return null;
-
-  if (isAdmin()) return null;
-
-  if (getSuppressAutoCreate()) return null;
-
-  let existingConv = conversations.find(c => c.participants?.some(p => p.role === 'admin'));
-  if (existingConv) return existingConv;
-
-  const { data: existing } = await supabase
-    .from('conversation_participants')
-    .select('conversation_id')
-    .eq('profile_id', user.id);
-
-  if (existing && existing.length > 0) {
-    const convIds = existing.map(p => p.conversation_id);
-    const { data: allParts } = await supabase
-      .rpc('get_batch_conv_participants', { conv_ids: convIds, my_id: user.id });
-    const adminConvId = allParts?.find(p => p.role === 'admin')?.conv_id;
-    if (adminConvId) {
-      const { data: conv, error: convErr } = await supabase.from('conversations').select('*').eq('id', adminConvId).maybeSingle();
-      if (!convErr && conv) return conv;
-    }
-  }
-
-  const { data: convId, error } = await supabase.rpc('create_conv_with_admin', {
-    subject: 'Support Trusttec',
-    user_id: user.id
-  });
-
-  if (error || !convId) return null;
-
-  const { data: conv } = await supabase.from('conversations').select('*').eq('id', convId).maybeSingle();
-  return conv || null;
+function ensureAdminConversation() {
+  return null;
 }
 
 export async function loadConversations(skipEnsure = false) {
@@ -454,10 +424,6 @@ export async function loadConversations(skipEnsure = false) {
       if (unreadData) {
         unreadCounts = new Map(unreadData.map(u => [u.conversation_id, Number(u.unread_count)]));
       }
-    }
-
-    if (!isAdmin() && !skipEnsure && conversations.length === 0) {
-      await ensureAdminConversation();
     }
 
     unreadTotal = conversations.reduce((sum, c) => sum + (unreadCounts.get(c.id) || 0), 0);
@@ -526,8 +492,7 @@ function renderConversationsList() {
   list.innerHTML = html;
 }
 
-function startNewChat() {
-  setSuppressAutoCreate(false);
+export function startNewChat() {
   if (!getUser()) {
     const panel = document.getElementById('chat-panel');
     panel.classList.remove('open');
@@ -535,10 +500,37 @@ function startNewChat() {
     authModal.show();
     return;
   }
-  ensureAdminConversation().then(() => loadConversations());
+  activeConversationId = null;
+  window._pendingNewConv = true;
+  openNewConversation();
 }
 
-async function openConversation(convId) {
+function openNewConversation() {
+  const prodLabel = document.getElementById('msg-product-label');
+  const prodImg = document.getElementById('msg-product-img');
+  const pendingInfo = window._pendingProductInfo;
+  if (pendingInfo) {
+    document.getElementById('msg-with-label').textContent = 'Service Client';
+    prodLabel.textContent = pendingInfo.name;
+    prodLabel.style.display = 'block';
+    if (pendingInfo.image) {
+      prodImg.src = pendingInfo.image;
+      prodImg.style.display = 'inline';
+    } else {
+      prodImg.style.display = 'none';
+    }
+  } else {
+    document.getElementById('msg-with-label').textContent = 'Nouveau message';
+    prodLabel.style.display = 'none';
+    prodImg.style.display = 'none';
+  }
+  document.getElementById('chat-conversations-list').style.display = 'none';
+  document.getElementById('chat-messages-view').classList.add('active');
+  document.getElementById('msg-list').innerHTML = '<div class="trusttc-empty-chat" style="height:auto;padding:30px 12px;"><i class="bi bi-chat" style="font-size:32px;"></i><p>Écrivez votre premier message !</p></div>';
+  document.getElementById('msg-input').focus();
+}
+
+export async function openConversation(convId) {
   let conv = conversations.find(c => c.id === convId);
   if (!conv) {
     await loadConversations(true);
@@ -600,6 +592,9 @@ async function openConversation(convId) {
 function showConversationsList() {
   activeConversationId = null;
   window._chatLastMessageAt = null;
+  window._pendingNewConv = false;
+  window._pendingConvSubject = null;
+  window._pendingProductInfo = null;
   stopPolling();
   document.getElementById('chat-conversations-list').style.display = 'block';
   document.getElementById('chat-messages-view').classList.remove('active');
@@ -626,8 +621,6 @@ async function deleteUserConversation(convId) {
     conversations = conversations.filter(c => c.id !== convId);
 
     console.log('[CHAT DEBUG] conversations après filtre:', conversations.map(c => c.id));
-
-    if (conversations.length === 0) setSuppressAutoCreate(true);
 
     sessionStorage.removeItem('chat_active_conv');
 
@@ -658,7 +651,6 @@ async function deleteAllUserConversations() {
     if (error) throw error;
 
     conversations = [];
-    setSuppressAutoCreate(true);
     sessionStorage.removeItem('chat_active_conv');
     showConversationsList();
     renderConversationsList();
@@ -760,32 +752,50 @@ function renderMessages(messages) {
 
 let sendMessageLock = false;
 
-async function sendMessage() {
+async function sendMessage(pendingSubject) {
   if (sendMessageLock) return;
   sendMessageLock = true;
 
-  if (!activeConversationId || !getUser()) { sendMessageLock = false; return; }
+  const user = getUser();
+  if (!user) { sendMessageLock = false; return; }
+
   const input = document.getElementById('msg-input');
   if (!input || input.disabled) { sendMessageLock = false; return; }
   const content = input.value.trim();
   if (!content) { sendMessageLock = false; return; }
+
+  const subject = pendingSubject || window._pendingConvSubject || null;
+  const convId = activeConversationId;
 
   input.disabled = true;
 
   try {
     const result = await Promise.race([
       supabase.rpc('send_chat_msg', {
-        conv_id: activeConversationId,
-        sender_id: getUser().id,
-        content
+        conv_id: convId,
+        sender_id: user.id,
+        content,
+        subject
       }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 15000))
     ]);
     if (result?.error) {
       showToast("Erreur d'envoi: " + result.error.message, 'error');
     } else {
+      const newConvId = result.data || convId;
       input.value = '';
-      const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId, page_size: 999999 });
+      window._pendingNewConv = false;
+      window._pendingConvSubject = null;
+      if (window._pendingProductInfo) {
+        sessionStorage.setItem(`product_conv_${newConvId}`, JSON.stringify(window._pendingProductInfo));
+        window._pendingProductInfo = null;
+      }
+      if (!convId) {
+        activeConversationId = newConvId;
+        await loadConversations(true);
+        renderConversationsList();
+      }
+      const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: newConvId, page_size: 999999 });
       if (messages?.length) renderMessages(messages);
     }
   } catch (err) {
@@ -887,22 +897,11 @@ export async function createProductConversation(subject) {
       .eq('subject', lookupSubject)
       .maybeSingle();
 
-    if (existing) return existing;
+    if (existing) return { id: existing.id, existing: true };
   }
 
-  const { data: convId, error } = await supabase.rpc('create_conv_with_admin', {
-    subject: lookupSubject,
-    user_id: user.id
-  });
-
-  if (error || !convId) return null;
-
-  const { data: conv, error: convErr } = await supabase.from('conversations').select('*').eq('id', convId).maybeSingle();
-  if (convErr) {
-    console.error('Erreur récupération nouvelle conversation:', convErr);
-    return null;
-  }
-  return conv || null;
+  window._pendingConvSubject = lookupSubject;
+  return { id: '__pending__' };
 }
 
 export function updateUnreadBadge() {

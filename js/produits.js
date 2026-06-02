@@ -473,13 +473,6 @@ async function openQVChat() {
         return;
     }
 
-    sessionStorage.setItem(`product_conv_${conv.id}`, JSON.stringify({
-        name: qvProduct.name,
-        image: qvProduct.image_url
-    }));
-
-    sessionStorage.setItem('chat_active_conv', conv.id);
-
     qvModal.hide();
 
     setTimeout(() => {
@@ -487,8 +480,35 @@ async function openQVChat() {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-chat-dots me-2"></i>Commander via Chat';
         }
-        const toggleBtn = document.getElementById('chat-toggle-btn');
-        if (toggleBtn) toggleBtn.click();
+        if (conv.existing) {
+            sessionStorage.setItem(`product_conv_${conv.id}`, JSON.stringify({
+                name: qvProduct.name,
+                image: qvProduct.image_url
+            }));
+            sessionStorage.setItem('chat_active_conv', conv.id);
+        } else {
+            window._pendingProductInfo = {
+                name: qvProduct.name,
+                image: qvProduct.image_url
+            };
+        }
+        const panel = document.getElementById('chat-panel');
+        if (panel) {
+            panel.classList.add('open');
+            import('./chat.js').then(({ loadConversations, openConversation, startNewChat }) => {
+                if (conv.existing) {
+                    loadConversations().then(() => {
+                        const saved = sessionStorage.getItem('chat_active_conv');
+                        if (saved) {
+                            sessionStorage.removeItem('chat_active_conv');
+                            openConversation(saved);
+                        }
+                    });
+                } else {
+                    loadConversations().then(() => startNewChat());
+                }
+            });
+        }
     }, 300);
 }
 
