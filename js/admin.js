@@ -792,10 +792,11 @@ function escapeAttr(str) {
 let adminConversations = [];
 let adminActiveConvId = null;
 let adminMsgSub = null;
-let adminPollingTimeout = null;
+let adminGlobalChannel = null;
 let adminLastMessageAt = null;
 const adminProfileCache = {};
 let adminChatsLoading = false;
+let adminUnreadCounts = new Map();
 
 async function loadAdminChats() {
     if (adminChatsLoading) return;
@@ -806,11 +807,11 @@ async function loadAdminChats() {
 
     const { data: parts } = await supabase
         .from('conversation_participants')
-        .select('conversation_id, unread_count, last_read_at, conversations(*)')
+        .select('conversation_id, last_read_at, conversations(*)')
         .eq('profile_id', user.id)
         .is('deleted_at', null);
 
-    adminConversations = (parts || []).map(p => ({ ...p.conversations, unread_count: p.unread_count, last_read_at: p.last_read_at }));
+    adminConversations = (parts || []).map(p => ({ ...p.conversations, last_read_at: p.last_read_at }));
 
     const convIds = adminConversations.map(c => c.id);
     if (convIds.length > 0) {
@@ -825,9 +826,30 @@ async function loadAdminChats() {
             conv.participants = partsByConv[conv.id] || [];
             conv.withName = conv.participants[0]?.full_name || conv.participants[0]?.email || 'Client inconnu';
         });
+
+        const { data: unreadData } = await supabase.rpc('get_conversation_unread_counts', { p_profile_id: user.id });
+        if (unreadData) {
+            adminUnreadCounts = new Map(unreadData.map(u => [u.conversation_id, Number(u.unread_count)]));
+        }
     }
 
     renderAdminChatList();
+
+    if (!adminGlobalChannel) {
+        adminGlobalChannel = supabase.channel('admin-global')
+            .on('postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'messages' },
+                async (payload) => {
+                    const msg = payload.new;
+                    const existing = adminConversations.find(c => c.id === msg.conversation_id);
+                    if (!existing) return;
+                    existing.last_message = msg.content;
+                    existing.last_message_at = msg.created_at;
+                    renderAdminChatList();
+                }
+            )
+            .subscribe();
+    }
     } catch (err) {
         console.error('Erreur chargement conversations admin:', err);
     } finally {
@@ -861,7 +883,7 @@ function renderAdminChatList() {
             <div class="d-flex align-items-center gap-1" style="flex-shrink:0;">
                 <div class="text-end">
                     <div class="text-muted" style="font-size:10px;">${conv.last_message_at ? formatChatTime(conv.last_message_at) : ''}</div>
-                    ${conv.unread_count > 0 ? `<span class="badge bg-danger rounded-pill">${conv.unread_count}</span>` : ''}
+                    ${(adminUnreadCounts.get(conv.id) || 0) > 0 ? `<span class="badge bg-danger rounded-pill">${adminUnreadCounts.get(conv.id)}</span>` : ''}
                 </div>
                 <button class="btn btn-sm text-danger border-0 admin-conv-delete" data-conv-id="${conv.id}" data-conv-name="${conv.withName || 'Client'}" title="Supprimer cette conversation" style="opacity:0.4;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
                     <i class="bi bi-trash"></i>
@@ -909,9 +931,7 @@ async function openAdminConversation(convId) {
         p_profile_id: user.id
     });
 
-    if (conv.unread_count > 0) {
-        conv.unread_count = 0;
-    }
+    adminUnreadCounts.set(convId, 0);
     renderAdminChatList();
     await loadAdminMessages(convId);
 
@@ -926,7 +946,7 @@ async function loadAdminMessages(convId) {
     list.innerHTML = '<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Chargement...</div>';
 
     const { data: messages, error } = await supabase
-        .rpc('get_conv_messages', { conv_id: convId });
+        .rpc('get_conv_messages', { conv_id: convId, page_size: 999999 });
 
     if (error) {
         console.error('Erreur chargement messages admin:', error);
@@ -959,10 +979,6 @@ async function loadAdminMessages(convId) {
 }
 
 function subscribeAdminMessages(convId) {
-    if (adminPollingTimeout) {
-        clearTimeout(adminPollingTimeout);
-        adminPollingTimeout = null;
-    }
     if (adminMsgSub) {
         adminMsgSub.unsubscribe();
         adminMsgSub = null;
@@ -970,30 +986,20 @@ function subscribeAdminMessages(convId) {
 
     adminLastMessageAt = null;
 
-    async function pollAdminMessages() {
-        if (adminActiveConvId !== convId) return;
-
-        try {
-            const { data: conv } = await supabase
-                .from('conversations')
-                .select('last_message_at')
-                .eq('id', convId)
-                .single();
-
-            if (conv?.last_message_at && conv.last_message_at !== adminLastMessageAt) {
-                adminLastMessageAt = conv.last_message_at;
+    adminMsgSub = supabase.channel('admin-msg-' + convId)
+        .on('postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages',
+                filter: `conversation_id=eq.${convId}`
+            },
+            async () => {
+                if (adminActiveConvId !== convId) return;
                 await loadAdminMessages(convId);
             }
-        } catch (e) {
-            console.warn('[ADMIN POLL] Erreur:', e.message);
-        } finally {
-            if (adminActiveConvId === convId) {
-                adminPollingTimeout = setTimeout(pollAdminMessages, 10000);
-            }
-        }
-    }
-
-    pollAdminMessages();
+        )
+        .subscribe();
 }
 
 document.getElementById('admin-msg-send')?.addEventListener('click', sendAdminMessage);
@@ -1036,7 +1042,6 @@ async function deleteAdminConversation(convId) {
         document.getElementById('admin-chat-with').textContent = 'Chat';
         document.getElementById('admin-msg-list').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-chat fs-1 d-block mb-2"></i>Sélectionnez une conversation</div>';
         document.getElementById('admin-msg-input-area').classList.add('d-none');
-        if (adminPollingTimeout) { clearTimeout(adminPollingTimeout); adminPollingTimeout = null; }
         if (adminMsgSub) { adminMsgSub.unsubscribe(); adminMsgSub = null; }
     }
 
@@ -1139,15 +1144,8 @@ async function loadStats() {
   document.getElementById('stat-clients-chat').textContent = clientsWithChat;
   document.getElementById('stat-clients-chat-pct').textContent = `${pctChat}% du total`;
 
-  let totalUnread = 0;
-  if (clientIds.length > 0 && adminProfileIdArray.length > 0) {
-    const { data: adminUnread } = await supabase
-      .from('conversation_participants')
-      .select('unread_count')
-      .in('profile_id', adminProfileIdArray);
-
-    totalUnread = adminUnread?.reduce((sum, r) => sum + (r.unread_count ?? 0), 0) ?? 0;
-  }
+  const { data: totalUnreadArr } = await supabase.rpc('get_admin_total_unread');
+  const totalUnread = totalUnreadArr ?? 0;
 
   document.getElementById('stat-unread').textContent = totalUnread;
 

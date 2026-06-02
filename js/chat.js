@@ -4,6 +4,7 @@ let supabase = null;
 let conversations = [];
 let activeConversationId = null;
 let unreadTotal = 0;
+let unreadCounts = new Map();
 let chatInitialized = false;
 const profileCache = {};
 let pendingDeleteCallback = null;
@@ -422,7 +423,7 @@ export async function loadConversations(skipEnsure = false) {
   try {
     const { data: participants, error: partErr } = await supabase
       .from('conversation_participants')
-      .select('conversation_id, unread_count, conversations(*)')
+      .select('conversation_id, last_read_at, conversations(*)')
       .eq('profile_id', user.id)
       .is('deleted_at', null)
       .order('conversation_id', { ascending: false });
@@ -431,7 +432,7 @@ export async function loadConversations(skipEnsure = false) {
 
     conversations = (participants || []).map(p => ({
       ...p.conversations,
-      unread_count: p.unread_count
+      last_read_at: p.last_read_at
     }));
 
     const convIds = conversations.map(c => c.id);
@@ -448,13 +449,18 @@ export async function loadConversations(skipEnsure = false) {
         conv.participants = partsByConv[conv.id] || [];
         conv.withName = isAdmin() ? (conv.participants[0]?.full_name || conv.participants[0]?.email || 'Client inconnu') : 'Équipe Trusttec';
       });
+
+      const { data: unreadData } = await supabase.rpc('get_conversation_unread_counts', { p_profile_id: user.id });
+      if (unreadData) {
+        unreadCounts = new Map(unreadData.map(u => [u.conversation_id, Number(u.unread_count)]));
+      }
     }
 
     if (!isAdmin() && !skipEnsure && conversations.length === 0) {
       await ensureAdminConversation();
     }
 
-    unreadTotal = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+    unreadTotal = conversations.reduce((sum, c) => sum + (unreadCounts.get(c.id) || 0), 0);
     updateUnreadBadge();
   } catch (err) {
     console.error('Erreur chargement conversations:', err);
@@ -490,7 +496,7 @@ function renderConversationsList() {
     const timeStr = time ? formatTime(time) : '';
     const lastMsg = conv.last_message ? (conv.last_message.length > 40 ? conv.last_message.substring(0, 40) + '...' : conv.last_message) : 'Aucun message';
     const initial = conv.withName ? conv.withName.charAt(0).toUpperCase() : '?';
-    const unread = conv.unread_count || 0;
+    const unread = unreadCounts.get(conv.id) || 0;
     const subject = conv.subject || '';
     const showProduct = isAdmin() && subject && subject !== 'Support Trusttec';
 
@@ -674,10 +680,9 @@ async function markAsRead(convId) {
     p_profile_id: user.id
   });
 
-  const conv = conversations.find(c => c.id === convId);
-  if (conv) conv.unread_count = 0;
+  unreadCounts.set(convId, 0);
 
-  unreadTotal = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+  unreadTotal = conversations.reduce((sum, c) => sum + (unreadCounts.get(c.id) || 0), 0);
   updateUnreadBadge();
 }
 
@@ -694,7 +699,7 @@ async function loadMessages(convId) {
   const conv = conversations.find(c => c.id === convId);
 
   const { data: messages, error } = await supabase
-    .rpc('get_conv_messages', { conv_id: convId });
+    .rpc('get_conv_messages', { conv_id: convId, page_size: 999999 });
 
   if (error) {
     console.error('[CHAT DEBUG] Erreur chargement messages:', error);
@@ -754,7 +759,6 @@ function renderMessages(messages) {
 }
 
 let sendMessageLock = false;
-let pollingPaused = false;
 
 async function sendMessage() {
   if (sendMessageLock) return;
@@ -767,10 +771,6 @@ async function sendMessage() {
   if (!content) { sendMessageLock = false; return; }
 
   input.disabled = true;
-  pollingPaused = true;
-
-  stopPolling();
-  await new Promise(r => setTimeout(r, 150));
 
   try {
     const result = await Promise.race([
@@ -785,109 +785,73 @@ async function sendMessage() {
       showToast("Erreur d'envoi: " + result.error.message, 'error');
     } else {
       input.value = '';
-      // Re-fetch messages immediately so the user sees their sent message
-      const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId });
+      const { data: messages } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId, page_size: 999999 });
       if (messages?.length) renderMessages(messages);
-      // Sync last_message_at via REST API (same endpoint as poll) to avoid format mismatch
-      try {
-        const syncRes = await fetch(
-          `${supabase.supabaseUrl}/rest/v1/conversations?select=last_message_at&id=eq.${activeConversationId}&limit=1`,
-          {
-            headers: {
-              'apikey': supabase.supabaseKey,
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-            }
-          }
-        );
-        const [syncConv] = await syncRes.json();
-        if (syncConv?.last_message_at) window._chatLastMessageAt = syncConv.last_message_at;
-      } catch (_) { /* sync non bloquant */ }
     }
   } catch (err) {
     showToast(err.message === 'Timeout' ? "L'envoi a pris trop de temps. Réessayez." : "Erreur d'envoi.", 'error');
   } finally {
-    pollingPaused = false;
     input.disabled = false;
     sendMessageLock = false;
     input.focus();
-    setupRealtime();
   }
 }
 
+let globalChannel = null;
+let msgChannel = null;
+
 function subscribeToMessages(convId) {
-  // Rien à faire — le polling global gère tout
+  if (msgChannel) {
+    supabase.removeChannel(msgChannel);
+    msgChannel = null;
+  }
+  window._chatLastMessageAt = null;
+  // La conversation active reçoit les nouveaux messages via le canal global
 }
 
-let globalPollingTimeout = null;
-let currentPollAbort = null;
-
 function setupRealtime() {
-  stopPolling();
-  schedulePoll();
+  if (globalChannel) return;
+  if (!supabase) return;
+
+  globalChannel = supabase.channel('chat-global')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages' },
+      handleNewMessage
+    )
+    .subscribe();
 }
 
 function stopPolling() {
-  if (globalPollingTimeout) {
-    clearTimeout(globalPollingTimeout);
-    globalPollingTimeout = null;
-  }
-  if (currentPollAbort) {
-    currentPollAbort.abort();
-    currentPollAbort = null;
-  }
+  if (msgChannel) { supabase.removeChannel(msgChannel); msgChannel = null; }
 }
 
-async function schedulePoll() {
-  console.log('[POLL] schedulePoll appelé', new Date().toISOString());
-  globalPollingTimeout = setTimeout(async () => {
-    console.log('[POLL] setTimeout déclenché', new Date().toISOString());
-    if (pollingPaused) {
-      schedulePoll();
-      return;
+function cleanupRealtime() {
+  stopPolling();
+  if (globalChannel) { supabase.removeChannel(globalChannel); globalChannel = null; }
+}
+
+async function handleNewMessage(payload) {
+  const msg = payload.new;
+  const convIdx = conversations.findIndex(c => c.id === msg.conversation_id);
+  if (convIdx === -1) return;
+
+  conversations[convIdx].last_message = msg.content;
+  conversations[convIdx].last_message_at = msg.created_at;
+
+  if (msg.conversation_id === activeConversationId) {
+    const panel = document.getElementById('chat-panel');
+    if (panel?.classList.contains('open')) {
+      window._chatLastMessageAt = msg.created_at;
+      const { data: msgs } = await supabase.rpc('get_conv_messages', { conv_id: activeConversationId, page_size: 999999 });
+      if (msgs?.length) renderMessages(msgs);
     }
+  } else if (msg.sender_id !== getUser()?.id) {
+    unreadCounts.set(msg.conversation_id, (unreadCounts.get(msg.conversation_id) || 0) + 1);
+    unreadTotal = conversations.reduce((sum, c) => sum + (unreadCounts.get(c.id) || 0), 0);
+    updateUnreadBadge();
+  }
 
-    const panelOpen = document.getElementById('chat-panel')?.classList.contains('open');
-    if (!panelOpen) {
-      schedulePoll();
-      return;
-    }
-
-    const abort = new AbortController();
-    currentPollAbort = abort;
-
-    try {
-      if (activeConversationId) {
-        const response = await fetch(
-          `${supabase.supabaseUrl}/rest/v1/conversations?select=last_message_at&id=eq.${activeConversationId}&limit=1`,
-          {
-            headers: {
-              'apikey': supabase.supabaseKey,
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-            },
-            signal: abort.signal
-          }
-        );
-        if (abort.signal.aborted) return;
-
-        const [conv] = await response.json();
-        const serverTime = conv?.last_message_at;
-
-        if (serverTime && serverTime !== window._chatLastMessageAt) {
-          window._chatLastMessageAt = serverTime;
-          const { data: messages } = await supabase
-            .rpc('get_conv_messages', { conv_id: activeConversationId });
-          if (!abort.signal.aborted && messages?.length) renderMessages(messages);
-        }
-      } else {
-        await loadConversations(true);
-      }
-    } catch (e) {
-      if (e.name !== 'AbortError') console.warn('[POLL] Erreur:', e.message);
-    } finally {
-      currentPollAbort = null;
-      schedulePoll();
-    }
-  }, 10000);
+  renderConversationsList();
 }
 
 let lastKnownUserId = null;
@@ -897,7 +861,8 @@ onAuthChange((user) => {
   const uid = user?.id || null;
   if (uid === lastKnownUserId) return;
   lastKnownUserId = uid;
-  setupRealtime();
+  cleanupRealtime();
+  if (user) setupRealtime();
 });
 
 export async function createProductConversation(subject) {
