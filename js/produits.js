@@ -428,10 +428,6 @@ document.getElementById('qv-variants-list').addEventListener('click', (e) => {
 });
 
 function refreshQVChatButton() {
-    if (!qvProduct) return;
-    const totalItems = qvVariantsState.reduce((sum, v) => sum + (v.qty > 0 ? v.qty : 0), 0);
-    const chatBtn = document.getElementById('qv-chat-btn');
-    chatBtn.disabled = totalItems === 0;
 }
 
 let qvChatActive = false;

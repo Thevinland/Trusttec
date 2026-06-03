@@ -261,8 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateChatButtonState = () => {
-        if (!dom.chatOrderBtn) return;
-        dom.chatOrderBtn.disabled = cart.length === 0;
     };
 
     const displayCart = () => {
