@@ -1,5 +1,5 @@
 import { initApp } from './init.js';
-import { getSupabase, isAdmin } from './auth.js';
+import { getSupabase, isAdmin, getUser, onAuthChange } from './auth.js';
 
 function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -24,6 +24,52 @@ let allCategories = [];
 let allProductsData = [];
 let activeCategory = 'all';
 let searchQuery = '';
+let currentFavorites = new Set();
+
+async function loadFavorites() {
+  const user = getUser();
+  if (!user) { currentFavorites = new Set(); return; }
+  const { data } = await supabase
+    .from('favorites')
+    .select('product_id')
+    .eq('user_id', user.id);
+  currentFavorites = new Set((data || []).map(f => f.product_id));
+  updateFavButtons();
+}
+
+function updateFavButtons() {
+  document.querySelectorAll('.btn-fav-card').forEach(btn => {
+    const id = btn.dataset.id;
+    const isFav = currentFavorites.has(id);
+    btn.classList.toggle('fav-active', isFav);
+    btn.title = isFav ? 'Retirer des favoris' : 'Ajouter aux favoris';
+    btn.querySelector('i').className = isFav ? 'bi bi-heart-fill' : 'bi bi-heart';
+  });
+  const qvBtn = document.getElementById('qv-fav-btn');
+  if (qvBtn && qvProduct) {
+    const isFav = currentFavorites.has(qvProduct.id);
+    qvBtn.classList.toggle('fav-active', isFav);
+    qvBtn.title = isFav ? 'Retirer des favoris' : 'Ajouter aux favoris';
+    qvBtn.querySelector('i').className = isFav ? 'bi bi-heart-fill' : 'bi bi-heart';
+  }
+}
+
+async function toggleFavorite(productId, btn) {
+  const user = getUser();
+  if (!user) {
+    new bootstrap.Modal(document.getElementById('authModal')).show();
+    return;
+  }
+  const isFav = currentFavorites.has(productId);
+  if (isFav) {
+    await supabase.from('favorites').delete().eq('user_id', user.id).eq('product_id', productId);
+    currentFavorites.delete(productId);
+  } else {
+    await supabase.from('favorites').insert({ user_id: user.id, product_id: productId });
+    currentFavorites.add(productId);
+  }
+  updateFavButtons();
+}
 
 const qvModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
 
@@ -46,6 +92,7 @@ async function loadProducts() {
 
         buildFilterButtons();
         filterAndRender();
+        loadFavorites();
 
         const params = new URLSearchParams(window.location.search);
         const qvId = params.get('quickview');
@@ -231,6 +278,9 @@ function buildCard(p) {
     <div class="col">
       <div class="card product-card h-100">
         <div class="product-image-wrapper">
+          <button class="btn-fav-card" data-id="${esc(p.id)}" title="Ajouter aux favoris">
+            <i class="bi bi-heart"></i>
+          </button>
           <img src="${esc(p.image_url)}" class="product-image" loading="lazy" alt="${esc(p.name)}"
                data-default-src="${esc(p.image_url)}"
                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'230\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dce3f0\'/%3E%3C/svg%3E'">
@@ -245,7 +295,7 @@ function buildCard(p) {
           ${swatchesHTML}
           ${colorNameHTML}
           <p class="card-text description flex-grow-1">${esc(p.description)}</p>
-          <div class="product-price mt-auto">${price} <small>XAF</small></div>
+          <div class="product-price mt-auto">${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${price} <small>XAF</small></div>
           <div class="card-actions">
             <button class="btn-add-cart-card add-to-cart-btn"
                     data-id="${esc(p.id)}"
@@ -305,6 +355,13 @@ function bindCardEvents() {
     document.querySelectorAll('.btn-open-qv').forEach(btn => {
         btn.addEventListener('click', () => openQV(btn.dataset.id));
     });
+
+    document.querySelectorAll('.btn-fav-card').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(btn.dataset.id, btn);
+        });
+    });
 }
 
 function openQV(productId) {
@@ -317,12 +374,20 @@ function openQV(productId) {
     document.getElementById('qv-img').src = p.image_url;
     document.getElementById('qv-ref').textContent = `Réf : ${p.id}`;
     document.getElementById('qv-name').textContent = p.name;
-    document.getElementById('qv-price').innerHTML = `${Number(p.price).toLocaleString('fr-FR')} <small>XAF</small>`;
+    document.getElementById('qv-price').innerHTML = `${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${Number(p.price).toLocaleString('fr-FR')} <small>XAF</small>`;
     document.getElementById('qv-desc').textContent = p.description;
 
     const shareBtn = document.getElementById('qv-share-btn');
     shareBtn.className = 'btn-share';
     shareBtn.innerHTML = '<i class="bi bi-share"></i><span class="d-none d-sm-inline">Partager</span>';
+
+    const favBtn = document.getElementById('qv-fav-btn');
+    favBtn.className = 'btn-share';
+    const isFav = currentFavorites.has(p.id);
+    favBtn.classList.toggle('fav-active', isFav);
+    favBtn.title = isFav ? 'Retirer des favoris' : 'Ajouter aux favoris';
+    favBtn.innerHTML = `<i class="bi ${isFav ? 'bi-heart-fill' : 'bi-heart'}"></i><span class="d-none d-sm-inline">${isFav ? 'Favori' : 'Favoris'}</span>`;
+    favBtn.onclick = () => toggleFavorite(p.id, favBtn);
 
     const colors = safeJSON(p.colors);
     initColorSwatcher(colors, p.image_url);
@@ -621,5 +686,11 @@ function escHtml(str) {
         .replace(/&/g, '&amp;').replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
 }
+
+onAuthChange(() => {
+  const qvFavBtn = document.getElementById('qv-fav-btn');
+  if (qvFavBtn) qvFavBtn.onclick = null;
+  loadFavorites();
+});
 
 loadProducts();

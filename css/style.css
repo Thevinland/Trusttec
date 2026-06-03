@@ -1142,6 +1142,89 @@ body.page-produits {
 }
 
 /*--------------------------------------------------------------
+# Bouton favori (heart)
+--------------------------------------------------------------*/
+.btn-fav-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, .9);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #999;
+    font-size: 1.1rem;
+    transition: all .2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+.btn-fav-card:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+    background: #fff;
+}
+.btn-fav-card.fav-active {
+    color: #dc3545;
+}
+.btn-fav-card.fav-active i {
+    color: #dc3545;
+}
+
+.btn-fav-home {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #999;
+    font-size: .95rem;
+    transition: all .2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+    padding: 0;
+    line-height: 1;
+}
+.btn-fav-home:hover {
+    color: #dc3545;
+    transform: scale(1.15);
+}
+.btn-fav-home.fav-active {
+    color: #dc3545;
+}
+
+#qv-fav-btn.fav-active {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    background: #fff5f5 !important;
+}
+
+/*--------------------------------------------------------------
+# Prix barré (strikethrough pricing)
+--------------------------------------------------------------*/
+.old-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.85em;
+    margin-right: 6px;
+}
+
+/*--------------------------------------------------------------
 # Page Produits - Barre recherche et filtres (extrait de produits.html)
 --------------------------------------------------------------*/
 .search-filter-bar {

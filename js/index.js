@@ -1,5 +1,5 @@
 import { initApp } from './init.js';
-import { getSupabase, showToast } from './auth.js';
+import { getSupabase, showToast, getUser, onAuthChange } from './auth.js';
 
 document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -11,6 +11,48 @@ if (new URLSearchParams(window.location.search).get('deleted') === '1') {
 }
 
 const supabase = getSupabase();
+let currentFavorites = new Set();
+
+async function loadFavorites() {
+  const user = getUser();
+  if (!user) { currentFavorites = new Set(); updateHomeFavButtons(); return; }
+  const { data } = await supabase
+    .from('favorites')
+    .select('product_id')
+    .eq('user_id', user.id);
+  currentFavorites = new Set((data || []).map(f => f.product_id));
+  updateHomeFavButtons();
+}
+
+function updateHomeFavButtons() {
+  document.querySelectorAll('.btn-fav-home').forEach(btn => {
+    const id = btn.dataset.id;
+    const isFav = currentFavorites.has(id);
+    btn.classList.toggle('fav-active', isFav);
+    btn.querySelector('i').className = isFav ? 'bi bi-heart-fill' : 'bi bi-heart';
+  });
+}
+
+async function toggleHomeFavorite(productId, btn) {
+  const user = getUser();
+  if (!user) {
+    const modals = document.querySelectorAll('.modal');
+    const authModal = Array.from(modals).find(m => m.id === 'authModal');
+    if (authModal) new bootstrap.Modal(authModal).show();
+    return;
+  }
+  const isFav = currentFavorites.has(productId);
+  if (isFav) {
+    await supabase.from('favorites').delete().eq('user_id', user.id).eq('product_id', productId);
+    currentFavorites.delete(productId);
+  } else {
+    await supabase.from('favorites').insert({ user_id: user.id, product_id: productId });
+    currentFavorites.add(productId);
+  }
+  updateHomeFavButtons();
+}
+
+onAuthChange(() => loadFavorites());
 
 async function loadHomeData() {
     try {
@@ -64,20 +106,33 @@ async function loadHomeData() {
 
             latestProducts.forEach(p => {
                 const price = Number(p.price).toLocaleString('fr-FR');
+                const oldPriceHtml = p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : '';
                 prodHtml += `
                 <div class="col-6 col-md-3">
-                    <div class="card h-100 shadow-sm border-0" style="transition: transform 0.2s;">
+                    <div class="card h-100 shadow-sm border-0 position-relative" style="transition: transform 0.2s;">
+                        <button class="btn-fav-home" data-id="${p.id}" title="Ajouter aux favoris">
+                            <i class="bi bi-heart"></i>
+                        </button>
                         <img src="${p.image_url}" class="card-img-top product-thumb" alt="${p.name}" 
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'180\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23f0f4fb\'/%3E%3C/svg%3E'">
                         <div class="card-body d-flex flex-column border border-top-0 rounded-bottom p-3">
                             <h6 class="card-title fw-bold mb-1 text-truncate" title="${p.name}">${p.name}</h6>
-                            <div class="text-primary fw-bold mt-auto">${price} <small>XAF</small></div>
+                            <div class="text-primary fw-bold mt-auto">${oldPriceHtml}${price} <small>XAF</small></div>
                             <a href="produits.html?quickview=${p.id}" class="btn btn-sm btn-primary w-100 mt-2">Voir le produit</a>
                         </div>
                     </div>
                 </div>`;
             });
             prodContainer.innerHTML = prodHtml;
+
+            prodContainer.querySelectorAll('.btn-fav-home').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleHomeFavorite(btn.dataset.id, btn);
+                });
+            });
+
+            loadFavorites();
         }
 
     } catch (error) {

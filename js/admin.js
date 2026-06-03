@@ -248,6 +248,9 @@ async function loadProductsTable() {
     tbody.innerHTML = allProducts.map(p => {
         const catLabel = categories.find(c => c.id === p.category)?.label || p.category;
         const price = Number(p.price).toLocaleString('fr-FR');
+        const priceDisplay = p.compare_at_price
+            ? `<span class="text-muted text-decoration-line-through me-1">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ${price}`
+            : price;
         const badge = p.active ? '<span class="badge badge-active">Visible</span>' : '<span class="badge badge-inactive">Masqué</span>';
         const colors = safeJSON(p.colors);
         const colorChips = colors.length > 0
@@ -260,7 +263,7 @@ async function loadProductsTable() {
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'45\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dee2e6\'/%3E%3C/svg%3E'"></td>
         <td><div class="fw-semibold">${p.name}</div><small class="text-muted">${p.id}</small></td>
         <td><small>${catLabel}</small></td>
-        <td class="fw-semibold text-primary">${price}</td>
+        <td class="fw-semibold text-primary">${priceDisplay}</td>
         <td>${colorChips}</td>
         <td>${badge}</td>
         <td class="text-end pe-3">
@@ -319,6 +322,7 @@ function openEditProduct(id) {
     document.getElementById('field-name').value = p.name;
     document.getElementById('field-description').value = p.description;
     document.getElementById('field-price').value = p.price;
+    document.getElementById('field-compare-price').value = p.compare_at_price || '';
     document.getElementById('field-sort').value = p.sort_order;
     document.getElementById('field-image-url').value = p.image_url;
     document.getElementById('field-category').value = p.category;
@@ -356,6 +360,8 @@ document.getElementById('save-product-btn').addEventListener('click', async () =
     const name = document.getElementById('field-name').value.trim();
     const description = document.getElementById('field-description').value.trim();
     const price = parseInt(document.getElementById('field-price').value, 10);
+    const comparePriceVal = document.getElementById('field-compare-price').value;
+    const compare_at_price = comparePriceVal ? parseInt(comparePriceVal, 10) : null;
     const sort_order = parseInt(document.getElementById('field-sort').value, 10) || 0;
     const category = document.getElementById('field-category').value;
     const active = document.getElementById('field-active').checked;
@@ -381,7 +387,7 @@ document.getElementById('save-product-btn').addEventListener('click', async () =
         if (key && val) specs.push({ key, value: val });
     });
 
-    const payload = { name, description, price, sort_order, image_url, category, active, colors, specs };
+    const payload = { name, description, price, compare_at_price, sort_order, image_url, category, active, colors, specs };
     let error;
     if (editingId) { ({ error } = await supabase.from('products').update(payload).eq('id', editingId)); }
     else { ({ error } = await supabase.from('products').insert({ id, ...payload })); }
@@ -751,7 +757,7 @@ async function uploadBlob(blob, ext) {
 }
 
 function clearProductForm() {
-    ['field-name', 'field-description', 'field-price', 'field-sort', 'field-image-url'].forEach(id => document.getElementById(id).value = '');
+    ['field-name', 'field-description', 'field-price', 'field-compare-price', 'field-sort', 'field-image-url'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('field-id').value = '';
     document.getElementById('field-category').value = '';
     document.getElementById('field-active').checked = true;

@@ -187,7 +187,7 @@
                                             <th class="ps-3">Image</th>
                                             <th>Produit</th>
                                             <th>Catégorie</th>
-                                            <th>Prix (XAF)</th>
+                                            <th>Prix</th>
                                             <th>Couleurs</th>
                                             <th>Statut</th>
                                             <th class="text-end pe-3">Actions</th>
@@ -580,11 +580,16 @@
                             <textarea class="form-control" id="field-description" rows="2"
                                 placeholder="USB 3.0, portable…"></textarea>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Prix (XAF)</label>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Prix actuel (XAF)</label>
                             <input type="number" class="form-control" id="field-price" placeholder="30000" min="0">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Prix avant (XAF)</label>
+                            <input type="number" class="form-control" id="field-compare-price" placeholder="35000" min="0">
+                            <div class="form-text">Laissez vide si pas de promotion</div>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Ordre d'affichage</label>
                             <input type="number" class="form-control" id="field-sort" placeholder="1" min="0">
                         </div>

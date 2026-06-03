@@ -20,6 +20,7 @@ async function loadAccount() {
   document.getElementById('account-content').style.display = 'block';
 
   populateProfile();
+  loadFavorites();
   bindEvents();
 }
 
@@ -80,6 +81,75 @@ function populateProfile() {
     document.getElementById('account-member-since').textContent =
       d.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
   }
+}
+
+async function loadFavorites() {
+  const container = document.getElementById('favorites-list');
+  const emptyEl = document.getElementById('favorites-empty');
+  container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-danger me-2"></div><small class="text-muted">Chargement...</small></div>';
+  container.classList.remove('d-none');
+  emptyEl.classList.add('d-none');
+
+  const { data, error } = await supabase
+    .from('favorites')
+    .select('id, product_id, created_at')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !data || data.length === 0) {
+    container.innerHTML = '';
+    container.classList.add('d-none');
+    emptyEl.classList.remove('d-none');
+    return;
+  }
+
+  const productIds = data.map(f => f.product_id);
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name, price, compare_at_price, image_url')
+    .in('id', productIds);
+
+  const productMap = {};
+  (products || []).forEach(p => { productMap[p.id] = p; });
+
+  container.innerHTML = data.map(f => {
+    const p = productMap[f.product_id];
+    if (!p) return '';
+    const price = Number(p.price).toLocaleString('fr-FR');
+    const oldPrice = p.compare_at_price
+      ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> `
+      : '';
+    return `<div class="d-flex align-items-center gap-3 py-2 border-bottom fav-item" data-product-id="${p.id}">
+      <img src="${p.image_url}" class="fav-item-img" alt="${p.name}"
+        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'45\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dee2e6\'/%3E%3C/svg%3E'">
+      <div class="flex-grow-1 min-width-0">
+        <div class="fw-semibold small text-truncate">${p.name}</div>
+        <div class="text-primary fw-bold small">${oldPrice}${price} <small class="text-muted fw-normal">XAF</small></div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger fav-remove-btn" data-product-id="${p.id}" title="Retirer des favoris">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.fav-remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeFavorite(btn.dataset.productId));
+  });
+}
+
+async function removeFavorite(productId) {
+  const { error } = await supabase
+    .from('favorites')
+    .delete()
+    .eq('user_id', currentUser.id)
+    .eq('product_id', productId);
+
+  if (error) {
+    showToast('Erreur lors de la suppression.', 'error');
+    return;
+  }
+  showToast('Retiré des favoris.', 'warning');
+  await loadFavorites();
 }
 
 function bindEvents() {
@@ -322,6 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (contentEl) {
         contentEl.style.display = 'block';
         populateProfile();
+        loadFavorites();
       }
     } else {
       const loadingEl = document.getElementById('account-loading');
