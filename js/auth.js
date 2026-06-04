@@ -543,7 +543,7 @@ export function buildAuthModal() {
                   <input type="email" id="signup-email" class="form-control" placeholder="Votre email" autocomplete="email">
                 </div>
                 <div class="mb-3">
-                  <input type="password" id="signup-password" class="form-control" placeholder="Mot de passe (6+ caractères)" autocomplete="new-password">
+                  <input type="password" id="signup-password" class="form-control" placeholder="Mot de passe (8+ caractères)" autocomplete="new-password">
                   <div class="mt-2" id="password-strength" style="display:none;">
                     <div class="d-flex align-items-center gap-2">
                       <div class="flex-grow-1" style="height:6px;background:#e9ecef;border-radius:3px;overflow:hidden;">
@@ -633,7 +633,7 @@ export function buildAuthModal() {
     errEl.classList.add('d-none');
     if (!nom || !prenom || !email || !password) { errEl.textContent = 'Veuillez remplir tous les champs.'; errEl.classList.remove('d-none'); return; }
     const name = `${nom} ${prenom}`.trim();
-    if (password.length < 6) { errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; errEl.classList.remove('d-none'); return; }
+    if (password.length < 8) { errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.'; errEl.classList.remove('d-none'); return; }
     try {
       await signUp(email, password, name);
       const modalEl = bootstrap.Modal.getInstance(document.getElementById('authModal'));
