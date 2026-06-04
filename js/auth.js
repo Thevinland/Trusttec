@@ -544,6 +544,14 @@ export function buildAuthModal() {
                 </div>
                 <div class="mb-3">
                   <input type="password" id="signup-password" class="form-control" placeholder="Mot de passe (6+ caractères)" autocomplete="new-password">
+                  <div class="mt-2" id="password-strength" style="display:none;">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="flex-grow-1" style="height:6px;background:#e9ecef;border-radius:3px;overflow:hidden;">
+                        <div id="strength-bar" style="height:100%;width:0;border-radius:3px;transition:width .3s,background .3s;"></div>
+                      </div>
+                      <small id="strength-label" class="text-muted" style="min-width:90px;text-align:right;"></small>
+                    </div>
+                  </div>
                 </div>
                 <button id="signup-btn" class="btn btn-success w-100 fw-bold">
                   <i class="bi bi-person-plus me-1"></i> Créer mon compte
@@ -641,6 +649,44 @@ export function buildAuthModal() {
     document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('signup-btn').click(); })
   );
   document.getElementById('reset-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('reset-btn').click(); });
+
+  const pwdInput = document.getElementById('signup-password');
+  const strengthDiv = document.getElementById('password-strength');
+  const bar = document.getElementById('strength-bar');
+  const label = document.getElementById('strength-label');
+
+  document.getElementById('authModal').addEventListener('hidden.bs.modal', () => {
+    pwdInput.value = '';
+    strengthDiv.style.display = 'none';
+    bar.style.width = '0';
+  });
+
+  pwdInput.addEventListener('input', () => {
+    const val = pwdInput.value;
+    if (!val) { strengthDiv.style.display = 'none'; return; }
+    strengthDiv.style.display = '';
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (val.length >= 12) score++;
+    if (/[a-z]/.test(val)) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/\d/.test(val)) score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
+
+    const levels = [
+      { max: 1, pct: 20, color: '#dc3545', text: 'Très mauvais' },
+      { max: 2, pct: 40, color: '#e67e22', text: 'Mauvais' },
+      { max: 3, pct: 60, color: '#f39c12', text: 'Moyen' },
+      { max: 4, pct: 80, color: '#8bc34a', text: 'Bon' },
+      { max: 6, pct: 100, color: '#28a745', text: 'Très bon' }
+    ];
+    const current = levels.find(l => score <= l.max) || levels[levels.length - 1];
+    bar.style.width = current.pct + '%';
+    bar.style.background = current.color;
+    label.textContent = current.text;
+    label.style.color = current.color;
+  });
 }
 
 function escHtml(str) {
