@@ -643,6 +643,10 @@ export function buildAuthModal() {
   document.getElementById('reset-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('reset-btn').click(); });
 }
 
+function escHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 export function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container') || (() => {
     const c = document.createElement('div');
@@ -660,7 +664,7 @@ export function showToast(message, type = 'info') {
   container.insertAdjacentHTML('beforeend', `
     <div id="${id}" class="toast ${bg} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
       <div class="d-flex">
-        <div class="toast-body">${message}</div>
+        <div class="toast-body">${escHtml(message)}</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
     </div>`);
