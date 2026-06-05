@@ -371,10 +371,6 @@ function buildChatWidget() {
   });
 }
 
-function ensureAdminConversation() {
-  return null;
-}
-
 export async function loadConversations(skipEnsure = false) {
   console.log('[CONV] loadConversations appelé', new Date().toISOString(), new Error().stack.split('\n')[2]);
   const user = getUser();
@@ -595,7 +591,6 @@ function showConversationsList() {
   window._pendingNewConv = false;
   window._pendingConvSubject = null;
   window._pendingProductInfo = null;
-  stopPolling();
   document.getElementById('chat-conversations-list').style.display = 'block';
   document.getElementById('chat-messages-view').classList.remove('active');
   document.getElementById('msg-product-label').style.display = 'none';
@@ -808,15 +803,9 @@ async function sendMessage(pendingSubject) {
 }
 
 let globalChannel = null;
-let msgChannel = null;
 
 function subscribeToMessages(convId) {
-  if (msgChannel) {
-    supabase.removeChannel(msgChannel);
-    msgChannel = null;
-  }
   window._chatLastMessageAt = null;
-  // La conversation active reçoit les nouveaux messages via le canal global
 }
 
 function setupRealtime() {
@@ -831,12 +820,7 @@ function setupRealtime() {
     .subscribe();
 }
 
-function stopPolling() {
-  if (msgChannel) { supabase.removeChannel(msgChannel); msgChannel = null; }
-}
-
 function cleanupRealtime() {
-  stopPolling();
   if (globalChannel) { supabase.removeChannel(globalChannel); globalChannel = null; }
 }
 

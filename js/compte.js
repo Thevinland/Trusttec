@@ -1,4 +1,4 @@
-import { initAuth, buildAuthModal, updateNavAuthUI, onAuthChange, getUser, getProfile, signOut, showToast, getSupabase } from './auth.js';
+import { initAuth, buildAuthModal, updateNavAuthUI, onAuthChange, getUser, getProfile, signOut, showToast, getSupabase, updatePassword, uploadAvatar } from './auth.js';
 
 let supabase;
 let currentUser = null;
@@ -253,16 +253,9 @@ async function saveProfile() {
       barEl.style.width = '0%';
       statusEl.textContent = 'Upload en cours...';
 
-      const fileName = `avatars/${currentUser.id}_${Date.now()}.webp`;
-      const { error: uploadErr } = await supabase.storage.from('avatars').upload(fileName, pendingAvatarBlob, {
-        upsert: true,
-        contentType: 'image/webp'
-      });
-      if (uploadErr) throw uploadErr;
+      newAvatarUrl = await uploadAvatar(pendingAvatarBlob, currentUser.id);
       barEl.style.width = '100%';
       statusEl.textContent = 'Image uploadée.';
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-      newAvatarUrl = urlData.publicUrl;
     }
 
     const newNom = document.getElementById('account-nom-input').value.trim();
@@ -324,14 +317,7 @@ async function changePassword() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Mise à jour...';
 
   try {
-    const { error: signInErr } = await supabase.auth.signInWithPassword({
-      email: currentUser.email,
-      password: current
-    });
-    if (signInErr) throw new Error('Mot de passe actuel incorrect.');
-
-    const { error: updateErr } = await supabase.auth.updateUser({ password: pwd });
-    if (updateErr) throw updateErr;
+    await updatePassword(current, pwd);
 
     document.getElementById('pwd-current-input').value = '';
     document.getElementById('pwd-new-input').value = '';

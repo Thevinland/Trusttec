@@ -224,202 +224,7 @@ export function isAdmin() { return currentProfile?.role === 'admin' || currentPr
 export function isSuperAdmin() { return currentProfile?.role === 'super_admin'; }
 
 export function openMyAccount() {
-  const existing = document.getElementById('accountModal');
-  if (existing) existing.remove();
-
-  const avatarUrl = currentProfile?.avatar_url || '';
-  const nameParts = (currentProfile?.full_name || '').split(' ');
-  const profileNom = nameParts[0] || '';
-  const profilePrenom = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-  const initial = (profilePrenom || profileNom || '?').charAt(0).toUpperCase();
-
-  const modal = document.createElement('div');
-  modal.id = 'accountModal';
-  modal.innerHTML = `
-    <div class="modal fade" id="accountModalInner" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content" style="border-radius:16px;border:none;">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold"><i class="bi bi-person-circle me-2"></i>Mon compte</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="text-center mb-3 position-relative" id="account-avatar-wrap" style="cursor:pointer;">
-              <div id="account-avatar-display" style="width:80px;height:80px;border-radius:50%;background:#0d6efd;color:white;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto;overflow:hidden;position:relative;background-size:cover;background-position:center;${avatarUrl ? `background-image:url('${avatarUrl}');` : ''}">
-                ${avatarUrl ? '' : initial}
-                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;" id="account-avatar-overlay">
-                  <i class="bi bi-camera-fill text-white" style="font-size:20px;"></i>
-                </div>
-              </div>
-              <input type="file" id="account-avatar-input" accept="image/*" style="display:none;">
-              <small class="text-muted d-block mt-1" style="font-size:11px;">Cliquez pour changer l'avatar</small>
-            </div>
-
-            <div class="mb-2">
-              <small class="text-muted d-block">Email</small>
-              <span class="fw-semibold">${currentUser?.email || '—'}</span>
-            </div>
-            <div class="row g-1 mb-2">
-              <div class="col">
-                <label class="text-muted d-block" for="account-nom-input">Nom</label>
-                <input type="text" id="account-nom-input" class="form-control form-control-sm" value="${profileNom.replace(/"/g, '&quot;')}">
-              </div>
-              <div class="col">
-                <label class="text-muted d-block" for="account-prenom-input">Prénom</label>
-                <input type="text" id="account-prenom-input" class="form-control form-control-sm" value="${profilePrenom.replace(/"/g, '&quot;')}">
-              </div>
-            </div>
-            <div class="mb-2">
-              <label class="text-muted d-block" for="account-phone-input">Téléphone</label>
-              <input type="tel" id="account-phone-input" class="form-control form-control-sm" value="${(currentProfile?.phone || '').replace(/"/g, '&quot;')}" placeholder="+242 XX XXX XX XX">
-            </div>
-            <div class="mb-2">
-              <small class="text-muted d-block">Rôle</small>
-              <span class="badge bg-${currentProfile?.role === 'super_admin' ? 'danger' : currentProfile?.role === 'admin' ? 'warning text-dark' : 'secondary'}">${currentProfile?.role === 'super_admin' ? 'Super Admin' : currentProfile?.role === 'admin' ? 'Administrateur' : 'Client'}</span>
-            </div>
-            <div id="account-upload-progress" class="d-none mt-2">
-              <div class="progress" style="height:6px;">
-                <div id="account-upload-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
-              </div>
-              <small id="account-upload-status" class="text-muted d-block mt-1"></small>
-            </div>
-            <div id="account-error" class="alert alert-danger d-none py-2 small mt-2"></div>
-          </div>
-          <div class="modal-footer border-0 pt-0 flex-wrap gap-2">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="account-change-pwd-btn"><i class="bi bi-key me-1"></i>Mot de passe</button>
-            <button type="button" class="btn btn-primary" id="account-save-btn"><i class="bi bi-check2 me-1"></i>Enregistrer</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-
-  const avatarWrap = document.getElementById('account-avatar-wrap');
-  const avatarInput = document.getElementById('account-avatar-input');
-  const avatarDisplay = document.getElementById('account-avatar-display');
-  const avatarOverlay = document.getElementById('account-avatar-overlay');
-  let pendingAvatarBlob = null;
-
-  avatarWrap.addEventListener('mouseenter', () => { avatarOverlay.style.opacity = '1'; });
-  avatarWrap.addEventListener('mouseleave', () => { avatarOverlay.style.opacity = '0'; });
-  avatarWrap.addEventListener('click', () => avatarInput.click());
-
-  avatarInput.addEventListener('change', () => {
-    const file = avatarInput.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showAccountError('Image trop lourde (max 5 Mo).');
-      avatarInput.value = '';
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      showAccountError('Veuillez sélectionner une image.');
-      avatarInput.value = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const size = 200;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        const min = Math.min(img.width, img.height);
-        const sx = (img.width - min) / 2;
-        const sy = (img.height - min) / 2;
-        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-          pendingAvatarBlob = blob;
-          const url = URL.createObjectURL(blob);
-          avatarDisplay.style.backgroundImage = `url('${url}')`;
-          avatarDisplay.style.backgroundSize = 'cover';
-          avatarDisplay.style.backgroundPosition = 'center';
-          avatarDisplay.textContent = '';
-        }, 'image/webp', 0.85);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-
-  document.getElementById('account-save-btn').addEventListener('click', async () => {
-    const errEl = document.getElementById('account-error');
-    errEl.classList.add('d-none');
-    const saveBtn = document.getElementById('account-save-btn');
-    saveBtn.disabled = true;
-    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement...';
-
-    try {
-      let newAvatarUrl = currentProfile?.avatar_url || '';
-
-      if (pendingAvatarBlob) {
-        const progressEl = document.getElementById('account-upload-progress');
-        const barEl = document.getElementById('account-upload-bar');
-        const statusEl = document.getElementById('account-upload-status');
-        progressEl.classList.remove('d-none');
-        barEl.style.width = '0%';
-        statusEl.textContent = 'Upload en cours...';
-
-        const fileName = `avatars/${currentUser.id}_${Date.now()}.webp`;
-        const { error: uploadErr } = await supabase.storage.from('avatars').upload(fileName, pendingAvatarBlob, {
-          upsert: true,
-          contentType: 'image/webp'
-        });
-        if (uploadErr) throw uploadErr;
-        barEl.style.width = '100%';
-        statusEl.textContent = 'Image uploadée.';
-        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-        newAvatarUrl = urlData.publicUrl;
-      }
-
-      const newNom = document.getElementById('account-nom-input').value.trim();
-      const newPrenom = document.getElementById('account-prenom-input').value.trim();
-      const newName = `${newNom} ${newPrenom}`.trim();
-      const newPhone = document.getElementById('account-phone-input').value.trim();
-      if (newName || pendingAvatarBlob || newPhone !== (currentProfile?.phone || '')) {
-        const updates = {};
-        if (newName) updates.full_name = newName;
-        if (newAvatarUrl) updates.avatar_url = newAvatarUrl;
-        if (newPhone !== (currentProfile?.phone || '')) updates.phone = newPhone || null;
-
-        const { error: updateErr } = await supabase.from('profiles').update(updates).eq('id', currentUser.id);
-        if (updateErr) throw updateErr;
-
-        if (currentProfile) {
-          if (newName) currentProfile.full_name = newName;
-          if (newAvatarUrl) currentProfile.avatar_url = newAvatarUrl;
-          currentProfile.phone = newPhone || null;
-        }
-      }
-
-      const m = bootstrap.Modal.getInstance(document.getElementById('accountModalInner'));
-      if (m) m.hide();
-      showToast('Profil mis à jour avec succès.', 'success');
-      notifyListeners();
-    } catch (err) {
-      errEl.textContent = 'Erreur : ' + err.message;
-      errEl.classList.remove('d-none');
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i>Enregistrer';
-    }
-  });
-
-  document.getElementById('account-change-pwd-btn').addEventListener('click', () => {
-    const m = bootstrap.Modal.getInstance(document.getElementById('accountModalInner'));
-    if (m) m.hide();
-    modal.addEventListener('hidden.bs.modal', () => {
-      showPasswordChangeForm();
-    }, { once: true });
-  });
-
-  const m = new bootstrap.Modal(document.getElementById('accountModalInner'));
-  m.show();
-  document.getElementById('accountModalInner')?.addEventListener('hidden.bs.modal', () => modal.remove());
+  window.location.href = 'compte.html';
 }
 
 function showPasswordChangeForm() {
@@ -467,17 +272,14 @@ function showPasswordChangeForm() {
     if (pwd.length < 6) { errEl.textContent = 'Le nouveau mot de passe doit faire au moins 6 caractères.'; errEl.classList.remove('d-none'); return; }
     if (pwd !== confirm) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.remove('d-none'); return; }
 
-    const { error: signInErr } = await supabase.auth.signInWithPassword({
-      email: currentUser.email,
-      password: current
-    });
-    if (signInErr) { errEl.textContent = 'Mot de passe actuel incorrect.'; errEl.classList.remove('d-none'); return; }
-
-    const { error: updateErr } = await supabase.auth.updateUser({ password: pwd });
-    if (updateErr) { errEl.textContent = updateErr.message; errEl.classList.remove('d-none'); return; }
-
-    bootstrap.Modal.getInstance(document.getElementById('pwdChangeModalInner')).hide();
-    showToast('Mot de passe mis à jour avec succès.', 'success');
+    try {
+      await updatePassword(current, pwd);
+      bootstrap.Modal.getInstance(document.getElementById('pwdChangeModalInner')).hide();
+      showToast('Mot de passe mis à jour avec succès.', 'success');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('d-none');
+    }
   });
 
   ['pwd-current-input', 'pwd-new-input', 'pwd-confirm-input'].forEach(id =>
@@ -492,6 +294,28 @@ function showPasswordChangeForm() {
 function showAccountError(msg) {
   const el = document.getElementById('account-error');
   if (el) { el.textContent = msg; el.classList.remove('d-none'); }
+}
+
+export async function updatePassword(currentPassword, newPassword) {
+  const { error: signInErr } = await supabase.auth.signInWithPassword({
+    email: currentUser.email,
+    password: currentPassword
+  });
+  if (signInErr) throw new Error('Mot de passe actuel incorrect.');
+
+  const { error: updateErr } = await supabase.auth.updateUser({ password: newPassword });
+  if (updateErr) throw updateErr;
+}
+
+export async function uploadAvatar(blob, userId) {
+  const fileName = `avatars/${userId}_${Date.now()}.webp`;
+  const { error: uploadErr } = await supabase.storage.from('avatars').upload(fileName, blob, {
+    upsert: true,
+    contentType: 'image/webp'
+  });
+  if (uploadErr) throw uploadErr;
+  const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+  return urlData.publicUrl;
 }
 
 export function buildAuthModal() {

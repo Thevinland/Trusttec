@@ -493,6 +493,10 @@ document.getElementById('qv-variants-list').addEventListener('click', (e) => {
 });
 
 function refreshQVChatButton() {
+    const btn = document.getElementById('qv-chat-btn');
+    if (!btn) return;
+    const hasItems = qvVariantsState.some(v => v.qty > 0);
+    btn.disabled = !hasItems;
 }
 
 let qvChatActive = false;

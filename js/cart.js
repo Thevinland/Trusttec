@@ -261,6 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateChatButtonState = () => {
+        const btn = dom.chatOrderBtn;
+        if (!btn) return;
+        if (cart.length === 0) {
+            btn.classList.add(config.htmlClasses.disabled);
+            btn.setAttribute('aria-disabled', 'true');
+        } else {
+            btn.classList.remove(config.htmlClasses.disabled);
+            btn.setAttribute('aria-disabled', 'false');
+        }
     };
 
     const displayCart = () => {
