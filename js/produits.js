@@ -295,7 +295,7 @@ function buildCard(p) {
           ${swatchesHTML}
           ${colorNameHTML}
           <p class="card-text description flex-grow-1">${esc(p.description)}</p>
-          <div class="product-price mt-auto">${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${price} <small>XAF</small></div>
+          <div class="product-price mt-auto">${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${price} <small>CFA</small></div>
           <div class="card-actions">
             <button class="btn-add-cart-card add-to-cart-btn"
                     data-id="${esc(p.id)}"
@@ -374,7 +374,7 @@ function openQV(productId) {
     document.getElementById('qv-img').src = p.image_url;
     document.getElementById('qv-ref').textContent = `Réf : ${p.id}`;
     document.getElementById('qv-name').textContent = p.name;
-    document.getElementById('qv-price').innerHTML = `${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${Number(p.price).toLocaleString('fr-FR')} <small>XAF</small>`;
+    document.getElementById('qv-price').innerHTML = `${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${Number(p.price).toLocaleString('fr-FR')} <small>CFA</small>`;
     document.getElementById('qv-desc').textContent = p.description;
 
     const shareBtn = document.getElementById('qv-share-btn');
@@ -453,7 +453,7 @@ document.getElementById('qv-share-btn').addEventListener('click', () => {
     if (navigator.share) {
         navigator.share({
             title: `Trusttec — ${qvProduct.name}`,
-            text: `Découvrez ${qvProduct.name} à ${Number(qvProduct.price).toLocaleString('fr-FR')} XAF sur Trusttec !`,
+            text: `Découvrez ${qvProduct.name} à ${Number(qvProduct.price).toLocaleString('fr-FR')} CFA sur Trusttec !`,
             url: url
         }).catch(() => { });
     } else {

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
     const config = {
         localStorageKey: 'trusttecCart_v3',
-        currency:        'XAF',
+        currency:        'CFA',
         locale:          'fr-FR',
         toastDisplayTime: 3000,
         maxQuantityPerItem: 100,

@@ -8,7 +8,7 @@ function formatPrice(price) {
     if (isNaN(numericPrice)) {
         return 'Prix invalide';
     }
-    return numericPrice.toLocaleString('fr-FR', { style: 'currency', currency: 'XAF', minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace('FCFA', 'XAF').trim();
+    return numericPrice.toLocaleString('fr-FR', { style: 'currency', currency: 'CFA', minimumFractionDigits: 0, maximumFractionDigits: 0 }).trim();
 }
 
 initApp();

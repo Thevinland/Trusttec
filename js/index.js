@@ -117,7 +117,7 @@ async function loadHomeData() {
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'180\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23f0f4fb\'/%3E%3C/svg%3E'">
                         <div class="card-body d-flex flex-column border border-top-0 rounded-bottom p-3">
                             <h6 class="card-title fw-bold mb-1 text-truncate" title="${p.name}">${p.name}</h6>
-                            <div class="text-primary fw-bold mt-auto">${oldPriceHtml}${price} <small>XAF</small></div>
+                            <div class="text-primary fw-bold mt-auto">${oldPriceHtml}${price} <small>CFA</small></div>
                             <a href="produits.html?quickview=${p.id}" class="btn btn-sm btn-primary w-100 mt-2">Voir le produit</a>
                         </div>
                     </div>

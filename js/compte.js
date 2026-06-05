@@ -124,7 +124,7 @@ async function loadFavorites() {
         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'45\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23dee2e6\'/%3E%3C/svg%3E'">
       <div class="flex-grow-1 min-width-0">
         <div class="fw-semibold small text-truncate">${p.name}</div>
-        <div class="text-primary fw-bold small">${oldPrice}${price} <small class="text-muted fw-normal">XAF</small></div>
+        <div class="text-primary fw-bold small">${oldPrice}${price} <small class="text-muted fw-normal">CFA</small></div>
       </div>
       <button class="btn btn-sm btn-outline-danger fav-remove-btn" data-product-id="${p.id}" title="Retirer des favoris">
         <i class="bi bi-trash"></i>

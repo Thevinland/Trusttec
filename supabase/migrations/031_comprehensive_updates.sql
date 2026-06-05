@@ -155,4 +155,4 @@ ALTER TABLE public.messages
 -- 7. Devise sur products
 -- ================================================
 ALTER TABLE public.products
-  ADD COLUMN IF NOT EXISTS currency text NOT NULL DEFAULT 'XAF';
+  ADD COLUMN IF NOT EXISTS currency text NOT NULL DEFAULT 'CFA';

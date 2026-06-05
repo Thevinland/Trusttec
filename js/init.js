@@ -33,11 +33,11 @@ export async function initApp() {
             const colorText = item.colorName ? ` (${item.colorName})` : '';
             const lineTotal = formatPrice(item.price * item.quantity);
             const price = formatPrice(item.price);
-            return `${i + 1}. ${item.name}${colorText} - Prix unitaire: ${price} XAF x ${item.quantity} = ${lineTotal} XAF`;
+            return `${i + 1}. ${item.name}${colorText} - Prix unitaire: ${price} CFA x ${item.quantity} = ${lineTotal} CFA`;
         });
 
         const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        const message = `NOUVELLE COMMANDE\n\n${lines.join('\n')}\n\n\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\nTOTAL: ${formatPrice(total)} XAF\n\nMerci de traiter cette commande.`;
+        const message = `NOUVELLE COMMANDE\n\n${lines.join('\n')}\n\n\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\x2d\nTOTAL: ${formatPrice(total)} CFA\n\nMerci de traiter cette commande.`;
 
         const convId = await sendCartOrderMessage(message, 'Nouvelle Commande Panier');
         if (convId) {
