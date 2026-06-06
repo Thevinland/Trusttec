@@ -5,7 +5,7 @@
  *
  * Dependances : supabase-config.js, auth.js
  */
-import { getSupabase, getUser, showToast, isAdmin } from './auth.js';
+import { getSupabase, getUser, showToast } from './auth.js';
 
 const supabase = getSupabase();
 
@@ -105,16 +105,42 @@ function bindInteractiveStars(container) {
 export async function getProductStats(productId) {
   if (!productId) return null;
   if (statsCache.has(productId)) return statsCache.get(productId);
-  const { data, error } = await supabase
-    .from('product_review_stats')
-    .select('*')
-    .eq('product_id', productId)
-    .maybeSingle();
-  const stats = error || !data
-    ? { review_count: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 }
-    : data;
-  statsCache.set(productId, stats);
-  return stats;
+  const all = await getAllProductStats([productId]);
+  return all.get(productId) || emptyStats();
+}
+
+function emptyStats() {
+  return { review_count: 0, avg_rating: 0, count_5: 0, count_4: 0, count_3: 0, count_2: 0, count_1: 0 };
+}
+
+/**
+ * Charge les stats de PLUSIEURS produits en UNE seule requete.
+ * - Evite le pattern N+1 (1 query / produit)
+ * - Renvoie une Map<productId, stats>
+ * - Les produits sans avis renvoient un objet vide
+ */
+export async function getAllProductStats(productIds) {
+  const ids = (productIds || []).filter(Boolean);
+  const map = new Map();
+  if (!ids.length) return map;
+
+  // Verifier le cache d'abord
+  const toFetch = ids.filter(id => !statsCache.has(id));
+  if (toFetch.length) {
+    const { data, error } = await supabase
+      .from('product_review_stats')
+      .select('*')
+      .in('product_id', toFetch);
+    if (!error) {
+      (data || []).forEach(s => statsCache.set(s.product_id, s));
+    }
+  }
+
+  ids.forEach(id => {
+    if (!statsCache.has(id)) statsCache.set(id, emptyStats());
+    map.set(id, statsCache.get(id));
+  });
+  return map;
 }
 
 export function invalidateStats(productId) {
@@ -186,13 +212,14 @@ function renderRatingBars(stats) {
   return `<div class="rv-bars">${[5, 4, 3, 2, 1].map(bar).join('')}</div>`;
 }
 
-function renderReviewItem(r) {
+function renderReviewItem(r, { voted = false, canVote = true } = {}) {
   const name = r.profiles?.full_name || 'Utilisateur';
   const initials = getInitials(name);
   const color = avatarColorFor(r.user_id);
   const date = formatDate(r.created_at);
   const edited = r.updated_at && r.updated_at !== r.created_at
     ? `<span class="rv-edited">(modifié le ${formatDate(r.updated_at)})</span>` : '';
+  const helpfulDisabled = !canVote;
   return `
     <div class="rv-item" data-review-id="${esc(r.id)}">
       <div class="rv-avatar" style="background:${color}">${esc(initials)}</div>
@@ -204,8 +231,49 @@ function renderReviewItem(r) {
         <div class="rv-rating">${renderStars(r.rating, 'sm')}</div>
         ${r.title ? `<div class="rv-title">${esc(r.title)}</div>` : ''}
         ${r.comment ? `<p class="rv-comment">${esc(r.comment).replace(/\n/g, '<br>')}</p>` : ''}
+        <div class="rv-actions-row">
+          <button class="rv-helpful-btn${voted ? ' voted' : ''}${helpfulDisabled ? ' disabled' : ''}"
+                  data-id="${esc(r.id)}" type="button"
+                  ${helpfulDisabled ? 'disabled aria-disabled="true"' : ''}
+                  title="${voted ? 'Vous avez trouvé cet avis utile' : 'Marquer comme utile'}">
+            <i class="bi bi-hand-thumbs-up${voted ? '-fill' : ''}"></i>
+            <span>Utile</span>
+            <span class="rv-helpful-count">${r.helpful_count || 0}</span>
+          </button>
+          <div class="dropdown rv-report-menu">
+            <button class="rv-report-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                    title="Plus d'options" aria-label="Plus d'options">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item rv-report-btn" type="button" data-id="${esc(r.id)}" data-reason="spam">
+                <i class="bi bi-megaphone me-2"></i>Signaler comme spam</button></li>
+              <li><button class="dropdown-item rv-report-btn" type="button" data-id="${esc(r.id)}" data-reason="abuse">
+                <i class="bi bi-shield-exclamation me-2"></i>Contenu abusif</button></li>
+              <li><button class="dropdown-item rv-report-btn" type="button" data-id="${esc(r.id)}" data-reason="fake">
+                <i class="bi bi-question-circle me-2"></i>Avis faux / trompeur</button></li>
+              <li><button class="dropdown-item rv-report-btn" type="button" data-id="${esc(r.id)}" data-reason="other">
+                <i class="bi bi-chat-square me-2"></i>Autre motif</button></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>`;
+}
+
+/**
+ * Renvoie l'ensemble des review_id que l'utilisateur a votes
+ * (1 seule requete pour toute la liste -> pas de N+1)
+ */
+async function getUserVotedReviewIds(reviewIds) {
+  const user = getUser();
+  if (!user || !reviewIds?.length) return new Set();
+  const { data } = await supabase
+    .from('review_votes')
+    .select('review_id')
+    .eq('user_id', user.id)
+    .in('review_id', reviewIds);
+  return new Set((data || []).map(v => v.review_id));
 }
 
 /**
@@ -275,15 +343,18 @@ async function refreshReviewsSection(container, productId) {
   paintSummary(container, stats);
   paintUserHint(container);
 
-  let order = container.querySelector('.rv-sort-select')?.value || 'recent';
-  let ratingFilter = container.querySelector('.rv-filter-btn.active')?.dataset.filter || 'all';
+  const order = container.querySelector('.rv-sort-select')?.value || 'recent';
+  const ratingFilter = container.querySelector('.rv-filter-btn.active')?.dataset.filter || 'all';
 
   const allReviews = await getProductReviews(productId, { limit: 200, order });
+  // 1 requete pour les votes du user sur tous ces avis
+  const votes = await getUserVotedReviewIds(allReviews.map(r => r.id));
+
   const filtered = ratingFilter === 'all'
     ? allReviews
     : allReviews.filter(r => Number(r.rating) === Number(ratingFilter));
 
-  paintList(container, filtered, stats);
+  paintList(container, filtered, stats, votes, productId);
   bindSectionEvents(container, productId);
 }
 
@@ -324,7 +395,7 @@ async function paintUserHint(container) {
   }
 }
 
-function paintList(container, reviews, stats) {
+function paintList(container, reviews, stats, votedSet, productId) {
   const listEl = container.querySelector('.rv-list');
   if (!listEl) return;
   if (!reviews.length) {
@@ -334,8 +405,65 @@ function paintList(container, reviews, stats) {
     </div>`;
     return;
   }
-  listEl.innerHTML = reviews.map(renderReviewItem).join('') +
+  const isAuthed = !!getUser();
+  listEl.innerHTML = reviews.map(r => renderReviewItem(r, { voted: votedSet.has(r.id), canVote: isAuthed })).join('') +
     `<div class="rv-count-footer">${reviews.length} avis affiché(s) sur ${stats?.review_count || reviews.length}</div>`;
+  bindItemEvents(listEl, productId);
+}
+
+function bindItemEvents(listEl, productId) {
+  listEl.querySelectorAll('.rv-helpful-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (btn.disabled) return;
+      if (!getUser()) {
+        const m = document.getElementById('authModal');
+        if (m) new bootstrap.Modal(m).show();
+        return;
+      }
+      const reviewId = btn.dataset.id;
+      btn.disabled = true;
+      const { data, error } = await supabase.rpc('toggle_review_helpful', { p_review_id: reviewId });
+      btn.disabled = false;
+      if (error || !data || !data.length) {
+        showToast('Impossible d\'enregistrer votre vote.', 'error');
+        return;
+      }
+      const { helpful_count, voted } = data[0];
+      btn.classList.toggle('voted', voted);
+      const icon = btn.querySelector('i');
+      icon.className = voted ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-hand-thumbs-up';
+      btn.querySelector('.rv-helpful-count').textContent = helpful_count;
+    });
+  });
+
+  listEl.querySelectorAll('.rv-report-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const reviewId = btn.dataset.id;
+      const reason = btn.dataset.reason;
+      if (!getUser()) {
+        const m = document.getElementById('authModal');
+        if (m) new bootstrap.Modal(m).show();
+        return;
+      }
+      const { data, error } = await supabase.rpc('report_review', {
+        p_review_id: reviewId,
+        p_reason: reason,
+        p_details: null
+      });
+      if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+      if (data === false) {
+        showToast('Vous avez déjà signalé cet avis.', 'info');
+      } else {
+        showToast('Signalement envoyé. Merci !', 'success');
+      }
+      // Fermer le dropdown
+      const dd = bootstrap.Dropdown.getInstance(btn.closest('.dropdown').querySelector('.rv-report-toggle'));
+      if (dd) dd.hide();
+    });
+  });
 }
 
 function bindSectionEvents(container, productId) {
@@ -362,6 +490,10 @@ async function openReviewForm(productId, existing = null) {
   if (!existing) existing = await getUserReviewForProduct(productId);
 
   const isEdit = !!existing;
+  const EDIT_WINDOW_DAYS = 30;
+  const createdDate = existing ? new Date(existing.created_at) : null;
+  const editExpired = isEdit && createdDate && (Date.now() - createdDate.getTime() > EDIT_WINDOW_DAYS * 86400 * 1000);
+
   let modal = document.getElementById('rv-form-modal');
   if (modal) modal.remove();
   modal = document.createElement('div');
@@ -372,12 +504,15 @@ async function openReviewForm(productId, existing = null) {
         <div class="modal-content" style="border-radius:16px;border:none;">
           <div class="modal-header border-0 pb-0">
             <h5 class="modal-title fw-bold">
-              <i class="bi bi-star-half me-2"></i>${isEdit ? 'Modifier votre avis' : 'Écrire un avis'}
+              <i class="bi bi-star-half me-2"></i>${isEdit ? 'Votre avis' : 'Écrire un avis'}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body pt-2">
             <div id="rv-form-error" class="alert alert-danger d-none small"></div>
+            ${editExpired ? `<div class="alert alert-warning small">
+              <i class="bi bi-info-circle me-1"></i>La fenêtre d'édition de ${EDIT_WINDOW_DAYS} jours est dépassée. Vous pouvez toujours le supprimer.
+            </div>` : ''}
             <div class="mb-3">
               <label class="form-label small fw-semibold text-secondary">Votre note <span class="text-danger">*</span></label>
               ${renderInteractiveStars('rating', existing?.rating || 0)}
@@ -399,7 +534,7 @@ async function openReviewForm(productId, existing = null) {
               <i class="bi bi-trash me-1"></i>Supprimer
             </button>` : ''}
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-            <button type="button" class="btn btn-primary fw-bold" id="rv-form-save">
+            <button type="button" class="btn btn-primary fw-bold" id="rv-form-save" ${editExpired ? 'disabled' : ''}>
               <i class="bi bi-check2 me-1"></i>${isEdit ? 'Mettre à jour' : 'Publier'}
             </button>
           </div>
@@ -408,6 +543,16 @@ async function openReviewForm(productId, existing = null) {
     </div>`;
   document.body.appendChild(modal);
   bindInteractiveStars(modal);
+
+  // Si fenetre d'edition depassee, on bloque les inputs
+  if (editExpired) {
+    modal.querySelectorAll('.rv-star-btn, #rv-form-title, #rv-form-comment').forEach(el => {
+      el.setAttribute('disabled', 'true');
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.6';
+    });
+  }
+
   const bsModal = new bootstrap.Modal(modal.querySelector('.modal'));
   bsModal.show();
   modal.querySelector('.modal').addEventListener('hidden.bs.modal', () => modal.remove());
@@ -427,17 +572,14 @@ async function openReviewForm(productId, existing = null) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Envoi…';
     try {
-      const payload = { product_id: productId, user_id: user.id, rating, title, comment };
-      let res;
-      if (isEdit) {
-        res = await supabase.from('product_reviews').update({ rating, title, comment }).eq('id', existing.id);
-      } else {
-        res = await supabase.from('product_reviews').insert(payload);
-      }
-      if (res.error) {
-        if (res.error.code === '23505') throw new Error('Vous avez déjà posté un avis pour ce produit.');
-        throw res.error;
-      }
+      // RPC atomique : insert/update + verif anti-spam + edit-window
+      const { error } = await supabase.rpc('submit_review', {
+        p_product_id: productId,
+        p_rating: rating,
+        p_title: title,
+        p_comment: comment
+      });
+      if (error) throw error;
       invalidateStats(productId);
       showToast(isEdit ? 'Avis mis à jour.' : 'Merci pour votre avis !', 'success');
       bsModal.hide();
@@ -458,7 +600,7 @@ async function openReviewForm(productId, existing = null) {
       if (!confirm('Supprimer définitivement votre avis ?')) return;
       delBtn.disabled = true;
       delBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Suppression…';
-      const { error } = await supabase.from('product_reviews').delete().eq('id', existing.id);
+      const { error } = await supabase.rpc('delete_my_review', { p_review_id: existing.id });
       if (error) { showToast('Erreur : ' + error.message, 'error'); delBtn.disabled = false; delBtn.innerHTML = '<i class="bi bi-trash me-1"></i>Supprimer'; return; }
       invalidateStats(productId);
       showToast('Avis supprimé.', 'success');
@@ -472,18 +614,19 @@ async function openReviewForm(productId, existing = null) {
 
 /**
  * Injecte la note moyenne sur toutes les cards produits affichees.
+ * 1 seule requete pour toutes les cards (evite le N+1).
  * A appeler apres le rendu du catalogue.
  */
 export async function paintCardsRating() {
   const cards = document.querySelectorAll('.product-card[data-product-id]');
   if (!cards.length) return;
-  await Promise.all([...cards].map(async (card) => {
-    const id = card.dataset.productId;
+  const ids = [...cards].map(c => c.dataset.productId);
+  const statsMap = await getAllProductStats(ids);
+  cards.forEach(card => {
     const slot = card.querySelector('.rv-card-slot');
     if (!slot) return;
-    const stats = await getProductStats(id);
-    slot.innerHTML = renderRatingChip(stats);
-  }));
+    slot.innerHTML = renderRatingChip(statsMap.get(card.dataset.productId));
+  });
   document.dispatchEvent(new CustomEvent('reviews:catalog-painted'));
 }
 

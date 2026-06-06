@@ -2778,6 +2778,11 @@ body.page-admin {
 }
 .rv-star-btn:hover { transform: scale(1.1); }
 .rv-star-btn.active { color: #f5a623; }
+.rv-star-btn:focus-visible {
+    outline: 2px solid #f5a623;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
 .rv-stars-label {
     margin-left: 8px;
     color: #555;
@@ -2785,6 +2790,70 @@ body.page-admin {
     font-weight: 600;
     min-width: 70px;
 }
+
+/* Bouton "Utile" + menu signaler sur chaque avis */
+.rv-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 6px;
+}
+.rv-helpful-btn {
+    background: #f4f6fa;
+    border: 1px solid #e3e7ef;
+    color: #555;
+    border-radius: 18px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+}
+.rv-helpful-btn:hover:not(.disabled) {
+    background: #e8eef9;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+.rv-helpful-btn.voted {
+    background: #e7f3ff;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+.rv-helpful-btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.rv-helpful-btn i { font-size: 0.9rem; }
+.rv-helpful-count {
+    background: rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 0.72rem;
+    min-width: 22px;
+    text-align: center;
+}
+.rv-helpful-btn.voted .rv-helpful-count { background: rgba(13,110,253,0.15); }
+
+.rv-report-menu { margin-left: auto; }
+.rv-report-toggle {
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;
+    font-size: 1rem;
+    transition: background 0.15s, color 0.15s;
+}
+.rv-report-toggle:hover, .rv-report-toggle[aria-expanded="true"] {
+    background: #f0f0f0;
+    color: #555;
+}
+.rv-report-btn { font-size: 0.85rem; }
+.rv-report-btn i { color: #999; }
 
 /* Affichage compact dans la card (slot reserve) */
 .product-card .rv-card-slot {
