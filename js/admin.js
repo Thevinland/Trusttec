@@ -83,6 +83,7 @@ window.showPage = function (page) {
     if (page === 'admins') loadAdmins();
     if (page === 'logs') loadLogs();
     if (page === 'stats') loadStats();
+    if (page === 'reviews') loadReviewsTable();
 };
 
 document.getElementById('login-btn').addEventListener('click', async () => {
@@ -550,13 +551,15 @@ function openDelete(type, id, name, count = 0) {
 }
 
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-    const table = deletingType === 'product' ? 'products' : 'categories';
+    let table, reload;
+    if (deletingType === 'product') { table = 'products'; reload = loadProductsTable; }
+    else if (deletingType === 'review') { table = 'product_reviews'; reload = loadReviewsTable; }
+    else { table = 'categories'; reload = loadCategoriesTable; }
     const { error } = await supabase.from(table).delete().eq('id', deletingId);
     deleteModal.hide();
     if (error) { showAlert('Erreur lors de la suppression : ' + error.message, 'danger'); return; }
     showAlert('Élément supprimé.', 'warning');
-    if (deletingType === 'product') await loadProductsTable();
-    else await loadCategoriesTable();
+    if (reload) await reload();
 });
 
 function openCropperModal(file) {
@@ -1598,6 +1601,80 @@ async function transferSuperAdmin(targetAdminId) {
         window.location.reload();
     }, 2000);
 }
+
+async function loadReviewsTable() {
+    const tbody = document.getElementById('reviews-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Chargement…</td></tr>';
+
+    const filter = document.getElementById('review-filter-stars')?.value || 'all';
+    let q = supabase
+        .from('product_reviews')
+        .select('id, product_id, user_id, rating, title, comment, created_at, profiles!product_reviews_user_id_fkey(full_name, email), products:product_id(id, name)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+    if (filter !== 'all') q = q.eq('rating', Number(filter));
+
+    const { data, error } = await q;
+    if (error) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center py-3">Erreur : ${error.message}</td></tr>`;
+        return;
+    }
+    const reviews = data || [];
+    document.getElementById('review-count').textContent = `${reviews.length} avis affiché(s)`;
+
+    if (!reviews.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Aucun avis pour le moment.</td></tr>';
+        document.getElementById('rv-stat-avg').textContent = '—';
+        document.getElementById('rv-stat-total').textContent = '0';
+        document.getElementById('rv-stat-5').textContent = '0';
+        document.getElementById('rv-stat-1').textContent = '0';
+        return;
+    }
+
+    // KPI sur la totalite (pas le filtre courant) pour info generale
+    const { data: all } = await supabase.from('product_review_stats').select('review_count, avg_rating');
+    const totCount = (all || []).reduce((s, r) => s + (r.review_count || 0), 0);
+    const totAvg = totCount
+        ? Number(((all || []).reduce((s, r) => s + Number(r.avg_rating || 0) * (r.review_count || 0), 0) / totCount).toFixed(2))
+        : 0;
+    document.getElementById('rv-stat-avg').textContent = totCount ? totAvg.toFixed(2) : '—';
+    document.getElementById('rv-stat-total').textContent = totCount;
+    const { data: perRating } = await supabase.from('product_reviews').select('rating');
+    const r5 = (perRating || []).filter(r => r.rating === 5).length;
+    const r1 = (perRating || []).filter(r => r.rating === 1).length;
+    document.getElementById('rv-stat-5').textContent = r5;
+    document.getElementById('rv-stat-1').textContent = r1;
+
+    tbody.innerHTML = reviews.map(r => {
+        const date = new Date(r.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const client = r.profiles?.full_name || r.profiles?.email || '—';
+        const product = r.products?.name || r.product_id;
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const preview = r.title
+            ? `<strong>${escapeHtml(r.title)}</strong>${r.comment ? ' — ' + escapeHtml(r.comment.slice(0, 120)) + (r.comment.length > 120 ? '…' : '') : ''}`
+            : (r.comment ? escapeHtml(r.comment.slice(0, 150)) + (r.comment.length > 150 ? '…' : '') : '<em class="text-muted">Aucun commentaire</em>');
+        return `<tr>
+            <td class="ps-3 text-nowrap small text-muted">${date}</td>
+            <td><span class="fw-semibold">${escapeHtml(product)}</span><br><code class="small text-muted">${escapeHtml(r.product_id)}</code></td>
+            <td>${escapeHtml(client)}</td>
+            <td><span class="text-warning fw-bold" style="letter-spacing:1px;">${stars}</span><br><small class="text-muted">${r.rating}/5</small></td>
+            <td class="small">${preview}</td>
+            <td class="text-end pe-3">
+                <button class="btn btn-sm btn-outline-danger btn-delete-review" data-id="${r.id}" title="Supprimer cet avis">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    document.querySelectorAll('.btn-delete-review').forEach(btn => {
+        btn.addEventListener('click', () => openDelete('review', btn.dataset.id, 'cet avis'));
+    });
+}
+
+document.getElementById('review-filter-stars')?.addEventListener('change', loadReviewsTable);
+document.getElementById('refresh-reviews-btn')?.addEventListener('click', loadReviewsTable);
 
 async function loadLogs() {
     const tbody = document.getElementById('logs-table-body');

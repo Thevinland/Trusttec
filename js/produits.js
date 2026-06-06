@@ -1,5 +1,13 @@
 import { initApp } from './init.js';
 import { getSupabase, isAdmin, getUser, onAuthChange } from './auth.js';
+import {
+  renderReviewsSection,
+  paintCardsRating,
+  getProductStats,
+  renderStars as renderRvStars,
+  renderRatingChip,
+  invalidateStats
+} from './reviews.js';
 
 function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -222,7 +230,12 @@ function renderProducts(products) {
     }
 
     bindCardEvents();
+    paintCardsRating();
 }
+
+document.addEventListener('reviews:changed', () => {
+    paintCardsRating();
+});
 
 function resetFilters() {
     searchQuery = '';
@@ -276,7 +289,7 @@ function buildCard(p) {
 
     return `
     <div class="col">
-      <div class="card product-card h-100">
+      <div class="card product-card h-100" data-product-id="${esc(p.id)}">
         <div class="product-image-wrapper">
           <button class="btn-fav-card" data-id="${esc(p.id)}" title="Ajouter aux favoris">
             <i class="bi bi-heart"></i>
@@ -292,6 +305,7 @@ function buildCard(p) {
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">${esc(p.name)}</h5>
+          <div class="rv-card-slot"></div>
           ${swatchesHTML}
           ${colorNameHTML}
           <p class="card-text description flex-grow-1">${esc(p.description)}</p>
@@ -314,7 +328,7 @@ function buildCard(p) {
         </div>
       </div>
     </div>`;
-}
+  }
 
 function bindCardEvents() {
     document.querySelectorAll('.color-swatches-mini').forEach(wrap => {
@@ -364,6 +378,35 @@ function bindCardEvents() {
     });
 }
 
+async function paintQvRatingSummary(productId) {
+    const slot = document.getElementById('qv-rating-summary');
+    if (!slot) return;
+    slot.innerHTML = '<span class="qv-rating-skeleton"></span>';
+    const stats = await getProductStats(productId);
+    if (!stats || !stats.review_count) {
+        slot.innerHTML = `<span class="qv-no-rating"><i class="bi bi-star"></i> Aucun avis pour le moment</span>`;
+        return;
+    }
+    const avg = Number(stats.avg_rating).toFixed(1);
+    slot.innerHTML = `
+        <div class="qv-rating-row">
+            ${renderRvStars(stats.avg_rating, 'sm')}
+            <span class="qv-rating-avg">${avg}</span>
+            <a href="#qv-reviews" class="qv-rating-link">${stats.review_count} avis</a>
+        </div>`;
+    slot.querySelector('.qv-rating-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('qv-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+}
+
+document.addEventListener('reviews:changed', (e) => {
+    const pid = e.detail?.productId;
+    if (!pid || !qvProduct || qvProduct.id !== pid) return;
+    invalidateStats(pid);
+    paintQvRatingSummary(pid);
+});
+
 function openQV(productId) {
     const p = (window._allProducts || []).find(x => x.id === productId);
     if (!p) return;
@@ -376,6 +419,9 @@ function openQV(productId) {
     document.getElementById('qv-name').textContent = p.name;
     document.getElementById('qv-price').innerHTML = `${p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : ''}${Number(p.price).toLocaleString('fr-FR')} <small>CFA</small>`;
     document.getElementById('qv-desc').textContent = p.description;
+
+    paintQvRatingSummary(p.id);
+    renderReviewsSection(document.getElementById('qv-reviews'), p.id);
 
     const shareBtn = document.getElementById('qv-share-btn');
     shareBtn.className = 'btn-share';

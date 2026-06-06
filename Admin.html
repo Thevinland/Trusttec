@@ -89,6 +89,10 @@
                     onclick="showPage('categories');closeDrawer();return false;">
                     <i class="bi bi-tags me-2"></i>Catégories
                 </a>
+                <a href="#" class="nav-link-item" id="drawer-nav-reviews"
+                    onclick="showPage('reviews');closeDrawer();return false;">
+                    <i class="bi bi-star-half me-2"></i>Avis clients
+                </a>
                 <a href="#" class="nav-link-item" id="drawer-nav-chat"
                     onclick="showPage('chat');closeDrawer();return false;">
                     <i class="bi bi-chat-dots me-2"></i>Chat Client
@@ -132,6 +136,10 @@
                 <a href="#" class="nav-link-item" id="nav-categories"
                     onclick="showPage('categories');return false;">
                     <i class="bi bi-tags me-2"></i>Catégories
+                </a>
+                <a href="#" class="nav-link-item" id="nav-reviews"
+                    onclick="showPage('reviews');return false;">
+                    <i class="bi bi-star-half me-2"></i>Avis clients
                 </a>
                 <a href="#" class="nav-link-item" id="nav-chat"
                     onclick="showPage('chat');return false;">
@@ -234,6 +242,94 @@
                                     <tbody id="categories-table-body">
                                         <tr>
                                             <td colspan="5" class="text-center py-4 text-muted">
+                                                <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE AVIS CLIENTS -->
+                <div class="page" id="page-reviews">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0"><i class="bi bi-star-half me-2"></i>Avis clients</h4>
+                            <small class="text-muted" id="review-count"></small>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="review-filter-stars" style="width:auto;">
+                                <option value="all">Toutes notes</option>
+                                <option value="5">5 étoiles</option>
+                                <option value="4">4 étoiles</option>
+                                <option value="3">3 étoiles</option>
+                                <option value="2">2 étoiles</option>
+                                <option value="1">1 étoile</option>
+                            </select>
+                            <button class="btn btn-outline-secondary btn-sm" id="refresh-reviews-btn">
+                                <i class="bi bi-arrow-repeat me-1"></i>Actualiser
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI rapides -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <small class="text-muted text-uppercase fw-semibold" style="font-size:.7rem;">Note moyenne</small>
+                                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                                        <div class="fs-3 fw-bold" id="rv-stat-avg">—</div>
+                                        <small class="text-warning"><i class="bi bi-star-fill"></i></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <small class="text-muted text-uppercase fw-semibold" style="font-size:.7rem;">Total avis</small>
+                                    <div class="fs-3 fw-bold mt-1" id="rv-stat-total">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <small class="text-muted text-uppercase fw-semibold" style="font-size:.7rem;">5 étoiles</small>
+                                    <div class="fs-3 fw-bold text-success mt-1" id="rv-stat-5">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <small class="text-muted text-uppercase fw-semibold" style="font-size:.7rem;">1 étoile</small>
+                                    <div class="fs-3 fw-bold text-danger mt-1" id="rv-stat-1">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="font-size:0.9rem;">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-3" style="width:140px;">Date</th>
+                                            <th>Produit</th>
+                                            <th>Client</th>
+                                            <th style="width:110px;">Note</th>
+                                            <th>Avis</th>
+                                            <th class="text-end pe-3" style="width:90px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reviews-table-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted">
                                                 <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
                                             </td>
                                         </tr>

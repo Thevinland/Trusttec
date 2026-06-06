@@ -2530,3 +2530,318 @@ body.page-admin {
         font-size: 40px;
     }
 }
+
+/* ========================================================
+   AVIS / NOTES PRODUIT
+   ======================================================== */
+.rv-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    color: #f5a623;
+    line-height: 1;
+    vertical-align: middle;
+}
+.rv-stars-sm { font-size: 0.85rem; }
+.rv-stars-md { font-size: 1.15rem; }
+.rv-stars-lg { font-size: 1.5rem; }
+
+/* Chip sur la card catalogue */
+.rv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: #555;
+    margin-bottom: 0.25rem;
+    line-height: 1;
+}
+.rv-chip-avg { font-weight: 700; color: #f5a623; }
+.rv-chip-count { color: #888; font-size: 0.68rem; }
+.rv-chip-empty { color: #aaa; }
+.rv-chip-empty i { color: #d0d0d0; }
+
+/* Section complete (Vue rapide) */
+.rv-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid #edf0f5;
+    padding-top: 1.25rem;
+}
+.rv-summary-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.85rem 0;
+}
+.rv-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1.5rem;
+    align-items: center;
+    background: #f8faff;
+    border: 1px solid #e8edf6;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.9rem;
+}
+@media (max-width: 575.98px) {
+    .rv-summary-grid { grid-template-columns: 1fr; }
+}
+.rv-summary-avg {
+    text-align: center;
+}
+.rv-avg-number {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.rv-avg-label {
+    font-size: 0.78rem;
+    color: #777;
+    margin-top: 4px;
+}
+.rv-bars { display: flex; flex-direction: column; gap: 4px; }
+.rv-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+}
+.rv-bar-label {
+    flex: 0 0 38px;
+    color: #555;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+.rv-bar-label i { color: #f5a623; font-size: 0.7rem; }
+.rv-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 60px;
+}
+.rv-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f5a623, #ffc107);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+.rv-bar-count {
+    flex: 0 0 28px;
+    text-align: right;
+    color: #888;
+    font-size: 0.72rem;
+}
+.rv-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.9rem;
+}
+.rv-user-hint i { color: #0d6efd; }
+
+/* Toolbar (filtres + tri) */
+.rv-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+}
+.rv-toolbar-label {
+    font-size: 0.75rem;
+    color: #777;
+    font-weight: 600;
+}
+.rv-filter-group {
+    display: inline-flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.rv-filter-btn {
+    border: 1px solid #e0e3e8;
+    background: #fff;
+    border-radius: 16px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.rv-filter-btn i { color: #f5a623; font-size: 0.7rem; }
+.rv-filter-btn:hover { border-color: #0d6efd; color: #0d6efd; }
+.rv-filter-btn.active {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+.rv-filter-btn.active i { color: #fff; }
+.rv-sort { min-width: 180px; }
+.rv-sort .form-select { font-size: 0.8rem; }
+
+/* Liste des avis */
+.rv-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.rv-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rv-item:hover {
+    border-color: #d6deeb;
+    box-shadow: 0 2px 6px rgba(13, 27, 75, 0.04);
+}
+.rv-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+.rv-body { flex: 1; min-width: 0; }
+.rv-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+.rv-author { font-size: 0.9rem; color: #1a1a1a; }
+.rv-date { font-size: 0.72rem; color: #999; }
+.rv-edited { font-style: italic; }
+.rv-rating { margin: 2px 0 4px; }
+.rv-title {
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 0.92rem;
+    margin: 4px 0;
+}
+.rv-comment {
+    color: #444;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin: 4px 0 0 0;
+    word-wrap: break-word;
+    white-space: normal;
+}
+.rv-empty {
+    text-align: center;
+    padding: 1.5rem;
+    color: #888;
+    background: #fafbff;
+    border-radius: 10px;
+    border: 1px dashed #e0e3e8;
+}
+.rv-empty i { font-size: 1.8rem; color: #c5cad4; display: block; margin-bottom: 4px; }
+.rv-empty p { margin: 0; font-size: 0.88rem; }
+.rv-count-footer {
+    text-align: center;
+    color: #999;
+    font-size: 0.78rem;
+    padding: 0.5rem 0 0;
+}
+
+/* Etoiles interactives du formulaire */
+.rv-stars-input {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+}
+.rv-star-btn {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #d0d0d0;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: color 0.1s, transform 0.1s;
+}
+.rv-star-btn:hover { transform: scale(1.1); }
+.rv-star-btn.active { color: #f5a623; }
+.rv-stars-label {
+    margin-left: 8px;
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 70px;
+}
+
+/* Affichage compact dans la card (slot reserve) */
+.product-card .rv-card-slot {
+    min-height: 22px;
+    margin-bottom: 0.25rem;
+}
+
+/* Position du bouton "ecrire un avis" dans la Vue rapide */
+.qv-details .rv-write-btn { font-size: 0.82rem; }
+
+/* Note compacte sous le prix dans la Vue rapide */
+.qv-rating-summary {
+    margin-top: 6px;
+    margin-bottom: 4px;
+    min-height: 22px;
+    font-size: 0.85rem;
+}
+.qv-rating-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.qv-rating-avg {
+    font-weight: 800;
+    color: #1a1a1a;
+    font-size: 0.95rem;
+}
+.qv-rating-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.15s;
+}
+.qv-rating-link:hover {
+    border-bottom-color: #0d6efd;
+    color: #0a58ca;
+}
+.qv-no-rating {
+    color: #999;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.qv-no-rating i { color: #d0d0d0; }
+.qv-rating-skeleton {
+    display: inline-block;
+    width: 120px;
+    height: 18px;
+    background: linear-gradient(90deg, #eef1f6 25%, #f7f9fc 50%, #eef1f6 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: rv-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes rv-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
