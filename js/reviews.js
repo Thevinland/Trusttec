@@ -80,6 +80,7 @@ function bindInteractiveStars(container) {
         b.classList.toggle('active', v <= val);
         const i = b.querySelector('i');
         i.className = v <= val ? 'bi bi-star-fill' : 'bi bi-star';
+        b.setAttribute('aria-checked', String(v === val));
       });
       label.textContent = val ? ['', 'Médiocre', 'Passable', 'Bien', 'Très bien', 'Excellent'][val] : '';
     };
@@ -95,6 +96,57 @@ function bindInteractiveStars(container) {
       btn.addEventListener('click', () => update(Number(btn.dataset.value)));
     });
     group.addEventListener('mouseleave', () => update(Number(group.dataset.value) || 0));
+
+    // Group : role radiogroup accessible au clavier
+    group.setAttribute('role', 'radiogroup');
+    group.setAttribute('aria-label', 'Note sur 5');
+    group.querySelectorAll('.rv-star-btn').forEach(b => {
+      b.setAttribute('role', 'radio');
+      b.setAttribute('tabindex', b === group.querySelector('.rv-star-btn') ? '0' : '-1');
+    });
+    // Roving tabindex : au focus du groupe, on place le focus sur l'etoile correspondant
+    // a la valeur courante (ou la derniere si pas de valeur).
+    const focusBtn = (v) => {
+      const target = group.querySelector(`.rv-star-btn[data-value="${v}"]`)
+        || group.querySelector('.rv-star-btn');
+      group.querySelectorAll('.rv-star-btn').forEach(b => b.setAttribute('tabindex', '-1'));
+      target.setAttribute('tabindex', '0');
+      target.focus();
+    };
+    group.addEventListener('keydown', (e) => {
+      const current = Number(group.dataset.value) || 0;
+      // Chiffres 1..5 = note directe
+      if (e.key >= '1' && e.key <= '5') {
+        e.preventDefault();
+        update(Number(e.key));
+        const target = group.querySelector(`.rv-star-btn[data-value="${e.key}"]`);
+        if (target) {
+          group.querySelectorAll('.rv-star-btn').forEach(b => b.setAttribute('tabindex', '-1'));
+          target.setAttribute('tabindex', '0');
+        }
+        return;
+      }
+      // Fleches gauche/droite pour ajuster
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const next = Math.min(5, (current || 0) + 1);
+        update(next); focusBtn(next);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = Math.max(1, (current || 1) - 1);
+        update(next); focusBtn(next);
+      } else if (e.key === 'Home') {
+        e.preventDefault(); update(1); focusBtn(1);
+      } else if (e.key === 'End') {
+        e.preventDefault(); update(5); focusBtn(5);
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        const active = document.activeElement;
+        if (active && active.classList.contains('rv-star-btn')) {
+          update(Number(active.dataset.value));
+        }
+      }
+    });
   });
 }
 
