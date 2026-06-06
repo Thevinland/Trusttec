@@ -622,23 +622,13 @@ function initColorSwatcher(colors, defaultImage) {
 
     container.innerHTML = colors.map((c, i) => `
         <button
-            class="color-swatch"
+            class="color-swatch${i === 0 ? ' selected' : ''}"
             data-hex="${esc(c.hex)}"
             data-name="${esc(c.name)}"
             data-image="${esc(c.image_url || '')}"
             title="${esc(c.name)}"
             aria-label="Couleur ${esc(c.name)}"
-            style="
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                background: ${esc(c.hex)};
-                border: 2px solid transparent;
-                cursor: pointer;
-                outline: none;
-                transition: transform .15s, box-shadow .15s;
-                ${i === 0 ? `box-shadow: 0 0 0 2px white, 0 0 0 4px ${esc(c.hex)};` : ''}
-            ">
+            style="background: ${esc(c.hex)};">
         </button>
     `).join('');
 
@@ -652,12 +642,8 @@ function initColorSwatcher(colors, defaultImage) {
             this.style.transform = '';
         });
         btn.addEventListener('click', function () {
-            container.querySelectorAll('.color-swatch').forEach(s => {
-                s.style.boxShadow = '';
-                s.style.border    = '2px solid transparent';
-            });
-
-            this.style.boxShadow = `0 0 0 2px white, 0 0 0 4px ${this.dataset.hex}`;
+            container.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
 
             if (nameEl) nameEl.textContent = this.dataset.name;
 

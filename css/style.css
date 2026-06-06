@@ -1476,6 +1476,28 @@ body.page-produits {
     font-weight: 700;
 }
 
+/* Pastilles de couleur (Vue rapide) — même logique que les cards */
+#color-swatches .color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .18);
+    cursor: pointer;
+    outline: none;
+    transition: transform .15s, box-shadow .15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+#color-swatches .color-swatch:hover {
+    transform: scale(1.15);
+}
+
+#color-swatches .color-swatch.selected {
+    box-shadow: 0 0 0 2.5px #0d6efd;
+}
+
 .specs-grid {
     width: 100%;
     border-radius: 12px;
