@@ -141,7 +141,7 @@ export function showPasswordResetForm() {
           <div class="modal-body">
             <div id="reset-pwd-error" class="alert alert-danger d-none py-2 small"></div>
             <div class="mb-3">
-              <input type="password" id="new-password-input" class="form-control" placeholder="Nouveau mot de passe (6+ caractères)" autocomplete="new-password">
+              <input type="password" id="new-password-input" class="form-control" placeholder="Nouveau mot de passe (8+ caractères)" autocomplete="new-password">
             </div>
             <div class="mb-3">
               <input type="password" id="confirm-password-input" class="form-control" placeholder="Confirmer le mot de passe" autocomplete="new-password">
@@ -160,7 +160,7 @@ export function showPasswordResetForm() {
     const confirm = document.getElementById('confirm-password-input').value;
     const errEl = document.getElementById('reset-pwd-error');
     errEl.classList.add('d-none');
-    if (!pwd || pwd.length < 6) { errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; errEl.classList.remove('d-none'); return; }
+    if (!pwd || pwd.length < 8) { errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.'; errEl.classList.remove('d-none'); return; }
     if (pwd !== confirm) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.remove('d-none'); return; }
     const { error } = await supabase.auth.updateUser({ password: pwd });
     if (error) { errEl.textContent = error.message; errEl.classList.remove('d-none'); return; }
@@ -247,7 +247,7 @@ function showPasswordChangeForm() {
               <input type="password" id="pwd-current-input" class="form-control" placeholder="Mot de passe actuel" autocomplete="current-password">
             </div>
             <div class="mb-3">
-              <input type="password" id="pwd-new-input" class="form-control" placeholder="Nouveau mot de passe (6+ caractères)" autocomplete="new-password">
+              <input type="password" id="pwd-new-input" class="form-control" placeholder="Nouveau mot de passe (8+ caractères)" autocomplete="new-password">
             </div>
             <div class="mb-3">
               <input type="password" id="pwd-confirm-input" class="form-control" placeholder="Confirmer le nouveau mot de passe" autocomplete="new-password">
@@ -269,7 +269,7 @@ function showPasswordChangeForm() {
     const errEl = document.getElementById('pwd-change-error');
     errEl.classList.add('d-none');
     if (!current || !pwd || !confirm) { errEl.textContent = 'Veuillez remplir tous les champs.'; errEl.classList.remove('d-none'); return; }
-    if (pwd.length < 6) { errEl.textContent = 'Le nouveau mot de passe doit faire au moins 6 caractères.'; errEl.classList.remove('d-none'); return; }
+    if (pwd.length < 8) { errEl.textContent = 'Le nouveau mot de passe doit faire au moins 8 caractères.'; errEl.classList.remove('d-none'); return; }
     if (pwd !== confirm) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.remove('d-none'); return; }
 
     try {

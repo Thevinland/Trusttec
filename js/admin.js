@@ -163,8 +163,8 @@ async function handleChangePassword() {
         return;
     }
 
-    if (newPassword.length < 6) {
-        errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.';
+    if (newPassword.length < 8) {
+        errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.';
         errEl.classList.remove('d-none');
         return;
     }
@@ -1907,8 +1907,8 @@ document.getElementById('save-admin-btn')?.addEventListener('click', async () =>
         return;
     }
 
-    if (password.length < 6) {
-        errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.';
+    if (password.length < 8) {
+        errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.';
         errEl.classList.remove('d-none');
         return;
     }

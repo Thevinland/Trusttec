@@ -301,8 +301,8 @@ async function changePassword() {
     errEl.classList.remove('d-none');
     return;
   }
-  if (pwd.length < 6) {
-    errEl.textContent = 'Le nouveau mot de passe doit faire au moins 6 caractères.';
+  if (pwd.length < 8) {
+    errEl.textContent = 'Le nouveau mot de passe doit faire au moins 8 caractères.';
     errEl.classList.remove('d-none');
     return;
   }
