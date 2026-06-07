@@ -9,6 +9,9 @@ node_modules/
 # Supabase temp files
 supabase/.temp/
 
+# Logs
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
