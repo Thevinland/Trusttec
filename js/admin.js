@@ -1656,17 +1656,42 @@ async function loadReviewsTable() {
             ? `<span class="badge bg-danger" title="${r.report_count} signalement(s) : ${escapeHtml((r.report_reasons || []).join(', '))}">
                 <i class="bi bi-flag-fill"></i> ${r.report_count}
               </span>` : '';
+        const hasReply = !!r.admin_reply;
+        const replyBadge = hasReply
+            ? `<span class="badge bg-primary" title="Répondu par ${escapeHtml(r.admin_reply_by_name || 'admin')} le ${new Date(r.admin_reply_at).toLocaleDateString('fr-FR')}">
+                <i class="bi bi-patch-check-fill"></i> Répondu
+              </span>` : '';
+        const replyBtnClass = hasReply ? 'btn-outline-primary' : 'btn-primary';
+        const replyBtnTitle = hasReply ? 'Modifier la réponse' : 'Répondre à cet avis';
+        const replyBtnIcon = hasReply ? 'bi-pencil-square' : 'bi-reply';
+        // Stocker le contexte de l'avis pour le modal
+        const ctx = encodeURIComponent(JSON.stringify({
+            id: r.id,
+            product_name: r.product_name,
+            product_id: r.product_id,
+            user_name: r.user_name,
+            user_email: r.user_email,
+            rating: r.rating,
+            title: r.title,
+            comment: r.comment,
+            admin_reply: r.admin_reply,
+            admin_reply_at: r.admin_reply_at,
+            admin_reply_by_name: r.admin_reply_by_name,
+        }));
         return `<tr${r.report_count > 0 ? ' class="table-warning"' : ''}>
             <td class="ps-3 text-nowrap small text-muted">${date}</td>
             <td><span class="fw-semibold">${escapeHtml(product)}</span><br><code class="small text-muted">${escapeHtml(r.product_id)}</code></td>
             <td>${escapeHtml(client)}</td>
             <td><span class="text-warning fw-bold" style="letter-spacing:1px;">${stars}</span><br><small class="text-muted">${r.rating}/5</small></td>
-            <td class="small">${preview}</td>
+            <td class="small">${preview}${replyBadge ? '<br>' + replyBadge : ''}</td>
             <td class="text-center">
                 <span class="badge bg-light text-secondary" title="Votes utiles"><i class="bi bi-hand-thumbs-up"></i> ${r.helpful_count || 0}</span>
                 ${reportBadge}
             </td>
-            <td class="text-end pe-3">
+            <td class="text-end pe-3 text-nowrap">
+                <button class="btn btn-sm ${replyBtnClass} btn-reply-review me-1" data-ctx="${ctx}" title="${replyBtnTitle}">
+                    <i class="bi ${replyBtnIcon}"></i>
+                </button>
                 <button class="btn btn-sm btn-outline-danger btn-delete-review" data-id="${r.id}" title="Supprimer cet avis">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -1677,10 +1702,132 @@ async function loadReviewsTable() {
     document.querySelectorAll('.btn-delete-review').forEach(btn => {
         btn.addEventListener('click', () => openDelete('review', btn.dataset.id, 'cet avis'));
     });
+    document.querySelectorAll('.btn-reply-review').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const ctx = JSON.parse(decodeURIComponent(btn.dataset.ctx));
+            openAdminReplyModal(ctx);
+        });
+    });
 }
 
 document.getElementById('review-filter-stars')?.addEventListener('change', loadReviewsTable);
 document.getElementById('refresh-reviews-btn')?.addEventListener('click', loadReviewsTable);
+
+// =============================================================
+// REPONSE OFFICIELLE AUX AVIS
+// =============================================================
+const adminReplyModal = new bootstrap.Modal(document.getElementById('adminReplyModal'));
+let adminReplyContext = null;
+
+function openAdminReplyModal(ctx) {
+    adminReplyContext = ctx;
+    const errEl = document.getElementById('admin-reply-error');
+    errEl.classList.add('d-none');
+
+    // Construit le bloc de contexte (avis original)
+    const stars = '★'.repeat(ctx.rating) + '☆'.repeat(5 - ctx.rating);
+    const ctxEl = document.getElementById('admin-reply-context');
+    ctxEl.innerHTML = `
+        <div class="d-flex align-items-start gap-2 mb-2">
+            <div class="rv-ctx-avatar">${escapeHtml((ctx.user_name || ctx.user_email || '?').charAt(0).toUpperCase())}</div>
+            <div class="flex-grow-1">
+                <div class="fw-semibold small">${escapeHtml(ctx.user_name || ctx.user_email || 'Client')}</div>
+                <div class="text-muted" style="font-size:11px;">
+                    <i class="bi bi-box-seam me-1"></i>${escapeHtml(ctx.product_name || ctx.product_id)}
+                </div>
+            </div>
+            <div class="text-warning fw-bold" style="letter-spacing:1px;font-size:14px;" title="${ctx.rating}/5">${stars}</div>
+        </div>
+        ${ctx.title ? `<div class="fw-semibold small">${escapeHtml(ctx.title)}</div>` : ''}
+        ${ctx.comment ? `<p class="small mb-0 text-secondary" style="white-space:pre-wrap;">${escapeHtml(ctx.comment)}</p>` : '<em class="small text-muted">Aucun commentaire</em>'}
+    `;
+
+    // Prefill si déjà une réponse
+    const textarea = document.getElementById('admin-reply-text');
+    textarea.value = ctx.admin_reply || '';
+    updateAdminReplyCounter();
+
+    // Afficher / cacher le bouton "Supprimer"
+    const deleteBtn = document.getElementById('admin-reply-delete');
+    deleteBtn.classList.toggle('d-none', !ctx.admin_reply);
+
+    // Texte du bouton "Save"
+    const saveBtn = document.getElementById('admin-reply-save');
+    saveBtn.innerHTML = ctx.admin_reply
+        ? '<i class="bi bi-check2 me-1"></i>Mettre à jour'
+        : '<i class="bi bi-check2 me-1"></i>Publier la réponse';
+
+    adminReplyModal.show();
+    setTimeout(() => textarea.focus(), 300);
+}
+
+function updateAdminReplyCounter() {
+    const ta = document.getElementById('admin-reply-text');
+    document.getElementById('admin-reply-counter').textContent = `${ta.value.length} / 2000`;
+}
+
+document.getElementById('admin-reply-text')?.addEventListener('input', updateAdminReplyCounter);
+
+document.getElementById('admin-reply-save')?.addEventListener('click', async () => {
+    if (!adminReplyContext) return;
+    const reply = document.getElementById('admin-reply-text').value.trim();
+    const errEl = document.getElementById('admin-reply-error');
+    errEl.classList.add('d-none');
+
+    if (reply.length > 2000) {
+        errEl.textContent = 'La réponse ne peut pas dépasser 2000 caractères.';
+        errEl.classList.remove('d-none');
+        return;
+    }
+
+    const btn = document.getElementById('admin-reply-save');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement…';
+
+    try {
+        const { error } = await supabase.rpc('set_admin_reply', {
+            p_review_id: adminReplyContext.id,
+            p_reply: reply || null
+        });
+        if (error) throw error;
+        showAlert(reply ? 'Réponse publiée avec succès.' : 'Réponse supprimée.', 'success');
+        adminReplyModal.hide();
+        await loadReviewsTable();
+    } catch (e) {
+        errEl.textContent = e.message || 'Erreur lors de l\'enregistrement.';
+        errEl.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = adminReplyContext?.admin_reply
+            ? '<i class="bi bi-check2 me-1"></i>Mettre à jour'
+            : '<i class="bi bi-check2 me-1"></i>Publier la réponse';
+    }
+});
+
+document.getElementById('admin-reply-delete')?.addEventListener('click', async () => {
+    if (!adminReplyContext) return;
+    if (!confirm('Supprimer définitivement la réponse officielle ?')) return;
+
+    const btn = document.getElementById('admin-reply-delete');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Suppression…';
+
+    try {
+        const { error } = await supabase.rpc('set_admin_reply', {
+            p_review_id: adminReplyContext.id,
+            p_reply: null
+        });
+        if (error) throw error;
+        showAlert('Réponse supprimée.', 'warning');
+        adminReplyModal.hide();
+        await loadReviewsTable();
+    } catch (e) {
+        showAlert('Erreur : ' + (e.message || 'inconnue'), 'danger');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-trash me-1"></i>Supprimer la réponse';
+    }
+});
 
 async function loadLogs() {
     const tbody = document.getElementById('logs-table-body');

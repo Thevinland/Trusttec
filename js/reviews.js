@@ -206,7 +206,7 @@ export function invalidateStats(productId) {
 export async function getProductReviews(productId, { limit = REVIEWS_PAGE_SIZE, offset = 0, order = 'recent' } = {}) {
   let q = supabase
     .from('product_reviews')
-    .select('id, product_id, user_id, rating, title, comment, helpful_count, created_at, updated_at, profiles!product_reviews_user_id_fkey(full_name)')
+    .select('id, product_id, user_id, rating, title, comment, helpful_count, created_at, updated_at, admin_reply, admin_reply_at, reviewer:reviewer_names!product_reviews_user_id_fkey(full_name), admin:admin_replier_names!product_reviews_admin_reply_by_fkey(full_name)')
     .eq('product_id', productId)
     .range(offset, offset + limit - 1);
   if (order === 'recent') q = q.order('created_at', { ascending: false });
@@ -265,13 +265,14 @@ function renderRatingBars(stats) {
 }
 
 function renderReviewItem(r, { voted = false, canVote = true } = {}) {
-  const name = r.profiles?.full_name || 'Utilisateur';
+  const name = r.reviewer?.full_name || 'Utilisateur';
   const initials = getInitials(name);
   const color = avatarColorFor(r.user_id);
   const date = formatDate(r.created_at);
   const edited = r.updated_at && r.updated_at !== r.created_at
     ? `<span class="rv-edited">(modifié le ${formatDate(r.updated_at)})</span>` : '';
   const helpfulDisabled = !canVote;
+  const adminReplyHtml = r.admin_reply ? renderAdminReply(r) : '';
   return `
     <div class="rv-item" data-review-id="${esc(r.id)}">
       <div class="rv-avatar" style="background:${color}">${esc(initials)}</div>
@@ -283,6 +284,7 @@ function renderReviewItem(r, { voted = false, canVote = true } = {}) {
         <div class="rv-rating">${renderStars(r.rating, 'sm')}</div>
         ${r.title ? `<div class="rv-title">${esc(r.title)}</div>` : ''}
         ${r.comment ? `<p class="rv-comment">${esc(r.comment).replace(/\n/g, '<br>')}</p>` : ''}
+        ${adminReplyHtml}
         <div class="rv-actions-row">
           <button class="rv-helpful-btn${voted ? ' voted' : ''}${helpfulDisabled ? ' disabled' : ''}"
                   data-id="${esc(r.id)}" type="button"
@@ -310,6 +312,20 @@ function renderReviewItem(r, { voted = false, canVote = true } = {}) {
           </div>
         </div>
       </div>
+    </div>`;
+}
+
+function renderAdminReply(r) {
+  const adminName = r.admin?.full_name || 'Trusttec';
+  const replyDate = formatDate(r.admin_reply_at);
+  return `
+    <div class="rv-admin-reply">
+      <div class="rv-admin-reply-head">
+        <span class="rv-admin-reply-badge"><i class="bi bi-patch-check-fill me-1"></i>Réponse officielle</span>
+        <span class="rv-admin-reply-author">${esc(adminName)}</span>
+        <span class="rv-admin-reply-date">${replyDate}</span>
+      </div>
+      <p class="rv-admin-reply-text">${esc(r.admin_reply).replace(/\n/g, '<br>')}</p>
     </div>`;
 }
 
@@ -458,8 +474,12 @@ function paintList(container, reviews, stats, votedSet, productId) {
     return;
   }
   const isAuthed = !!getUser();
+  const total = stats?.review_count || reviews.length;
+  const footer = reviews.length === total
+    ? `${total} ${total > 1 ? 'avis' : 'avis'}`
+    : `Affichage de ${reviews.length} sur ${total} avis`;
   listEl.innerHTML = reviews.map(r => renderReviewItem(r, { voted: votedSet.has(r.id), canVote: isAuthed })).join('') +
-    `<div class="rv-count-footer">${reviews.length} avis affiché(s) sur ${stats?.review_count || reviews.length}</div>`;
+    `<div class="rv-count-footer">${footer}</div>`;
   bindItemEvents(listEl, productId);
 }
 

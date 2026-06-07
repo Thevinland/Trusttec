@@ -949,6 +949,42 @@
         </div>
     </div>
 
+    <!-- ===================== MODAL REPONSE ADMIN ===================== -->
+    <div class="modal fade" id="adminReplyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius:16px;border:none;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-patch-check-fill text-primary me-2"></i>Réponse officielle
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <div id="admin-reply-context" class="rv-admin-reply-context p-3 mb-3"></div>
+                    <div id="admin-reply-error" class="alert alert-danger d-none small"></div>
+                    <label class="form-label fw-semibold small text-secondary">
+                        Votre réponse <span class="text-muted fw-normal">(visible publiquement sous l'avis)</span>
+                    </label>
+                    <textarea class="form-control" id="admin-reply-text" rows="5" maxlength="2000"
+                              placeholder="Rédigez une réponse professionnelle et utile au client…"></textarea>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small class="text-muted"><i class="bi bi-info-circle me-1"></i>La réponse sera marquée "Réponse officielle" et ne pourra pas être modifiée par le client.</small>
+                        <small class="text-muted" id="admin-reply-counter">0 / 2000</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-danger me-auto d-none" id="admin-reply-delete">
+                        <i class="bi bi-trash me-1"></i>Supprimer la réponse
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary fw-bold" id="admin-reply-save">
+                        <i class="bi bi-check2 me-1"></i>Publier la réponse
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
 

@@ -2914,3 +2914,91 @@ body.page-admin {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* ===========================
+   REPONSE OFFICIELLE (admin)
+   =========================== */
+.rv-admin-reply {
+    margin: 12px 0 8px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #f0f6ff 0%, #e7f0fe 100%);
+    border-left: 3px solid #0d6efd;
+    border-radius: 8px;
+    position: relative;
+}
+.rv-admin-reply::before {
+    content: "";
+    position: absolute;
+    left: 22px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-left: 3px solid #0d6efd;
+    border-top: 3px solid #0d6efd;
+    border-top-left-radius: 4px;
+    transform: rotate(45deg);
+    display: none; /* simplifie - pas de queue de bulle */
+}
+.rv-admin-reply-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+}
+.rv-admin-reply-badge {
+    background: #0d6efd;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+.rv-admin-reply-badge i { font-size: 0.78rem; }
+.rv-admin-reply-author {
+    font-weight: 700;
+    color: #0d6efd;
+    font-size: 0.82rem;
+}
+.rv-admin-reply-date {
+    color: #6c757d;
+    font-size: 0.72rem;
+    margin-left: auto;
+}
+.rv-admin-reply-text {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Contexte de l'avis dans le modal admin */
+.rv-admin-reply-context {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+}
+.rv-ctx-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #6c757d;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+
+/* Bouton "Reagir" dans le tableau admin */
+.btn-reply-review { min-width: 36px; }
