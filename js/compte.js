@@ -49,6 +49,24 @@ function populateProfile() {
   roleBadge.textContent = r.label;
   roleBadge.className = `badge ${r.class}`;
 
+  const identities = u?.identities || [];
+  const hasEmailIdentity = identities.some(id => id.provider === 'email');
+  const pwdCard = document.getElementById('pwd-card');
+  const oauthBadge = document.getElementById('account-oauth-badge');
+  if (!hasEmailIdentity && identities.length > 0) {
+    const provider = identities.find(id => id.provider !== 'email')?.provider || 'social';
+    const label = provider === 'google' ? 'Google' : provider === 'facebook' ? 'Facebook' : provider.charAt(0).toUpperCase() + provider.slice(1);
+    if (oauthBadge) {
+      oauthBadge.textContent = `Connecté avec ${label}`;
+      oauthBadge.className = 'badge bg-primary bg-gradient mt-1';
+      oauthBadge.style.display = 'inline-block';
+    }
+    if (pwdCard) pwdCard.style.display = 'none';
+  } else {
+    if (oauthBadge) oauthBadge.style.display = 'none';
+    if (pwdCard) pwdCard.style.display = '';
+  }
+
   const initial = p?.full_name?.charAt(0).toUpperCase() || u?.email?.charAt(0).toUpperCase() || '?';
   const initialEl = document.getElementById('account-avatar-initial');
   const displayEl = document.getElementById('account-avatar-display');
