@@ -368,6 +368,20 @@ export function buildAuthModal() {
             <div class="tab-content" id="authTabContent">
               <div class="tab-pane fade show active" id="login-panel" role="tabpanel">
                 <div id="login-error" class="alert alert-danger d-none py-2 small"></div>
+                <div class="d-flex gap-2 mb-3">
+                  <button id="google-login-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:10px 4px;">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.163-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                    <span class="small">Google</span>
+                  </button>
+                  <button id="facebook-login-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:10px 4px;color:#1877F2;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span class="small">Facebook</span>
+                  </button>
+                </div>
+                <div class="position-relative mb-3">
+                  <hr class="text-muted">
+                  <span class="position-absolute top-50 start-50 translate-middle px-2 bg-white text-muted small">ou</span>
+                </div>
                 <div class="mb-3">
                   <input type="email" id="login-email" class="form-control" placeholder="Votre email" autocomplete="email">
                 </div>
@@ -380,23 +394,23 @@ export function buildAuthModal() {
                 <button id="login-btn" class="btn btn-primary w-100 fw-bold">
                   <i class="bi bi-box-arrow-in-right me-1"></i> Se connecter
                 </button>
-                <div class="position-relative my-3">
-                  <hr class="text-muted">
-                  <span class="position-absolute top-50 start-50 translate-middle px-2 bg-white text-muted small">ou</span>
-                </div>
-                <div class="d-flex gap-2">
-                  <button id="google-login-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:8px 4px;">
+              </div>
+              <div class="tab-pane fade" id="signup-panel" role="tabpanel">
+                <div id="signup-error" class="alert alert-danger d-none py-2 small"></div>
+                <div class="d-flex gap-2 mb-3">
+                  <button id="google-signup-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:10px 4px;">
                     <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.163-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
                     <span class="small">Google</span>
                   </button>
-                  <button id="facebook-login-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:8px 4px;color:#1877F2;">
+                  <button id="facebook-signup-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:10px 4px;color:#1877F2;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                     <span class="small">Facebook</span>
                   </button>
                 </div>
-              </div>
-              <div class="tab-pane fade" id="signup-panel" role="tabpanel">
-                <div id="signup-error" class="alert alert-danger d-none py-2 small"></div>
+                <div class="position-relative mb-3">
+                  <hr class="text-muted">
+                  <span class="position-absolute top-50 start-50 translate-middle px-2 bg-white text-muted small">ou</span>
+                </div>
                 <div class="mb-3">
                   <input type="text" id="signup-nom" class="form-control" placeholder="Nom" autocomplete="family-name">
                 </div>
@@ -420,20 +434,6 @@ export function buildAuthModal() {
                 <button id="signup-btn" class="btn btn-success w-100 fw-bold">
                   <i class="bi bi-person-plus me-1"></i> Créer mon compte
                 </button>
-                <div class="position-relative my-3">
-                  <hr class="text-muted">
-                  <span class="position-absolute top-50 start-50 translate-middle px-2 bg-white text-muted small">ou</span>
-                </div>
-                <div class="d-flex gap-2">
-                  <button id="google-signup-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:8px 4px;">
-                    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.163-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-                    <span class="small">Google</span>
-                  </button>
-                  <button id="facebook-signup-btn" class="btn btn-light border flex-fill fw-bold d-flex align-items-center justify-content-center gap-1" style="border-radius:8px;padding:8px 4px;color:#1877F2;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    <span class="small">Facebook</span>
-                  </button>
-                </div>
                 <p class="text-muted small text-center mt-2 mb-0">
                   <i class="bi bi-info-circle"></i> Un email de confirmation vous sera envoyé
                 </p>
