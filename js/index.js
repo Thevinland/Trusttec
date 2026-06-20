@@ -134,7 +134,7 @@ async function loadHomeData() {
     try {
         const [catRes, prodRes] = await Promise.all([
             supabase.from('categories').select('id, label, sort_order').order('sort_order'),
-            supabase.from('products').select('id, name, price, compare_at_price, image_url, category, created_at').eq('active', true).order('created_at', { ascending: false }).limit(4)
+            supabase.from('products').select('id, name, price, compare_at_price, image_url, category, created_at').eq('active', true).order('created_at', { ascending: false })
         ]);
 
         if (catRes.error) throw catRes.error;
