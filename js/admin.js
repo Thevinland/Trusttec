@@ -1,5 +1,6 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+import { invalidateCache } from './cache.js';
 
 const STORAGE_BUCKET = 'images';
 
@@ -399,6 +400,8 @@ document.getElementById('save-product-btn').addEventListener('click', async () =
     }
     productModal.hide();
     showAlert(`Produit "${name}" enregistré avec succès.`, 'success');
+    invalidateCache('home_data');
+    invalidateCache('products_data');
     await loadProductsTable();
 });
 
@@ -537,6 +540,8 @@ document.getElementById('save-category-btn').addEventListener('click', async () 
     if (error) { errEl.textContent = 'Erreur : ' + (error.message.includes('duplicate') ? `L'ID "${id}" existe déjà.` : error.message); errEl.classList.remove('d-none'); return; }
     categoryModal.hide();
     showAlert(`Catégorie "${label}" enregistrée avec succès.`, 'success');
+    invalidateCache('home_data');
+    invalidateCache('products_data');
     await loadCategoriesTable();
 });
 
@@ -559,6 +564,8 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
     deleteModal.hide();
     if (error) { showAlert('Erreur lors de la suppression : ' + error.message, 'danger'); return; }
     showAlert('Élément supprimé.', 'warning');
+    invalidateCache('home_data');
+    invalidateCache('products_data');
     if (reload) await reload();
 });
 

@@ -1,5 +1,6 @@
 import { initApp } from './init.js';
 import { getSupabase, showToast, getUser, onAuthChange } from './auth.js';
+import { getCache, setCache, invalidateCache } from './cache.js';
 
 document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -54,32 +55,20 @@ async function toggleHomeFavorite(productId, btn) {
 
 onAuthChange(() => loadFavorites());
 
-async function loadHomeData() {
-    try {
-        const [catRes, prodRes] = await Promise.all([
-            supabase.from('categories').select('*').order('sort_order'),
-            supabase.from('products').select('*').eq('active', true).order('created_at', { ascending: false })
-        ]);
+function renderHomeData(categories, products) {
+    const catContainer = document.getElementById('dynamic-categories');
+    document.getElementById('loading-categories').style.display = 'none';
 
-        if (catRes.error) throw catRes.error;
-        if (prodRes.error) throw prodRes.error;
+    if (!categories.length) {
+        catContainer.innerHTML = '<p class="text-muted">Aucune catégorie disponible.</p>';
+    } else {
+        let catHtml = '';
+        categories.forEach(cat => {
+            const prodInCat = products.find(p => p.category === cat.id);
+            const fallbackImg = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'200\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23e9ecef\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' fill=\'%23adb5bd\' font-family=\'sans-serif\' font-size=\'16\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3ECatégorie %3C/text%3E%3C/svg%3E';
+            const coverImage = (prodInCat && prodInCat.image_url) ? prodInCat.image_url : fallbackImg;
 
-        const categories = catRes.data || [];
-        const products = prodRes.data || [];
-
-        const catContainer = document.getElementById('dynamic-categories');
-        document.getElementById('loading-categories').style.display = 'none';
-
-        if (categories.length === 0) {
-            catContainer.innerHTML = '<p class="text-muted">Aucune catégorie disponible.</p>';
-        } else {
-            let catHtml = '';
-            categories.forEach(cat => {
-                const prodInCat = products.find(p => p.category === cat.id);
-                const fallbackImg = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'200\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23e9ecef\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' fill=\'%23adb5bd\' font-family=\'sans-serif\' font-size=\'16\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3ECatégorie %3C/text%3E%3C/svg%3E';
-                const coverImage = (prodInCat && prodInCat.image_url) ? prodInCat.image_url : fallbackImg;
-
-                catHtml += `
+            catHtml += `
                 <div>
                     <div class="card category-card text-center shadow-sm h-100 border-0">
                         <img src="${coverImage}" class="card-img-top category-image" alt="${cat.label}"
@@ -91,23 +80,23 @@ async function loadHomeData() {
                         </div>
                     </div>
                 </div>`;
-            });
-            catContainer.innerHTML = catHtml;
-        }
+        });
+        catContainer.innerHTML = catHtml;
+    }
 
-        const prodContainer = document.getElementById('dynamic-featured-products');
-        document.getElementById('loading-products').style.display = 'none';
+    const prodContainer = document.getElementById('dynamic-featured-products');
+    document.getElementById('loading-products').style.display = 'none';
 
-        if (products.length === 0) {
-            prodContainer.innerHTML = '<p class="text-muted text-center w-100">Aucun produit disponible.</p>';
-        } else {
-            const latestProducts = products.slice(0, 4);
-            let prodHtml = '';
+    if (!products.length) {
+        prodContainer.innerHTML = '<p class="text-muted text-center w-100">Aucun produit disponible.</p>';
+    } else {
+        const latestProducts = products.slice(0, 4);
+        let prodHtml = '';
 
-            latestProducts.forEach(p => {
-                const price = Number(p.price).toLocaleString('fr-FR');
-                const oldPriceHtml = p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : '';
-                prodHtml += `
+        latestProducts.forEach(p => {
+            const price = Number(p.price).toLocaleString('fr-FR');
+            const oldPriceHtml = p.compare_at_price ? `<span class="old-price">${Number(p.compare_at_price).toLocaleString('fr-FR')}</span> ` : '';
+            prodHtml += `
                 <div class="col-6 col-md-3">
                     <div class="card h-100 shadow-sm border-0 position-relative" style="transition: transform 0.2s;">
                         <button class="btn-fav-home" data-id="${p.id}" title="Ajouter aux favoris">
@@ -122,23 +111,50 @@ async function loadHomeData() {
                         </div>
                     </div>
                 </div>`;
-            });
-            prodContainer.innerHTML = prodHtml;
+        });
+        prodContainer.innerHTML = prodHtml;
 
-            prodContainer.querySelectorAll('.btn-fav-home').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleHomeFavorite(btn.dataset.id, btn);
-                });
+        prodContainer.querySelectorAll('.btn-fav-home').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleHomeFavorite(btn.dataset.id, btn);
             });
+        });
 
-            loadFavorites();
+        loadFavorites();
+    }
+}
+
+async function loadHomeData() {
+    const cached = getCache('home_data');
+    if (cached) {
+        renderHomeData(cached.categories, cached.products);
+    }
+
+    try {
+        const [catRes, prodRes] = await Promise.all([
+            supabase.from('categories').select('id, label, sort_order').order('sort_order'),
+            supabase.from('products').select('id, name, price, compare_at_price, image_url, category, created_at').eq('active', true).order('created_at', { ascending: false }).limit(4)
+        ]);
+
+        if (catRes.error) throw catRes.error;
+        if (prodRes.error) throw prodRes.error;
+
+        const categories = catRes.data || [];
+        const products = prodRes.data || [];
+
+        setCache('home_data', { categories, products });
+
+        if (!cached) {
+            renderHomeData(categories, products);
         }
 
     } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
-        document.getElementById('loading-categories').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des catégories.</div>';
-        document.getElementById('loading-products').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des produits.</div>';
+        if (!cached) {
+            document.getElementById('loading-categories').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des catégories.</div>';
+            document.getElementById('loading-products').innerHTML = '<div class="alert alert-danger">Erreur lors de la récupération des produits.</div>';
+        }
     }
 }
 

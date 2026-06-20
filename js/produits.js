@@ -1,5 +1,6 @@
 import { initApp } from './init.js';
 import { getSupabase, isAdmin, getUser, onAuthChange } from './auth.js';
+import { getCache, setCache, invalidateCache } from './cache.js';
 import {
   renderReviewsSection,
   paintCardsRating,
@@ -81,14 +82,47 @@ async function toggleFavorite(productId, btn) {
 
 const qvModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
 
+function renderProductsFromData() {
+    const loadingEl = document.getElementById('loading-state');
+    loadingEl.style.display = 'none';
+    buildFilterButtons();
+    filterAndRender();
+    loadFavorites();
+
+    const params = new URLSearchParams(window.location.search);
+    const qvId = params.get('quickview');
+    if (qvId) {
+        setTimeout(() => {
+            openQV(qvId);
+            history.replaceState(null, '', window.location.pathname);
+        }, 300);
+    }
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash && !qvId) {
+        setTimeout(() => {
+            const el = document.getElementById(hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+    }
+}
+
 async function loadProducts() {
     const loadingEl = document.getElementById('loading-state');
     const errorEl = document.getElementById('error-state');
 
+    const cached = getCache('products_data');
+    if (cached) {
+        allCategories = cached.categories;
+        allProductsData = cached.products;
+        window._allProducts = allProductsData;
+        renderProductsFromData();
+    }
+
     try {
         const [catRes, prodRes] = await Promise.all([
-            supabase.from('categories').select('*').order('sort_order'),
-            supabase.from('products').select('*').eq('active', true).order('sort_order')
+            supabase.from('categories').select('id, label, sort_order').order('sort_order'),
+            supabase.from('products').select('id, name, description, price, compare_at_price, image_url, category, colors, specs, sort_order, created_at').eq('active', true).order('sort_order')
         ]);
         if (catRes.error) throw catRes.error;
         if (prodRes.error) throw prodRes.error;
@@ -98,25 +132,10 @@ async function loadProducts() {
         allProductsData = prodRes.data || [];
         window._allProducts = allProductsData;
 
-        buildFilterButtons();
-        filterAndRender();
-        loadFavorites();
+        setCache('products_data', { categories: allCategories, products: allProductsData });
 
-        const params = new URLSearchParams(window.location.search);
-        const qvId = params.get('quickview');
-        if (qvId) {
-            setTimeout(() => {
-                openQV(qvId);
-                history.replaceState(null, '', window.location.pathname);
-            }, 300);
-        }
-
-        const hash = window.location.hash.replace('#', '');
-        if (hash && !qvId) {
-            setTimeout(() => {
-                const el = document.getElementById(hash);
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 400);
+        if (!cached) {
+            renderProductsFromData();
         }
 
     } catch (err) {
